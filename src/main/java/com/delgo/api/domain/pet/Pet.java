@@ -1,16 +1,20 @@
 package com.delgo.api.domain.pet;
 
 import com.delgo.api.domain.user.User;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.*;
-import java.security.Timestamp;
+import java.sql.Timestamp;
 
 @Data
 @NoArgsConstructor
+@AllArgsConstructor
 @Entity
+@Builder
 public class Pet {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
