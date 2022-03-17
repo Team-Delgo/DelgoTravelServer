@@ -1,7 +1,7 @@
 package com.delgo.api.controller;
 
 import com.delgo.api.domain.user.User;
-import com.delgo.api.dto.ResponseDTO;
+import com.delgo.api.dto.common.ResponseDTO;
 import com.delgo.api.dto.UserDTO;
 import com.delgo.api.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,10 +21,10 @@ public class UserController {
     public ResponseEntity<?> registerUser(@RequestBody UserDTO userDTO){
         try{
             User user = userService.create(userDTO);
-            ResponseDTO responseDTO = ResponseDTO.builder().status(200).registUser(user).build();
+            ResponseDTO responseDTO = ResponseDTO.builder().code(200).codeMsg("success").build();
             return ResponseEntity.ok().body(responseDTO);
         } catch (Exception e){
-            ResponseDTO responseDTO = ResponseDTO.builder().status(400).error(e.getMessage()).build();
+            ResponseDTO responseDTO = ResponseDTO.builder().code(400).codeMsg(e.getMessage()).build();
             return ResponseEntity.badRequest().body(responseDTO);
         }
     }

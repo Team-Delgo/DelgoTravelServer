@@ -1,6 +1,5 @@
-package com.delgo.api.dto;
+package com.delgo.api.dto.common;
 
-import com.delgo.api.domain.user.User;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -10,7 +9,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Data
 public class ResponseDTO<T> {
-    private int status;
-    private String error;
-    private User registUser;
+    private int code;
+    private String codeMsg;
+    private T t;
 }
