@@ -1,5 +1,6 @@
 package com.delgo.api.domain.user;
 
+import com.delgo.api.domain.pet.Pet;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -8,6 +9,8 @@ import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -28,11 +31,11 @@ public class User {
     @Column(nullable = false, name = "password")
     private String password;
 
-    @Column(nullable = false, name="age")
-    private int age;
-
     @Column(nullable = false, name="phone_no")
     private String phone_no;
+
+    @OneToMany(mappedBy = "user")
+    private List<Pet> pets = new ArrayList<>();
 
     @CreationTimestamp
     private Timestamp regist_dt;

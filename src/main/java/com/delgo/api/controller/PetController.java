@@ -1,26 +1,25 @@
 package com.delgo.api.controller;
 
-import com.delgo.api.domain.user.User;
+import com.delgo.api.domain.pet.Pet;
+import com.delgo.api.dto.PetDTO;
 import com.delgo.api.dto.common.ResponseDTO;
-import com.delgo.api.dto.UserDTO;
-import com.delgo.api.service.UserService;
+import com.delgo.api.service.PetService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 
-@RequestMapping("/auth")
 @Controller
-public class UserController {
+public class PetController {
     @Autowired
-    private UserService userService;
+    private PetService petService;
 
-    @PostMapping("/signup")
-    public ResponseEntity<?> registerUser(@RequestBody UserDTO userDTO){
+    @PostMapping("/{user_id}/registpet")
+    public ResponseEntity<?> registerPet(@PathVariable int user_id, @RequestBody PetDTO petDTO){
         try{
-            User user = userService.create(userDTO);
+            Pet pet = petService.create(user_id, petDTO);
             ResponseDTO responseDTO = ResponseDTO.builder().isSuccess(true).code(200).codeMsg("success").build();
             return ResponseEntity.ok().body(responseDTO);
         } catch (Exception e){

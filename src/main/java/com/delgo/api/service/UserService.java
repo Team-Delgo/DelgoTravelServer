@@ -6,6 +6,7 @@ import com.delgo.api.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,10 +17,15 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserService {
     @Autowired
     private final UserRepository userRepository;
+    @Autowired
+    private final PasswordEncoder passwordEncoder;
 
+    @Transactional
     public User create(UserDTO userDTO){
         validateDuplicate(userDTO);
-        userRepository.save(userDTO.toEntity()).getUser_id();
+        String encodedPassword = passwordEncoder.encode(userDTO.getPassword());
+        userDTO.setPassword(encodedPassword);
+        userRepository.save(userDTO.toEntity());
         return userRepository.findByEmail(userDTO.getEmail());
     }
 

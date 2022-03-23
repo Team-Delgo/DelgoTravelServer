@@ -33,6 +33,7 @@ public class Pet {
     @Column(nullable = false)
     private String breed;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private PetSize size;
 
