@@ -14,22 +14,22 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class PetDTO {
     private int pet_id;
-    private User user;
     private String name;
     private int age;
     private String breed;
     private PetSize size;
     private String birthday;
+    private User user;
 
     public Pet toEntity(){
         return Pet.builder()
                 .pet_id(pet_id)
-                .user(user)
                 .name(name)
                 .age(age)
                 .breed(breed)
                 .size(size)
                 .birthday(birthday)
+                .user(user)
                 .build();
     }
 }

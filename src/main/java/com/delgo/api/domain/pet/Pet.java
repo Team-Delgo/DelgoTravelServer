@@ -13,32 +13,33 @@ import java.sql.Timestamp;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity
 @Builder
+@Entity
 public class Pet {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name="pet_id")
     private int pet_id;
 
-    @ManyToOne
-    @JoinColumn(name="userId")
-    private User user;
-
-    @Column(nullable = false)
+    @Column(nullable = false, name="name")
     private String name;
 
-    @Column(nullable = false)
+    @Column(nullable = false, name="age")
     private int age;
 
-    @Column(nullable = false)
+    @Column(nullable = false, name="breed")
     private String breed;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(nullable = false, name="size")
     private PetSize size;
 
-    @Column(nullable = false)
+    @Column(nullable = false, name="birthday")
     private String birthday;
+
+    @ManyToOne
+    @JoinColumn(name="user_id")
+    private User user;
 
     @CreationTimestamp
     private Timestamp regist_dt;

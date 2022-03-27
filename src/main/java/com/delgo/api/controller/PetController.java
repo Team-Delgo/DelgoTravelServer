@@ -16,16 +16,4 @@ public class PetController {
     @Autowired
     private PetService petService;
 
-    @PostMapping("/{user_id}/registpet")
-    public ResponseEntity<?> registerPet(@PathVariable int user_id, @RequestBody PetDTO petDTO){
-        try{
-            Pet pet = petService.create(user_id, petDTO);
-            ResponseDTO responseDTO = ResponseDTO.builder().isSuccess(true).code(200).codeMsg("success").build();
-            return ResponseEntity.ok().body(responseDTO);
-        } catch (Exception e){
-            ResponseDTO responseDTO = ResponseDTO.builder().isSuccess(false).code(404).codeMsg(e.getMessage()).build();
-            return ResponseEntity.badRequest().body(responseDTO);
-        }
-    }
-
 }

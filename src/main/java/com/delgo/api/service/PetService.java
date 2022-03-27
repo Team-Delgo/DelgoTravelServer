@@ -18,16 +18,5 @@ import org.springframework.transaction.annotation.Transactional;
 public class PetService {
     @Autowired
     private PetRepository petRepository;
-    @Autowired
-    private UserRepository userRepository;
-
-    @Transactional
-    public Pet create(int user_id, PetDTO petDTO){
-        User owner = userRepository.findById(user_id);
-        petDTO.setUser(owner);
-        petRepository.save(petDTO.toEntity()).getPet_id();
-        return petRepository.findByName(petDTO.getName());
-    }
-
 
 }

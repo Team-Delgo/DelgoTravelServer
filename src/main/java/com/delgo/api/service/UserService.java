@@ -1,7 +1,10 @@
 package com.delgo.api.service;
 
+import com.delgo.api.domain.pet.Pet;
 import com.delgo.api.domain.user.User;
+import com.delgo.api.dto.PetDTO;
 import com.delgo.api.dto.UserDTO;
+import com.delgo.api.repository.PetRepository;
 import com.delgo.api.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,6 +21,8 @@ public class UserService {
     @Autowired
     private final UserRepository userRepository;
     @Autowired
+    private final PetRepository petRepository;
+    @Autowired
     private final PasswordEncoder passwordEncoder;
 
     @Transactional
@@ -26,6 +31,9 @@ public class UserService {
         String encodedPassword = passwordEncoder.encode(userDTO.getPassword());
         userDTO.setPassword(encodedPassword);
         userRepository.save(userDTO.toEntity());
+        Pet pet = userDTO.toEntity().getPets().get(0);
+        User owner = userRepository.findByEmail(userDTO.getEmail());
+        petRepository.save(Pet.builder().user(owner).name(pet.getName()).age(pet.getAge()).size(pet.getSize()).breed(pet.getBreed()).birthday(pet.getBirthday()).build());
         return userRepository.findByEmail(userDTO.getEmail());
     }
 

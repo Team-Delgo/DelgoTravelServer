@@ -9,7 +9,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Data
 public class ResponseDTO<T> {
-    private boolean isSuccess;
     private int code;
     private String codeMsg;
     private T t;
