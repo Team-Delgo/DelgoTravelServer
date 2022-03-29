@@ -34,6 +34,9 @@ dependencies {
     providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
+
+    // jwt
+    implementation group: 'com.auth0', name: 'java-jwt', version: '3.19.0'
 }
 
 tasks.named('test') {
