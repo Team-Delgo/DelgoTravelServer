@@ -1,6 +1,7 @@
 package com.delgo.api.domain.user;
 
 import com.delgo.api.domain.pet.Pet;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -36,6 +37,7 @@ public class User {
     private String phone_no;
 
     @OneToMany(mappedBy = "user")
+    @JsonIgnoreProperties({"user"}) // 무한 참조 방지
     private List<Pet> pets = new ArrayList<>();
 
     @CreationTimestamp
