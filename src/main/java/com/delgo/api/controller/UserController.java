@@ -22,13 +22,13 @@ public class UserController {
     public ResponseEntity<?> registerUser(@RequestBody UserDTO userDTO){
         try{
             User user = userService.create(userDTO);
-            ResponseDTO responseDTO = ResponseDTO.builder().code(200).codeMsg("success").build();
+            ResponseDTO responseDTO = ResponseDTO.builder().code(200).codeMsg("signup success").build();
             return ResponseEntity.ok().body(responseDTO);
         } catch (IllegalStateException e){
             ResponseDTO responseDTO = ResponseDTO.builder().code(404).codeMsg(e.getMessage()).build();
             return ResponseEntity.badRequest().body(responseDTO);
         } catch (Exception e){
-            ResponseDTO responseDTO = ResponseDTO.builder().code(401).codeMsg(e.getMessage()).build();
+            ResponseDTO responseDTO = ResponseDTO.builder().code(407).codeMsg("signup fail").build();
             return ResponseEntity.badRequest().body(responseDTO);
         }
     }
