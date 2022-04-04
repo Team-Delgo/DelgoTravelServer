@@ -83,6 +83,8 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
         RequestDispatcher dispatcher = request.getRequestDispatcher("/loginSuccess");
         response.addHeader(JwtProperties.HEADER_STRING, JwtProperties.TOKEN_PREFIX + jwtToken);
+        request.setAttribute("email",principalDetailis.getUser().getEmail());
+
         dispatcher.forward(request, response);
 
     }

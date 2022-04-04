@@ -2,7 +2,6 @@ package com.delgo.api.service;
 
 import com.delgo.api.domain.pet.Pet;
 import com.delgo.api.domain.user.User;
-import com.delgo.api.dto.PetDTO;
 import com.delgo.api.dto.UserDTO;
 import com.delgo.api.repository.PetRepository;
 import com.delgo.api.repository.UserRepository;
@@ -43,6 +42,10 @@ public class UserService {
             log.warn("Email already exists {}", findUser.getEmail());
             throw new IllegalStateException("이미 가입된 이메일입니다.");
         }
+    }
+
+    public User findByEmail(String email){
+        return userRepository.findByEmail(email);
     }
 
 }
