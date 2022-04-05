@@ -18,6 +18,21 @@ public class UserController {
     @Autowired
     private UserService userService;
 
+    @PostMapping("/emailCheck")
+    public ResponseEntity<?> emailCheck(@RequestBody UserDTO userDTO){
+        try{
+            userService.validateDuplicate(userDTO.getEmail());
+            ResponseDTO responseDTO = ResponseDTO.builder().code(200).codeMsg("No duplicate").build();
+            return ResponseEntity.ok().body(responseDTO);
+        } catch (IllegalStateException e){
+            ResponseDTO responseDTO = ResponseDTO.builder().code(404).codeMsg(e.getMessage()).build();
+            return  ResponseEntity.badRequest().body(responseDTO);
+        } catch (Exception e){
+            ResponseDTO responseDTO = ResponseDTO.builder().code(407).codeMsg("something wrong").build();
+            return ResponseEntity.badRequest().body(responseDTO);
+        }
+    }
+
     @PostMapping("/signup")
     public ResponseEntity<?> registerUser(@RequestBody UserDTO userDTO){
         try{
@@ -26,7 +41,7 @@ public class UserController {
             return ResponseEntity.ok().body(responseDTO);
         } catch (IllegalStateException e){
             ResponseDTO responseDTO = ResponseDTO.builder().code(404).codeMsg(e.getMessage()).build();
-            return ResponseEntity.badRequest().body(responseDTO);
+            return  ResponseEntity.badRequest().body(responseDTO);
         } catch (Exception e){
             ResponseDTO responseDTO = ResponseDTO.builder().code(407).codeMsg("signup fail").build();
             return ResponseEntity.badRequest().body(responseDTO);

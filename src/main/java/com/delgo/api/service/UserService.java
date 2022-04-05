@@ -27,7 +27,7 @@ public class UserService {
 
     @Transactional
     public User create(UserDTO userDTO){
-        validateDuplicate(userDTO);
+        validateDuplicate(userDTO.getEmail());
         String encodedPassword = passwordEncoder.encode(userDTO.getPassword());
         userDTO.setPassword(encodedPassword);
         userRepository.save(userDTO.toEntity());
@@ -37,11 +37,12 @@ public class UserService {
         return userRepository.findByEmail(userDTO.getEmail());
     }
 
-    private void validateDuplicate(UserDTO userDTO){
-        User findUser = userRepository.findByEmail(userDTO.getEmail());
+    public void validateDuplicate(String email) {
+        User findUser = userRepository.findByEmail(email);
         if(findUser != null){
+            System.out.println(findUser.getEmail());
             log.warn("Email already exists {}", findUser.getEmail());
-            throw new IllegalStateException("이미 가입된 이메일입니다.");
+            throw new IllegalStateException("Email is duplicate");
         }
     }
 
