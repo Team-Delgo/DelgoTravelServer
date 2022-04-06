@@ -1,1 +1,1 @@
-# DelogServer
+# DelgoServer
