@@ -19,7 +19,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 public class SecurityConfig extends WebSecurityConfigurerAdapter{
 
 	private final UserRepository userRepository;
-	private final CorsConfig corsConfig;
 
 	@Bean
 	public BCryptPasswordEncoder passwordEncoder() {
