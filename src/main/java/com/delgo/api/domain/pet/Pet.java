@@ -1,6 +1,5 @@
 package com.delgo.api.domain.pet;
 
-import com.delgo.api.domain.user.User;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -19,7 +18,7 @@ public class Pet {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name="pet_id")
-    private int pet_id;
+    private int petId;
 
     @Column(nullable = false, name="name")
     private String name;
@@ -31,10 +30,11 @@ public class Pet {
     @Column(nullable = false, name="birthday")
     private String birthday;
 
-    @Column(nullable = false, name="user_id")
-    private int user_id;
+    @Column(name="user_id")
+    private int userId;
 
     @CreationTimestamp
-    private Timestamp regist_dt;
+    @Column(name="regist_dt")
+    private Timestamp registDt;
 
 }

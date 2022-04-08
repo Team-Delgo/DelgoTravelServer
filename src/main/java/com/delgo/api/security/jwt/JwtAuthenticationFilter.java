@@ -1,7 +1,5 @@
 package com.delgo.api.security.jwt;
 
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.algorithms.Algorithm;
 import com.delgo.api.dto.LoginDTO;
 import com.delgo.api.security.services.PrincipalDetails;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -18,7 +16,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Date;
 
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
@@ -75,18 +72,10 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
         PrincipalDetails principalDetailis = (PrincipalDetails) authResult.getPrincipal();
 
-        String jwtToken = JWT.create()
-                .withSubject(principalDetailis.getUsername())
-                .withExpiresAt(new Date(System.currentTimeMillis() + JwtProperties.EXPIRATION_TIME))
-                .withClaim("email", principalDetailis.getUser().getEmail())
-                .sign(Algorithm.HMAC512(JwtProperties.SECRET));
-
         RequestDispatcher dispatcher = request.getRequestDispatcher("/loginSuccess");
-        response.addHeader(JwtProperties.HEADER_STRING, JwtProperties.TOKEN_PREFIX + jwtToken);
         request.setAttribute("email",principalDetailis.getUser().getEmail());
 
         dispatcher.forward(request, response);
-
     }
 
     @Override

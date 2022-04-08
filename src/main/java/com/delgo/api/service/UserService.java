@@ -2,52 +2,52 @@ package com.delgo.api.service;
 
 import com.delgo.api.domain.pet.Pet;
 import com.delgo.api.domain.user.User;
-import com.delgo.api.dto.UserDTO;
 import com.delgo.api.repository.PetRepository;
 import com.delgo.api.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Optional;
 
 @Slf4j
 @Service
 @Transactional
 @RequiredArgsConstructor
 public class UserService {
-    @Autowired
+
     private final UserRepository userRepository;
-    @Autowired
     private final PetRepository petRepository;
-    @Autowired
     private final PasswordEncoder passwordEncoder;
 
     @Transactional
-    public User create(UserDTO userDTO){
-        validateDuplicate(userDTO.getEmail());
-        String encodedPassword = passwordEncoder.encode(userDTO.getPassword());
-        userDTO.setPassword(encodedPassword);
-        userRepository.save(userDTO.toEntity());
-        Pet pet = userDTO.getPet();
-        User owner = userRepository.findByEmail(userDTO.getEmail());
-        int owner_id = owner.getUser_id();
-        petRepository.save(Pet.builder().user_id(owner_id).name(pet.getName()).size(pet.getSize()).birthday(pet.getBirthday()).build());
-        return userRepository.findByEmail(userDTO.getEmail());
+    public void create(User user, Pet pet) {
+        // Email 중복확인
+        validateDuplicate(user.getEmail());
+        // 패스워드 암호화 및 적용
+        String encodedPassword = passwordEncoder.encode(user.getPassword());
+        user.setPassword(encodedPassword);
+        // User Data save
+        User owner = userRepository.save(user);
+        // Pet Data save
+        pet.setUserId(owner.getUserId());
+        petRepository.save(pet);
     }
 
+
     public void validateDuplicate(String email) {
-        User findUser = userRepository.findByEmail(email);
-        if(findUser != null){
-            System.out.println(findUser.getEmail());
-            log.warn("Email already exists {}", findUser.getEmail());
+        Optional<User> findUser = userRepository.findByEmail(email);
+        if(findUser.isPresent()){
+            log.warn("Email already exists {}", findUser.get().getEmail());
             throw new IllegalStateException("Email is duplicate");
         }
     }
 
-    public User findByEmail(String email){
-        return userRepository.findByEmail(email);
+    public User findByEmail(String email) {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalStateException("Not Found UserData"));
     }
 
 }

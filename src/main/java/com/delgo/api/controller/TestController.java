@@ -15,7 +15,6 @@ import java.util.Optional;
 public class TestController {
 
     private final TestService testService;
-
     private final UserRepository userRepository;
 
     @Autowired
@@ -34,7 +33,7 @@ public class TestController {
     @GetMapping("/login")
     public String user(Authentication authentication) {
         PrincipalDetails principal = (PrincipalDetails) authentication.getPrincipal();
-        System.out.println("principal : "+principal.getUser().getUser_id());
+        System.out.println("principal : "+principal.getUser().getUserId());
         System.out.println("principal : "+principal.getUser().getEmail());
         System.out.println("principal : "+principal.getUser().getPassword());
 
@@ -56,7 +55,8 @@ public class TestController {
     @ResponseBody
     public User test(@RequestParam String email) {
         System.out.println("test 들어옴,"+email);
-        User user = userRepository.findByEmail(email);
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(()->new NullPointerException("useData 없음"));
         return user;
     }
 }
