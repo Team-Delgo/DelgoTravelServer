@@ -22,35 +22,25 @@ public class UserController {
 
     @GetMapping("/emailCheck")
     public ResponseEntity<?> emailCheck(Optional<String> email) {
-        try {
-            // Param Empty Check
+        try { // Param Empty Check
             String checkedEmail = email.orElseThrow(() -> new NullPointerException("Param Empty"));
-
             userService.validateDuplicate(checkedEmail);
-            return ResponseEntity.ok().body(
-                    ResponseDTO.builder().code(200).codeMsg("No duplicate").build()
-            );
+            return ResponseEntity.ok().body(ResponseDTO.builder().code(200).codeMsg("No duplicate").build());
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(
-                    ResponseDTO.builder().code(303).codeMsg(e.getMessage()).build()
-            );
+                    ResponseDTO.builder().code(303).codeMsg(e.getMessage()).build());
         }
     }
 
     @PostMapping("/signup")
     public ResponseEntity<?> registerUser(@RequestBody Optional<UserDTO> userDTO) {
-        try {
-            // Param Empty Check
+        try { // Param Empty Check
             UserDTO checkedUserDTO = userDTO.orElseThrow(() -> new NullPointerException("Param Empty"));
-
             userService.create(checkedUserDTO.getUser(), checkedUserDTO.getPet());
-            return ResponseEntity.ok().body(
-                    ResponseDTO.builder().code(200).codeMsg("signup success").build()
-            );
+            return ResponseEntity.ok().body(ResponseDTO.builder().code(200).codeMsg("signup success").build());
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(
-                    ResponseDTO.builder().code(303).codeMsg(e.getMessage()).build()
-            );
+                    ResponseDTO.builder().code(303).codeMsg(e.getMessage()).build());
         }
     }
 }

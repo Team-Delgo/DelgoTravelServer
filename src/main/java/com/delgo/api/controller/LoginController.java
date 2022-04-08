@@ -32,6 +32,12 @@ public class LoginController {
     final String ACCESS = "Access";
     final String REFRESH = "Refresh";
 
+    /*
+     * Login 성공
+     * Header [ Access_Token, Refresh_Token ]
+     * Body [ User , Pet ]
+     * 담아서 반환한다.
+     */
     @PostMapping("/loginSuccess")
     public ResponseEntity<?> loginSuccess(HttpServletRequest request, HttpServletResponse response) {
         String email = request.getAttribute("email").toString();
@@ -45,24 +51,15 @@ public class LoginController {
         response.addHeader(Access_JwtProperties.HEADER_STRING, Access_JwtProperties.TOKEN_PREFIX + Access_jwtToken);
         response.addHeader(Refresh_JwtProperties.HEADER_STRING, Refresh_JwtProperties.TOKEN_PREFIX + Refresh_jwtToken);
 
-        ResponseDTO responseDTO = ResponseDTO.builder().code(200).codeMsg("success").data(new UserDTO(user, pet)).build();
-        return ResponseEntity.ok().body(responseDTO);
-    }
-
-    @GetMapping("/loginFail")
-    public ResponseEntity<?> loginFail() {
         return ResponseEntity.ok().body(
-                ResponseDTO.builder().code(303).codeMsg("fail").build()
-        );
+                ResponseDTO.builder().code(200).codeMsg("Login Success").data(new UserDTO(user, pet)).build());
     }
 
-    @GetMapping("/tokenError")
-    public ResponseEntity<?> tokenError() {
-        return ResponseEntity.ok().body(
-                ResponseDTO.builder().code(304).codeMsg("Token Certification failed").build()
-        );
-    }
-
+    /*
+     * Access_Token 재발급 API
+     * Refresh_Token 인증 진행
+     * 성공 : 재발급, 실패 : 오류 코드 반환
+     */
     @GetMapping("/tokenReissue")
     public ResponseEntity<?> tokenReissue(HttpServletRequest request, HttpServletResponse response) {
         try {
@@ -78,20 +75,30 @@ public class LoginController {
             response.addHeader(Refresh_JwtProperties.HEADER_STRING, Refresh_JwtProperties.TOKEN_PREFIX + Refresh_jwtToken);
 
             return ResponseEntity.ok().body(
-                    ResponseDTO.builder().code(200).codeMsg("Token tokenReissue success").build()
-            );
+                    ResponseDTO.builder().code(200).codeMsg("Token tokenReissue success").build());
         } catch (Exception e) { // Refresh_Toekn 인증 실패 ( 로그인 화면으로 이동 필요 )
             return ResponseEntity.ok().body(
-                    ResponseDTO.builder().code(305).codeMsg("Refresh_Token Certification failed").build()
-            );
+                    ResponseDTO.builder().code(305).codeMsg("Refresh_Token Certification failed").build());
         }
+    }
+
+    @PostMapping("/loginFail")
+    public ResponseEntity<?> loginFail() {
+        return ResponseEntity.ok().body(
+                ResponseDTO.builder().code(303).codeMsg("Login Fail").build());
+    }
+
+    @GetMapping("/tokenError")
+    public ResponseEntity<?> tokenError() {
+        return ResponseEntity.ok().body(
+                ResponseDTO.builder().code(304).codeMsg("Token Certification failed").build());
     }
 
     @GetMapping("/api/test")
     public ResponseEntity<?> test() {
         System.out.printf("test 들어옴");
-        ResponseDTO responseDTO = ResponseDTO.builder().code(200).codeMsg("테스트 들어옴 ~~~~").build(); // code는 논의 필요
-        return ResponseEntity.ok().body(responseDTO);
+        return ResponseEntity.ok().body(
+                ResponseDTO.builder().code(200).codeMsg("테스트 들어옴 ~~~~").build());
     }
 
     // Create Token
