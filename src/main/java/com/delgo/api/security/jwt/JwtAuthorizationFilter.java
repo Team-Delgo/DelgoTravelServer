@@ -36,7 +36,7 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
             throws IOException, ServletException {
         String header = request.getHeader(Access_JwtProperties.HEADER_STRING);
 
-        if (request.getRequestURI().equals("/signup") || request.getRequestURI().equals("/emailCheck")) {
+        if (request.getRequestURI().equals("/signup") || request.getRequestURI().equals("/emailCheck") || request.getRequestURI().equals("/phoneNoCheck") || request.getRequestURI().equals("/authRandNum")) {
             chain.doFilter(request, response);
             return;
         }
