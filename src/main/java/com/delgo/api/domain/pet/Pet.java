@@ -24,12 +24,6 @@ public class Pet {
     @Column(nullable = false, name="name")
     private String name;
 
-    @Column(nullable = false, name="age")
-    private int age;
-
-    @Column(nullable = false, name="breed")
-    private String breed;
-
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, name="size")
     private PetSize size;
@@ -37,9 +31,8 @@ public class Pet {
     @Column(nullable = false, name="birthday")
     private String birthday;
 
-    @ManyToOne
-    @JoinColumn(name="user_id")
-    private User user;
+    @Column(nullable = false, name="user_id")
+    private int user_id;
 
     @CreationTimestamp
     private Timestamp regist_dt;

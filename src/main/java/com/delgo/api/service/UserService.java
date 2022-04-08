@@ -31,9 +31,10 @@ public class UserService {
         String encodedPassword = passwordEncoder.encode(userDTO.getPassword());
         userDTO.setPassword(encodedPassword);
         userRepository.save(userDTO.toEntity());
-        Pet pet = userDTO.toEntity().getPets().get(0);
+        Pet pet = userDTO.getPet();
         User owner = userRepository.findByEmail(userDTO.getEmail());
-        petRepository.save(Pet.builder().user(owner).name(pet.getName()).age(pet.getAge()).size(pet.getSize()).breed(pet.getBreed()).birthday(pet.getBirthday()).build());
+        int owner_id = owner.getUser_id();
+        petRepository.save(Pet.builder().user_id(owner_id).name(pet.getName()).size(pet.getSize()).birthday(pet.getBirthday()).build());
         return userRepository.findByEmail(userDTO.getEmail());
     }
 
