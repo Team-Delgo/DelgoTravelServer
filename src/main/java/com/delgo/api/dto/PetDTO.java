@@ -15,21 +15,17 @@ import lombok.NoArgsConstructor;
 public class PetDTO {
     private int pet_id;
     private String name;
-    private int age;
-    private String breed;
     private PetSize size;
     private String birthday;
-    private User user;
+    private int user_id;
 
     public Pet toEntity(){
         return Pet.builder()
                 .pet_id(pet_id)
                 .name(name)
-                .age(age)
-                .breed(breed)
                 .size(size)
                 .birthday(birthday)
-                .user(user)
+                .user_id(user_id)
                 .build();
     }
 }

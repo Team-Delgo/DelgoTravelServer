@@ -19,7 +19,7 @@ public class UserDTO {
     private String email;
     private String password;
     private String phone_no;
-    private List<Pet> pets;
+    private Pet pet;
 
     public User toEntity(){
         return User.builder()
@@ -27,7 +27,6 @@ public class UserDTO {
                 .email(email)
                 .password(password)
                 .phone_no(phone_no)
-                .pets(pets)
                 .build();
     }
 

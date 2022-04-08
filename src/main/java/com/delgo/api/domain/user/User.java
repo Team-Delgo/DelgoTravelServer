@@ -36,10 +36,6 @@ public class User {
     @Column(nullable = false, name="phone_no")
     private String phone_no;
 
-    @OneToMany(mappedBy = "user")
-    @JsonIgnoreProperties({"user"}) // 무한 참조 방지
-    private List<Pet> pets = new ArrayList<>();
-
     @CreationTimestamp
     private Timestamp regist_dt;
 
