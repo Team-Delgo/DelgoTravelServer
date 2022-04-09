@@ -32,6 +32,38 @@ public class UserController {
         }
     }
 
+    String randNum;
+
+    @GetMapping("/phoneNoCheck")
+    public ResponseEntity<?> phoneNoCheck(Optional<String> phoneNo){
+        try{
+            String checkedPhoneNo = phoneNo.orElseThrow(() -> new NullPointerException("Param Empty"));
+            randNum = userService.sendSMS(checkedPhoneNo);
+            return ResponseEntity.ok().body(
+                    ResponseDTO.builder().code(200).codeMsg("send phone number check sms success").build()
+            );
+        } catch (Exception e){
+            return ResponseEntity.badRequest().body(
+                    ResponseDTO.builder().code(303).codeMsg(e.getMessage()).build()
+            );
+        }
+    }
+
+    @GetMapping("/authRandNum")
+    public ResponseEntity<?> randNumCheck(Optional<String> enterNum){
+        try{
+            String checkedEnterNum = enterNum.orElseThrow(() -> new NullPointerException("Param Empty"));
+            userService.checkSMS(randNum, checkedEnterNum);
+            return ResponseEntity.ok().body(
+                    ResponseDTO.builder().code(200).codeMsg("PhoneNo is authorized").build()
+            );
+        } catch (Exception e){
+            return ResponseEntity.badRequest().body(
+                    ResponseDTO.builder().code(303).codeMsg(e.getMessage()).build()
+            );
+        }
+    }
+
     @PostMapping("/signup")
     public ResponseEntity<?> registerUser(@RequestBody Optional<UserDTO> userDTO) {
         try { // Param Empty Check

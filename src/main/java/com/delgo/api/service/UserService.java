@@ -4,13 +4,20 @@ import com.delgo.api.domain.pet.Pet;
 import com.delgo.api.domain.user.User;
 import com.delgo.api.repository.PetRepository;
 import com.delgo.api.repository.UserRepository;
+import com.delgo.api.smsCertified.SmsService;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URISyntaxException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.util.Optional;
+import java.util.Random;
 
 @Slf4j
 @Service
@@ -21,6 +28,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final PetRepository petRepository;
     private final PasswordEncoder passwordEncoder;
+    private final SmsService smsService;
 
     @Transactional
     public void create(User user, Pet pet) {
@@ -34,6 +42,25 @@ public class UserService {
         // Pet Data save
         pet.setUserId(owner.getUserId());
         petRepository.save(pet);
+    }
+
+    public String sendSMS(String phoneNo) throws UnsupportedEncodingException, NoSuchAlgorithmException, URISyntaxException, InvalidKeyException, JsonProcessingException {
+        Random rand = new Random();
+        String randNum = "";
+        for(int i=0;i<4;i++) {
+            String ran = Integer.toString(rand.nextInt(10));
+            randNum += ran;
+        }
+        String message = "[Delgo] 인증번호 " + randNum;
+        smsService.sendSMS(phoneNo, message);
+        return randNum;
+    }
+
+    public void checkSMS(String randNum, String enterNum){
+        if(randNum.equals(enterNum) == false){
+            log.warn("The authentication numbers do not match");
+            throw new IllegalStateException("The authentication numbers do not match");
+        }
     }
 
 
