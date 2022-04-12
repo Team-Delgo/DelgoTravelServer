@@ -38,6 +38,7 @@ public class UserController {
     public ResponseEntity<?> phoneNoCheck(Optional<String> phoneNo){
         try{
             String checkedPhoneNo = phoneNo.orElseThrow(() -> new NullPointerException("Param Empty"));
+            checkedPhoneNo = checkedPhoneNo.replaceAll("[^0-9]", " ");
             randNum = userService.sendSMS(checkedPhoneNo);
             return ResponseEntity.ok().body(
                     ResponseDTO.builder().code(200).codeMsg("send phone number check sms success").build()
@@ -68,6 +69,8 @@ public class UserController {
     public ResponseEntity<?> registerUser(@RequestBody Optional<UserDTO> userDTO) {
         try { // Param Empty Check
             UserDTO checkedUserDTO = userDTO.orElseThrow(() -> new NullPointerException("Param Empty"));
+            String phoneNoUpdate = checkedUserDTO.getUser().getPhoneNo().replaceAll("[^0-9]", "");
+            checkedUserDTO.getUser().setPhoneNo(phoneNoUpdate);
             userService.create(checkedUserDTO.getUser(), checkedUserDTO.getPet());
             return ResponseEntity.ok().body(ResponseDTO.builder().code(200).codeMsg("signup success").build());
         } catch (Exception e) {
