@@ -47,7 +47,7 @@ public class UserService {
     public String sendSMS(String phoneNo) throws UnsupportedEncodingException, NoSuchAlgorithmException, URISyntaxException, InvalidKeyException, JsonProcessingException {
         Random rand = new Random();
         String randNum = "";
-        for(int i=0;i<4;i++) {
+        for (int i = 0; i < 4; i++) {
             String ran = Integer.toString(rand.nextInt(10));
             randNum += ran;
         }
@@ -56,20 +56,17 @@ public class UserService {
         return randNum;
     }
 
-    public void checkSMS(String randNum, String enterNum){
-        if(randNum.equals(enterNum) == false){
+    public void checkSMS(String randNum, String enterNum) {
+        if (!randNum.equals(enterNum)) {
             log.warn("The authentication numbers do not match");
             throw new IllegalStateException("The authentication numbers do not match");
         }
     }
 
 
-    public void validateDuplicate(String email) {
+    public boolean validateDuplicate(String email) {
         Optional<User> findUser = userRepository.findByEmail(email);
-        if(findUser.isPresent()){
-            log.warn("Email already exists {}", findUser.get().getEmail());
-            throw new IllegalStateException("Email is duplicate");
-        }
+        return findUser.isPresent();
     }
 
     public User findByEmail(String email) {
