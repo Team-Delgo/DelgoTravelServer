@@ -38,7 +38,7 @@ public class UserController {
     public ResponseEntity<?> phoneNoCheck(Optional<String> phoneNo){
         try{
             String checkedPhoneNo = phoneNo.orElseThrow(() -> new NullPointerException("Param Empty"));
-            checkedPhoneNo = checkedPhoneNo.replaceAll("[^0-9]", " ");
+            checkedPhoneNo = checkedPhoneNo.replaceAll("[^0-9]", "");
             randNum = userService.sendSMS(checkedPhoneNo);
             return ResponseEntity.ok().body(
                     ResponseDTO.builder().code(200).codeMsg("send phone number check sms success").build()
