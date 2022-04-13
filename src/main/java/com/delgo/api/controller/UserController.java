@@ -24,25 +24,27 @@ public class UserController {
     public ResponseEntity<?> emailCheck(Optional<String> email) {
         try { // Param Empty Check
             String checkedEmail = email.orElseThrow(() -> new NullPointerException("Param Empty"));
-            userService.validateDuplicate(checkedEmail);
-            return ResponseEntity.ok().body(ResponseDTO.builder().code(200).codeMsg("No duplicate").build());
+
+            return (userService.validateDuplicate(checkedEmail)) ?
+                    ResponseEntity.ok().body(ResponseDTO.builder().code(303).codeMsg("Email is duplicate").build()) : // 이메일 중복 0
+                    ResponseEntity.ok().body(ResponseDTO.builder().code(200).codeMsg("No duplicate").build()); // 이메일 중복 x
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(
-                    ResponseDTO.builder().code(303).codeMsg(e.getMessage()).build());
+            return ResponseEntity.badRequest().body(ResponseDTO.builder().code(303).codeMsg(e.getMessage()).build()
+            );
         }
     }
 
     String randNum;
 
     @GetMapping("/phoneNoCheck")
-    public ResponseEntity<?> phoneNoCheck(Optional<String> phoneNo){
-        try{
+    public ResponseEntity<?> phoneNoCheck(Optional<String> phoneNo) {
+        try {
             String checkedPhoneNo = phoneNo.orElseThrow(() -> new NullPointerException("Param Empty"));
             randNum = userService.sendSMS(checkedPhoneNo);
             return ResponseEntity.ok().body(
                     ResponseDTO.builder().code(200).codeMsg("send phone number check sms success").build()
             );
-        } catch (Exception e){
+        } catch (Exception e) {
             return ResponseEntity.badRequest().body(
                     ResponseDTO.builder().code(303).codeMsg(e.getMessage()).build()
             );
@@ -50,14 +52,14 @@ public class UserController {
     }
 
     @GetMapping("/authRandNum")
-    public ResponseEntity<?> randNumCheck(Optional<String> enterNum){
-        try{
+    public ResponseEntity<?> randNumCheck(Optional<String> enterNum) {
+        try {
             String checkedEnterNum = enterNum.orElseThrow(() -> new NullPointerException("Param Empty"));
             userService.checkSMS(randNum, checkedEnterNum);
             return ResponseEntity.ok().body(
                     ResponseDTO.builder().code(200).codeMsg("PhoneNo is authorized").build()
             );
-        } catch (Exception e){
+        } catch (Exception e) {
             return ResponseEntity.badRequest().body(
                     ResponseDTO.builder().code(303).codeMsg(e.getMessage()).build()
             );
