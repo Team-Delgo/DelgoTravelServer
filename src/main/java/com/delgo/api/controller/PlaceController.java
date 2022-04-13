@@ -16,12 +16,12 @@ import java.util.List;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/whereToGo")
-public class WhereToGoController {
+@RequestMapping("/place")
+public class PlaceController {
 
     private final PlaceService placeService;
 
-    @GetMapping("/selectAllPlace")
+    @GetMapping("/selectAll")
     public ResponseEntity selectAllPlace() {
         // 전체 place 조회 ( List )
         List<Place> placeList = placeService.getAllPlace();
