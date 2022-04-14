@@ -52,7 +52,11 @@ public class UserService {
             randNum += ran;
         }
         String message = "[Delgo] 인증번호 " + randNum;
-        smsService.sendSMS(phoneNo, message);
+        try{
+            smsService.sendSMS(phoneNo, message);
+        } catch (Exception e) {
+            throw new IllegalStateException(e.getMessage());
+        }
         return randNum;
     }
 
