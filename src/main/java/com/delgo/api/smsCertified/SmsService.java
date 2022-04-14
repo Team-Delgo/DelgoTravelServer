@@ -71,10 +71,8 @@ public class SmsService {
         RestTemplate restTemplate = new RestTemplate();
         restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory());
         restTemplate.setErrorHandler(new DefaultResponseErrorHandler(){
-            public boolean hasError(ClientHttpResponse response) throws IOException{
+            public boolean hasError(ClientHttpResponse response) throws IOException {
                 HttpStatus statusCode = response.getStatusCode();
-                System.out.println(response.getStatusText());
-                System.out.println(statusCode.series() == HttpStatus.Series.SERVER_ERROR);
                 return statusCode.series() == HttpStatus.Series.SERVER_ERROR;
             }
         });
