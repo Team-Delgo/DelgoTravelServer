@@ -36,14 +36,16 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
             throws IOException, ServletException {
         String header = request.getHeader(Access_JwtProperties.HEADER_STRING);
 
-        if (request.getRequestURI().equals("/signup") || request.getRequestURI().equals("/emailCheck") || request.getRequestURI().equals("/phoneNoCheck") || request.getRequestURI().equals("/authRandNum")) {
+        if (request.getRequestURI().equals("/signup") || request.getRequestURI().equals("/emailCheck")
+                || request.getRequestURI().equals("/phoneNoCheck") || request.getRequestURI().equals("/authRandNum")
+                || request.getRequestURI().equals("/authRandNum") || request.getRequestURI().equals("/place/selectAll")
+                || request.getRequestURI().equals("/tokenReissue")) {
             chain.doFilter(request, response);
             return;
         }
 
         // Token 있는지 여부 체크
         if (header == null || !header.startsWith(Access_JwtProperties.TOKEN_PREFIX)) {
-            System.out.printf("asdfasdfasdf"+ request.getRequestURI());
             RequestDispatcher dispatcher = request.getRequestDispatcher("/tokenError");
             dispatcher.forward(request, response);
             return;
