@@ -73,10 +73,12 @@ public class SmsService {
         restTemplate.setErrorHandler(new DefaultResponseErrorHandler(){
             public boolean hasError(ClientHttpResponse response) throws IOException {
                 HttpStatus statusCode = response.getStatusCode();
+                System.out.println("Send SMS status code: " + statusCode);
                 return statusCode.series() == HttpStatus.Series.SERVER_ERROR;
             }
         });
         SendSmsResponseDTO sendSmsResponseDTO = restTemplate.postForObject(apiUrl, body, SendSmsResponseDTO.class);
+        System.out.println("Send SMS ResponseDTO: " + sendSmsResponseDTO);
         return sendSmsResponseDTO;
     }
     public String makeSignature(String time) throws UnsupportedEncodingException, InvalidKeyException, NoSuchAlgorithmException {
