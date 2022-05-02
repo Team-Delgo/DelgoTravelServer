@@ -39,7 +39,7 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
         if (request.getRequestURI().equals("/signup") || request.getRequestURI().equals("/emailCheck")
                 || request.getRequestURI().equals("/phoneNoCheck") || request.getRequestURI().equals("/authRandNum")
                 || request.getRequestURI().equals("/authRandNum") || request.getRequestURI().equals("/place/selectAll")
-                || request.getRequestURI().equals("/tokenReissue")) {
+                || request.getRequestURI().equals("/emailAuth") || request.getRequestURI().equals("/tokenReissue")) {
             chain.doFilter(request, response);
             return;
         }

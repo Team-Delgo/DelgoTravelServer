@@ -10,6 +10,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.tomcat.util.codec.binary.Base64;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -35,6 +36,7 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 @Getter
 @Setter
 @AllArgsConstructor
@@ -73,12 +75,12 @@ public class SmsService {
         restTemplate.setErrorHandler(new DefaultResponseErrorHandler(){
             public boolean hasError(ClientHttpResponse response) throws IOException {
                 HttpStatus statusCode = response.getStatusCode();
-                System.out.println("Send SMS status code: " + statusCode);
+                System.out.println("SendSMS StatusCode: " + statusCode);
                 return statusCode.series() == HttpStatus.Series.SERVER_ERROR;
             }
         });
         SendSmsResponseDTO sendSmsResponseDTO = restTemplate.postForObject(apiUrl, body, SendSmsResponseDTO.class);
-        System.out.println("Send SMS ResponseDTO: " + sendSmsResponseDTO);
+        System.out.println("SendSmsResponseDTO: " + sendSmsResponseDTO);
         return sendSmsResponseDTO;
     }
     public String makeSignature(String time) throws UnsupportedEncodingException, InvalidKeyException, NoSuchAlgorithmException {
