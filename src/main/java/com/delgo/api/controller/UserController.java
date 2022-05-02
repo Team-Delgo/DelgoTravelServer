@@ -20,12 +20,26 @@ public class UserController {
 
     private final UserService userService;
 
+    @GetMapping("/emailAuth")
+    public ResponseEntity<?> emailAuth(Optional<String> email) {
+        try {
+            String checkedEmail = email.orElseThrow(() -> new NullPointerException("Param Empty"));
+
+            return (userService.isEmailExisting(checkedEmail)) ?
+                    ResponseEntity.ok().body(ResponseDTO.builder().code(200).codeMsg("The email exists").data(userService.findByEmail(checkedEmail).getPhoneNo()).build()) :
+                    ResponseEntity.ok().body(ResponseDTO.builder().code(303).codeMsg("The email does not exist").build());
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(ResponseDTO.builder().code(303).codeMsg(e.getMessage()).build()
+            );
+        }
+    }
+
     @GetMapping("/emailCheck")
     public ResponseEntity<?> emailCheck(Optional<String> email) {
         try { // Param Empty Check
             String checkedEmail = email.orElseThrow(() -> new NullPointerException("Param Empty"));
 
-            return (userService.validateDuplicate(checkedEmail)) ?
+            return (userService.isEmailExisting(checkedEmail)) ?
                     ResponseEntity.ok().body(ResponseDTO.builder().code(303).codeMsg("Email is duplicate").build()) : // 이메일 중복 0
                     ResponseEntity.ok().body(ResponseDTO.builder().code(200).codeMsg("No duplicate").build()); // 이메일 중복 x
         } catch (Exception e) {
