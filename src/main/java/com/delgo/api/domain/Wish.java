@@ -14,21 +14,16 @@ import java.sql.Timestamp;
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
-public class Place {
+public class Wish {
     @Id
+    @Column(name = "wish_id")
+    private int wishId;
+    @Column(name = "user_id")
+    private int userId;
     @Column(name = "place_id")
-    private long placeId;
-    private String name;
-    private String address;
+    private int placeId;
 
     @CreationTimestamp
-    @Column(name = "regist_dt")
+    @Column(name="regist_dt")
     private Timestamp registDt;
-
-    @Column(name = "main_photo_url")
-    private String mainPhotoUrl;
-
-    private String lowestPrice;
-
-    private int wishId = 0;
 }
