@@ -29,4 +29,6 @@ public class Place {
     private String mainPhotoUrl;
 
     private String lowestPrice;
+
+    private int wishId = 0;
 }
