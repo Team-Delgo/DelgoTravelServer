@@ -25,18 +25,21 @@ public class UserController {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-    @GetMapping("/changePassword")
-    public ResponseEntity<?> changePassword(Optional<String> email, Optional<String> newPassword){
+    @PostMapping("/changePassword")
+    public ResponseEntity<?> changePassword(@RequestBody Optional<UserDTO> userDTO){
         try {
-            String checkedEmail = email.orElseThrow(() -> new NullPointerException("Param Empty"));
-            String checkedPassword = newPassword.orElseThrow(() -> new NullPointerException("Param Empty"));
+            UserDTO checkedUserDTO = userDTO.orElseThrow(() -> new NullPointerException("Param Empty"));
+            String checkedEmail = checkedUserDTO.getUser().getEmail();
+            String newPassword = checkedUserDTO.getUser().getPassword();
+            if(checkedEmail == null || newPassword == null)
+                throw new NullPointerException("Param Empty");
 
             User user = userRepository.findByEmail(checkedEmail).orElseThrow(() -> new IllegalArgumentException("The email does not exist"));
-            String encodedPassword = passwordEncoder.encode(checkedPassword);
+            String encodedPassword = passwordEncoder.encode(newPassword);
             user.setPassword(encodedPassword);
             userRepository.save(user);
 
-            return ResponseEntity.ok().body(ResponseDTO.builder().code(303).codeMsg("Change password success").build());
+            return ResponseEntity.ok().body(ResponseDTO.builder().code(200).codeMsg("Change password success").build());
 
         } catch (Exception e){
             return ResponseEntity.badRequest().body(ResponseDTO.builder().code(303).codeMsg(e.getMessage()).build()
