@@ -26,13 +26,9 @@ import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.time.LocalDate;
-import java.time.OffsetDateTime;
-import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -54,10 +50,11 @@ public class SmsService {
     String sendFrom = "01077652211";
     String apiUrl = requestUrlHeader + requestUrlService + serviceId + requestUrlType;
     String sigUrl = requestUrlService + serviceId + requestUrlType;
-    Long time = System.currentTimeMillis();
-    String timeStamp = time.toString();
+
 
     public SendSmsResponseDTO sendSMS(String recipientPhoneNumber, String content) throws JsonProcessingException, UnsupportedEncodingException, InvalidKeyException, NoSuchAlgorithmException, URISyntaxException {
+        Long time = System.currentTimeMillis();
+        String timeStamp = time.toString();
         List<MessagesRequestDTO> messages = new ArrayList<>();
         messages.add(new MessagesRequestDTO(recipientPhoneNumber, content));
         SmsRequestDTO smsRequestDTO = new SmsRequestDTO("SMS", "COMM", "82", sendFrom, "Delgo", messages);
