@@ -76,6 +76,9 @@ public class SmsService {
             public boolean hasError(ClientHttpResponse response) throws IOException {
                 HttpStatus statusCode = response.getStatusCode();
                 System.out.println("SendSMS StatusCode: " + statusCode);
+                if(statusCode.series() != HttpStatus.Series.SUCCESSFUL) {
+                    throw new IOException();
+                }
                 return statusCode.series() == HttpStatus.Series.SERVER_ERROR;
             }
         });
