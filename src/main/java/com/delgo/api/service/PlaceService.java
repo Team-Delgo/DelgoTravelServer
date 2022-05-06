@@ -20,4 +20,10 @@ public class PlaceService {
     public List<Place> getAllPlace() {
         return placeRepository.findAll();
     }
+
+    public Place findByUserId(int placeId) {
+        return placeRepository.findByPlaceId(placeId)
+                .orElseThrow(() -> new IllegalStateException("Not Found UserData"));
+    }
+
 }

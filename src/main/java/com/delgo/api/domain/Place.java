@@ -17,7 +17,7 @@ import java.sql.Timestamp;
 public class Place {
     @Id
     @Column(name = "place_id")
-    private long placeId;
+    private int placeId;
     private String name;
     private String address;
 
