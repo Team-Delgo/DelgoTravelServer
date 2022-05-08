@@ -99,7 +99,11 @@ public class UserController {
             return ResponseEntity.ok().body(
                     ResponseDTO.builder().code(200).codeMsg("PhoneNo is authorized").build()
             );
-        } catch (Exception e) {
+        }
+        catch (IllegalStateException e){
+            return ResponseEntity.ok().body(ResponseDTO.builder().code(303).codeMsg(e.getMessage()).build());
+        }
+        catch (Exception e) {
             return ResponseEntity.badRequest().body(
                     ResponseDTO.builder().code(303).codeMsg(e.getMessage()).build()
             );
