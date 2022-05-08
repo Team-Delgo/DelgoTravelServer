@@ -29,8 +29,8 @@ public class WishController {
     public ResponseEntity<?> insertWishData(@RequestBody Optional<WishDTO> wishDTO) {
         try { // Param Empty Check
             WishDTO checkedWishDTO = wishDTO.orElseThrow(() -> new NullPointerException("Param Empty"));
-            wishService.insertWishData(checkedWishDTO.getWish());
-            return ResponseEntity.ok().body(ResponseDTO.builder().code(200).codeMsg("wish insert success").build());
+            Wish wish = wishService.insertWishData(checkedWishDTO.getWish());
+            return ResponseEntity.ok().body(ResponseDTO.builder().code(200).codeMsg("wish insert success").data(wish).build());
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(
                     ResponseDTO.builder().code(303).codeMsg(e.getMessage()).build());

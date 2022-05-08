@@ -5,9 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.sql.Timestamp;
 
 @Data
@@ -16,6 +14,7 @@ import java.sql.Timestamp;
 @AllArgsConstructor
 public class Wish {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "wish_id")
     private int wishId;
     @Column(name = "user_id")
