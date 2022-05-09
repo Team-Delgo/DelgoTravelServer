@@ -47,7 +47,7 @@ public class WishController {
                 return ResponseEntity.ok().body(
                         ResponseDTO.builder().code(200).codeMsg("wish delete success").build());
             else
-                return ResponseEntity.badRequest().body(
+                return ResponseEntity.ok().body(
                         ResponseDTO.builder().code(303).codeMsg("wish delete fail").build());
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(
@@ -59,14 +59,20 @@ public class WishController {
     // TODO: 등록시간 기준으로 정렬해야 해서 보내줘야 함.
     @GetMapping("/select")
     public ResponseEntity selectWishData(int userId) {
-        List<Wish> wishList = wishService.getWishList(userId);
-        List<Place> placeList = new ArrayList<Place>();
-        for (int i = 0; i < wishList.size(); i++) {
-            Place place = placeService.findByUserId(wishList.get(i).getPlaceId());
-            placeList.add(place);
+        try {
+            List<Wish> wishList = wishService.getWishList(userId);
+            List<Place> placeList = new ArrayList<Place>();
+            for (int i = 0; i < wishList.size(); i++) {
+                Place place = placeService.findByUserId(wishList.get(i).getPlaceId());
+                place.setWishId(wishList.get(i).getWishId());
+                placeList.add(place);
+            }
+            return ResponseEntity.ok().body(
+                    ResponseDTO.builder().code(200).codeMsg("Wish Select Success").data(placeList).build()
+            );
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(
+                    ResponseDTO.builder().code(303).codeMsg(e.getMessage()).build());
         }
-        return ResponseEntity.ok().body(
-                ResponseDTO.builder().code(200).codeMsg("Success").data(placeList).build()
-        );
     }
 }

@@ -8,6 +8,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.Transient;
 import java.sql.Timestamp;
 
 @Data
@@ -28,7 +29,9 @@ public class Place {
     @Column(name = "main_photo_url")
     private String mainPhotoUrl;
 
+    @Transient
     private String lowestPrice;
 
+    @Transient
     private int wishId = 0;
 }
