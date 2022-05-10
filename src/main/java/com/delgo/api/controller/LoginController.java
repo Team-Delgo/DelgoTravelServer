@@ -9,6 +9,7 @@ import com.delgo.api.dto.common.ResponseDTO;
 import com.delgo.api.security.jwt.Access_JwtProperties;
 import com.delgo.api.security.jwt.Refresh_JwtProperties;
 import com.delgo.api.service.PetService;
+import com.delgo.api.service.TokenService;
 import com.delgo.api.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,7 +20,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.Date;
 
 @Slf4j
 @RestController
@@ -28,6 +28,7 @@ public class LoginController {
 
     private final UserService userService;
     private final PetService petService;
+    private final TokenService tokenService;
 
     final String ACCESS = "Access";
     final String REFRESH = "Refresh";
@@ -45,8 +46,8 @@ public class LoginController {
         User user = userService.findByEmail(email);
         Pet pet = petService.findByUserId(user.getUserId());
 
-        String Access_jwtToken = createToken(ACCESS, email); // Access Token 생성
-        String Refresh_jwtToken = createToken(REFRESH, email); // Refresh Token 생성
+        String Access_jwtToken = tokenService.createToken(ACCESS, email); // Access Token 생성
+        String Refresh_jwtToken = tokenService.createToken(REFRESH, email); // Refresh Token 생성
 
         response.addHeader(Access_JwtProperties.HEADER_STRING, Access_JwtProperties.TOKEN_PREFIX + Access_jwtToken);
         response.addHeader(Refresh_JwtProperties.HEADER_STRING, Refresh_JwtProperties.TOKEN_PREFIX + Refresh_jwtToken);
@@ -68,8 +69,8 @@ public class LoginController {
             String email = JWT.require(Algorithm.HMAC512(Refresh_JwtProperties.SECRET)).build().verify(token)
                     .getClaim("email").asString();
 
-            String Access_jwtToken = createToken(ACCESS, email); // Access Token 생성
-            String Refresh_jwtToken = createToken(REFRESH, email); // Refresh Token 생성
+            String Access_jwtToken = tokenService.createToken(ACCESS, email); // Access Token 생성
+            String Refresh_jwtToken = tokenService.createToken(REFRESH, email); // Refresh Token 생성
 
             response.addHeader(Access_JwtProperties.HEADER_STRING, Access_JwtProperties.TOKEN_PREFIX + Access_jwtToken);
             response.addHeader(Refresh_JwtProperties.HEADER_STRING, Refresh_JwtProperties.TOKEN_PREFIX + Refresh_jwtToken);
@@ -101,19 +102,4 @@ public class LoginController {
                 ResponseDTO.builder().code(200).codeMsg("테스트 들어옴 ~~~~").build());
     }
 
-    // Create Token
-    public String createToken(String tokenType, String email) {
-        if (tokenType.equals(ACCESS)) // Access Token
-            return JWT.create()
-                    .withSubject(email)
-                    .withExpiresAt(new Date(System.currentTimeMillis() + Access_JwtProperties.EXPIRATION_TIME))
-                    .withClaim("email", email)// getUsername() == getEmail()
-                    .sign(Algorithm.HMAC512(Access_JwtProperties.SECRET));
-        else // Refresh Token
-            return JWT.create()
-                    .withSubject(email)
-                    .withExpiresAt(new Date(System.currentTimeMillis() + Refresh_JwtProperties.EXPIRATION_TIME))
-                    .withClaim("email", email)// getUsername() == getEmail()
-                    .sign(Algorithm.HMAC512(Refresh_JwtProperties.SECRET));
-    }
 }
