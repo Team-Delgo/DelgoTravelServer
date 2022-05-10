@@ -51,7 +51,7 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
             dispatcher.forward(request, response);
             return;
         }
-        System.out.println("JwtAuthorizationFilter header : " + header);
+
         String token = request.getHeader(Access_JwtProperties.HEADER_STRING)
                 .replace(Access_JwtProperties.TOKEN_PREFIX, "");
 
@@ -81,10 +81,11 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
         } catch (Exception e) { // Token 시간 만료 및 토큰 인증 에러
-            System.out.printf("Access Token Expired : " + e.getLocalizedMessage());
+            System.out.print("Access Token Expired : " + e.getLocalizedMessage());
 
             RequestDispatcher dispatcher = request.getRequestDispatcher("/tokenError");
             dispatcher.forward(request, response);
+            return;
         }
         chain.doFilter(request, response);
     }

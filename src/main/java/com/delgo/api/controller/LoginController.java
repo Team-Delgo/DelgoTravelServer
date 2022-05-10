@@ -90,7 +90,15 @@ public class LoginController {
     }
 
     @GetMapping("/tokenError")
-    public ResponseEntity<?> tokenError() {
+    public ResponseEntity<?> getTokenError() {
+        log.info("Get tokenError");
+        return ResponseEntity.ok().body(
+                ResponseDTO.builder().code(304).codeMsg("Token Certification failed").build());
+    }
+
+    @PostMapping("/tokenError")
+    public ResponseEntity<?> postTokenError() {
+        log.info("Post tokenError");
         return ResponseEntity.ok().body(
                 ResponseDTO.builder().code(304).codeMsg("Token Certification failed").build());
     }
