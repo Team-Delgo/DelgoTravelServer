@@ -36,4 +36,6 @@ public class User {
     @Column(name="regist_dt")
     private Timestamp registDt;
 
+    private String profile;
+
 }
