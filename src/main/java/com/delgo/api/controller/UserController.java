@@ -121,7 +121,8 @@ public class UserController {
             UserDTO checkedUserDTO = userDTO.orElseThrow(() -> new NullPointerException("Param Empty"));
             String phoneNoUpdate = checkedUserDTO.getUser().getPhoneNo().replaceAll("[^0-9]", "");
             checkedUserDTO.getUser().setPhoneNo(phoneNoUpdate);
-            userService.create(checkedUserDTO.getUser(), checkedUserDTO.getPet());
+             User user = userService.signup(checkedUserDTO.getUser(), checkedUserDTO.getPet());
+             user.setPassword(""); // 보안
 
             String Access_jwtToken = tokenService.createToken("Access", checkedUserDTO.getUser().getEmail()); // Access Token 생성
             String Refresh_jwtToken = tokenService.createToken("Refresh", checkedUserDTO.getUser().getEmail()); // Refresh Token 생성
@@ -129,7 +130,7 @@ public class UserController {
             response.addHeader(Access_JwtProperties.HEADER_STRING, Access_JwtProperties.TOKEN_PREFIX + Access_jwtToken);
             response.addHeader(Refresh_JwtProperties.HEADER_STRING, Refresh_JwtProperties.TOKEN_PREFIX + Refresh_jwtToken);
 
-            return ResponseEntity.ok().body(ResponseDTO.builder().code(200).codeMsg("signup success").build());
+            return ResponseEntity.ok().body(ResponseDTO.builder().code(200).codeMsg("signup success").data(user).build());
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(
                     ResponseDTO.builder().code(303).codeMsg(e.getMessage()).build());

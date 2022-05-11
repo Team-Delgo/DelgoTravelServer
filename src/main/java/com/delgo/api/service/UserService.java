@@ -31,7 +31,7 @@ public class UserService {
     private final SmsService smsService;
 
     @Transactional
-    public void create(User user, Pet pet) {
+    public User signup(User user, Pet pet) {
         // Email 중복확인
         isEmailExisting(user.getEmail());
         // 패스워드 암호화 및 적용
@@ -42,6 +42,8 @@ public class UserService {
         // Pet Data save
         pet.setUserId(owner.getUserId());
         petRepository.save(pet);
+
+        return owner;
     }
 
     public String sendSMS(String phoneNo) throws UnsupportedEncodingException, NoSuchAlgorithmException, URISyntaxException, InvalidKeyException, JsonProcessingException {
@@ -76,6 +78,15 @@ public class UserService {
     public User findByEmail(String email) {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new IllegalStateException("Not Found UserData"));
+    }
+
+    public User findByUserId(int userId) {
+        return userRepository.findByUserId(userId)
+                .orElseThrow(() -> new IllegalStateException("Not Found UserData"));
+    }
+
+    public User updateUserData(User user){
+        return userRepository.save(user);
     }
 
 }
