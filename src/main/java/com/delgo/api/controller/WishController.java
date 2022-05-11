@@ -63,7 +63,7 @@ public class WishController {
             List<Wish> wishList = wishService.getWishList(userId);
             List<Place> placeList = new ArrayList<Place>();
             for (int i = 0; i < wishList.size(); i++) {
-                Place place = placeService.findByUserId(wishList.get(i).getPlaceId());
+                Place place = placeService.findByPlaceId(wishList.get(i).getPlaceId());
                 place.setWishId(wishList.get(i).getWishId());
                 placeList.add(place);
             }

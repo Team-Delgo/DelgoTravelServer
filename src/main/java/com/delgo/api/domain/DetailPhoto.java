@@ -12,24 +12,19 @@ import java.sql.Timestamp;
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
-public class Place {
+public class DetailPhoto {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "detail_photo_id")
+    private int detailPhotoId;
+
     @Column(name = "place_id")
     private int placeId;
-    private String name;
-    private String address;
+
+    @Column(name = "room_id")
+    private int roomId;
 
     @CreationTimestamp
     @Column(name = "regist_dt")
     private Timestamp registDt;
-
-    @Column(name = "main_photo_url")
-    private String mainPhotoUrl;
-
-    @Transient
-    private String lowestPrice;
-
-    @Transient
-    private int wishId = 0;
 }

@@ -23,10 +23,11 @@ public class PlaceService {
         return placeRepository.findAll();
     }
 
-    public Place findByUserId(int placeId) {
+    public Place findByPlaceId(int placeId) {
         return placeRepository.findByPlaceId(placeId)
                 .orElseThrow(() -> new IllegalStateException("Not Found UserData"));
     }
+
     // 검색
     public List<Place> searchPlace(Map<String, Object> searchKeys){
         return placeRepository.findAll(PlaceSpecification.searchPlace(searchKeys));
