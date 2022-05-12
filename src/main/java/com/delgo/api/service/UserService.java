@@ -46,6 +46,13 @@ public class UserService {
         return owner;
     }
 
+    public void changePassword(String checkedEmail, String newPassword){
+        User user = userRepository.findByEmail(checkedEmail).orElseThrow(() -> new IllegalArgumentException("The email does not exist"));
+        String encodedPassword = passwordEncoder.encode(newPassword);
+        user.setPassword(encodedPassword);
+        userRepository.save(user);
+    }
+
     public String sendSMS(String phoneNo) throws UnsupportedEncodingException, NoSuchAlgorithmException, URISyntaxException, InvalidKeyException, JsonProcessingException {
         Random rand = new Random();
         String randNum = "";
