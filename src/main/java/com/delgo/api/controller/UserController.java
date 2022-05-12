@@ -26,8 +26,6 @@ import java.util.Optional;
 public class UserController {
 
     private final UserService userService;
-    private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
     private final TokenService tokenService;
 
     @PostMapping("/changePassword")
@@ -39,10 +37,7 @@ public class UserController {
             if(checkedEmail == null || newPassword == null)
                 throw new NullPointerException("Param Empty");
 
-            User user = userRepository.findByEmail(checkedEmail).orElseThrow(() -> new IllegalArgumentException("The email does not exist"));
-            String encodedPassword = passwordEncoder.encode(newPassword);
-            user.setPassword(encodedPassword);
-            userRepository.save(user);
+            userService.changePassword(checkedEmail, newPassword);
 
             return ResponseEntity.ok().body(ResponseDTO.builder().code(200).codeMsg("Change password success").build());
 
