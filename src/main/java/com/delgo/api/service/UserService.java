@@ -46,6 +46,14 @@ public class UserService {
         return owner;
     }
 
+    @Transactional
+    public void deleteUser(String email){
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new IllegalArgumentException("The email does not exist"));
+        Pet pet = petRepository.findByUserId(user.getUserId()).orElseThrow(() -> new IllegalArgumentException("Something wrong"));
+        petRepository.delete(pet);
+        userRepository.delete(user);
+    }
+
     public void changePassword(String checkedEmail, String newPassword){
         User user = userRepository.findByEmail(checkedEmail).orElseThrow(() -> new IllegalArgumentException("The email does not exist"));
         String encodedPassword = passwordEncoder.encode(newPassword);
