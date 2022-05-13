@@ -35,16 +35,17 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
 
-    implementation 'org.springframework.boot:spring-boot-starter-quartz'
-
     implementation group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5'
+
+    implementation 'org.springframework.boot:spring-boot-starter-quartz'
 
     // jwt
     implementation group: 'com.auth0', name: 'java-jwt', version: '3.19.0'
     // NCP Object Storage Control SDK
     implementation 'com.amazonaws:aws-java-sdk-s3:1.12.213'
     // Crawling
-    implementation 'com.amazonaws:aws-java-sdk-s3:1.12.213'
+    implementation 'org.jsoup:jsoup:1.14.3'
+    implementation 'org.seleniumhq.selenium:selenium-java:4.1.4'
 }
 
 tasks.named('test') {
