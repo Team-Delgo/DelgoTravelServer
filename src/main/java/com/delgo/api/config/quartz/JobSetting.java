@@ -1,5 +1,7 @@
-package com.delgo.config.quartz;
+package com.delgo.api.config.quartz;
 
+import com.delgo.api.config.quartz.job.DeleteYesterdayDataJob;
+import com.delgo.api.config.quartz.job.RefreshPriceJob;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,19 +21,19 @@ public class JobSetting {
 
     @PostConstruct
     public void start_refreshPriceJob(){
-        JobDetail jobDetail = buildJobDetail(refreshPriceJob.class, new HashMap());
+        JobDetail jobDetail = buildJobDetail(RefreshPriceJob.class, new HashMap());
         try{
-            scheduler.scheduleJob(jobDetail, buildJobTrigger("*/10 * * * * ?"));
+            scheduler.scheduleJob(jobDetail, buildJobTrigger("0 0 */1 * * ?"));
         } catch(SchedulerException e){
             e.printStackTrace();
         }
     }
 
     @PostConstruct
-    public void start_checkBookingStateJob(){
-        JobDetail jobDetail = buildJobDetail(checkBookingStateJob.class, new HashMap());
+    public void start_deleteYesterdayDataJob(){
+        JobDetail jobDetail = buildJobDetail(DeleteYesterdayDataJob.class, new HashMap());
         try{
-            scheduler.scheduleJob(jobDetail, buildJobTrigger("*/20 * * * * ?"));
+            scheduler.scheduleJob(jobDetail, buildJobTrigger("0 0 0 * * ?"));
         } catch(SchedulerException e){
             e.printStackTrace();
         }

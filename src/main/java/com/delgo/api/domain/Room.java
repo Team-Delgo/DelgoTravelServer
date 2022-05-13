@@ -37,6 +37,9 @@ public class Room {
     @Column(name = "regist_dt")
     private Timestamp registDt;
 
+    @Column(name = "crawling_url")
+    private String crawlingUrl;
+
     private String checkin;
 
     private String checkout;
