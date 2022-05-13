@@ -91,7 +91,7 @@ public class PriceService {
                     pObject.setPlaceId(placeId);
                     pObject.setRoomId(roomId);
                     pObject.setPriceDate(date);
-                    pObject.setPrice("");
+                    pObject.setPrice("0");
                     pObject.setIsBooking(1);
                     resultList.add(pObject);
                 }

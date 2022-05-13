@@ -37,8 +37,11 @@ public class PlaceController {
         // 전체 place 조회 ( List )
         List<Place> placeList = placeService.getAllPlace();
 
-        // 최저가격 집어넣는 로직 ( 추후 변경예정 )
-        placeList.forEach(place -> place.setLowestPrice("190,000"));
+        // 최저가격 계산
+        placeList.forEach(place -> {
+            String lowestPrice = placeService.getLowestPrice(place.getPlaceId());
+            place.setLowestPrice(lowestPrice);
+        });
 
         // userId == 0 이면 로그인 없이 API 조회
         if (userId != 0) {
@@ -86,10 +89,9 @@ public class PlaceController {
 
     @GetMapping("/selectDetail")
     public ResponseEntity selectDetail(int userId, int placeId) {
-
         Place place = placeService.findByPlaceId(placeId); // place 조회
         place.setWishId(0);
-        place.setLowestPrice("190,000");  // 최저 가격 설정
+        place.setLowestPrice(placeService.getLowestPrice(place.getPlaceId()));  // 최저가격 설정
 
         // wish 여부 설정
         if (userId != 0) {

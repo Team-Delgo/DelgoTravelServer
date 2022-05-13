@@ -45,7 +45,10 @@ public class Room {
     private String checkout;
 
     @Transient
-    private String price = "190,000";
+    private String price;
+
+    @Transient
+    private int isBooking;
 
     @Transient
     private List<DetailPhoto> detailPhotos;

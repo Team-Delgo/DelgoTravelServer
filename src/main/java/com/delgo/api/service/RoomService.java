@@ -2,13 +2,16 @@ package com.delgo.api.service;
 
 import com.delgo.api.domain.DetailPhoto;
 import com.delgo.api.domain.Room;
+import com.delgo.api.domain.price.Price;
 import com.delgo.api.repository.DetailPhotoRepository;
+import com.delgo.api.repository.PriceRepository;
 import com.delgo.api.repository.RoomRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Slf4j
@@ -18,7 +21,9 @@ import java.util.List;
 public class RoomService {
 
     private final RoomRepository roomRepository;
+    private final PriceRepository priceRepository;
     private final DetailPhotoRepository detailPhotoRepository;
+
 
     public List<Room> selectRoomList(int placeId) {
         List<Room> roomList = roomRepository.findByPlaceId(placeId);
@@ -27,6 +32,10 @@ public class RoomService {
                 //TODO: roomId로 사진 조회해야 함.
                 List<DetailPhoto> detailPhotos = detailPhotoRepository.findByRoomId(room.getRoomId());
                 room.setDetailPhotos(detailPhotos);
+                //TODO: 가격 조회 및 적용
+                Price price = priceRepository.findByPriceDateAndRoomId(LocalDate.now().toString(),room.getRoomId());
+                room.setPrice(price.getPrice());
+                room.setIsBooking(price.getIsBooking());
             });
 
         return roomList;
