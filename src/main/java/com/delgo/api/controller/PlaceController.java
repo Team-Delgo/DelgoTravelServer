@@ -32,7 +32,7 @@ public class PlaceController {
     private final RoomService roomService;
 
     // TODO: selectWhereTogo 로 변경예정
-    @GetMapping("/selectAll")
+    @GetMapping("/selectWheretogo")
     public ResponseEntity selectWhereTogo(int userId) {
         // 전체 place 조회 ( List )
         List<Place> placeList = placeService.getAllPlace();
