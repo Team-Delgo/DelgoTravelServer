@@ -23,7 +23,7 @@ public class PhotoService {
         String[] type = Objects.requireNonNull(file.getOriginalFilename()).split("\\.");
 
         String fileName = userId + "_pet_profile." + type[type.length - 1];
-        String dir = "/var/www/delgo/";
+        String dir = "/var/www/delgo-api/";
         String link = "https://kr.object.ncloudstorage.com/delgo-pet-profile/" + fileName;
 
         try {

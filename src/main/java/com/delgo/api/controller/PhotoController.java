@@ -34,7 +34,7 @@ public class PhotoController {
 
             userService.updateUserData(user);
 
-            return ResponseEntity.ok().body(ResponseDTO.builder().code(200).codeMsg("PetProfile Upload Success").build());
+            return ResponseEntity.ok().body(ResponseDTO.builder().code(200).data(profileUrl).codeMsg("PetProfile Upload Success").build());
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(
                     ResponseDTO.builder().code(303).codeMsg(e.getMessage()).build());
