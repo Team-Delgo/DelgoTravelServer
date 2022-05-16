@@ -23,11 +23,7 @@ public class RefreshPriceJob extends QuartzJobBean {
     protected void executeInternal(JobExecutionContext jobExecutionContext) throws JobExecutionException {
         // 스케줄러에 의해 돌아갈 코드 작성
         List<Room> roomList = roomService.selectAll();
-        roomList.forEach(room -> {
-            System.out.println("======================================================================================");
-            priceService.crawlingProcess(room.getRoomId(), room.getPlaceId(), room.getCrawlingUrl());
-            System.out.println("======================================================================================");
-        });
+        priceService.crawlingProcess(roomList);
 
         LocalTime now = LocalTime.now();
         log.info(now + ": RefreshPriceJob Execute");

@@ -1,5 +1,6 @@
 package com.delgo.api.service;
 
+import com.delgo.api.domain.Room;
 import com.delgo.api.domain.price.Price;
 import com.delgo.api.repository.PriceRepository;
 import lombok.RequiredArgsConstructor;
@@ -9,6 +10,9 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -22,10 +26,14 @@ public class PriceService {
 
     private final PriceRepository priceRepository;
 
+    @Value("${config.driverLocation}")
+    String driverLocation;
     private WebDriver driver;
-    public void crawlingProcess(int roomId, int placeId, String url) {
-        System.setProperty("webdriver.chrome.driver", "C:\\Users\\admin\\Desktop\\chromedriver.exe");
-//        System.setProperty("webdriver.chrome.driver", "/var/www/chrome/chromedriver");
+    private WebDriverWait webDriverWait;
+    public void crawlingProcess(List<Room> roomList) {
+
+        System.setProperty("webdriver.chrome.driver", driverLocation); // Local
+
         //크롬 드라이버 셋팅 (드라이버 설치한 경로 입력)
         ChromeOptions options = new ChromeOptions();
         options.addArguments("--disable-popup-blocking");       //팝업안띄움
@@ -37,15 +45,21 @@ public class PriceService {
         options.addArguments("--disable-dev-shm-usage"); //linux 용
 
         driver = new ChromeDriver(options);
+        webDriverWait = new WebDriverWait(driver, 10);
 
         //브라우저 선택
-        try {
-            List<Price> list = getDataList(roomId, placeId, url);
+        roomList.forEach(room -> {
+            System.out.println("======================================================================================");
+            List<Price> list = null;
+            try {
+                list = getDataList(room.getRoomId(), room.getPlaceId(), room.getCrawlingUrl());
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
             priceRepository.saveAll(list);
-//            return list;
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+            System.out.println("======================================================================================");
+        });
+        System.out.println("driver 종료");
         driver.close();    //탭 닫기
         driver.quit();     //브라우저 닫기
 
@@ -54,10 +68,12 @@ public class PriceService {
     private List<Price> getDataList(int roomId, int placeId, String url) throws InterruptedException {
         LocalDate today = LocalDate.now();
         LocalDate lastDay = today.plusMonths(2);
-
         List<Price> resultList = new ArrayList<>();
+
         driver.get(url);    //브라우저에서 url로 이동한다.
-        Thread.sleep(1000); //브라우저 로딩될때까지 잠시 기다린다.
+        webDriverWait.until(  //cssSelector로 선택한 부분이 존재할때까지 기다린다. 최대 10초
+                ExpectedConditions.presenceOfElementLocated(By.cssSelector(".list_calendar_info li.item"))
+        );
 
         //  두달 치 가져옴
         for (int j = 0; j < 3; j++) {
@@ -96,11 +112,7 @@ public class PriceService {
                     resultList.add(pObject);
                 }
             });
-
-            System.out.println("result List");
-            System.out.println(resultList.toString());
             System.out.println("-------------------------------------------------------------");
-
             nextBtnClick();
         }
         return resultList;
@@ -112,7 +124,7 @@ public class PriceService {
         List<WebElement> elements = driver.findElements(By.cssSelector(".fn-forward2"));
         elements.forEach(element -> element.click());
 
-        Thread.sleep(1000);
+        Thread.sleep(1000); //브라우저 로딩될때까지 잠시 기다린다.
     }
 
     // 가격 Type 조회
@@ -120,7 +132,6 @@ public class PriceService {
         List<String> typeList = new ArrayList<String>();
         List<WebElement> elements = driver.findElements(By.cssSelector(".list_calendar_info li.item"));
         elements.forEach(element -> typeList.add(element.getText()));
-
 
         typeList.forEach(type -> System.out.println("type: " + type));
         System.out.println("Price Type length" + typeList.size());
@@ -134,8 +145,6 @@ public class PriceService {
         List<WebElement> elements = driver.findElements(By.cssSelector(".tb_body .color1" + num));
         elements.forEach(element -> list.add(element.getAttribute("data-tst_cal_datetext")));
 
-        System.out.println("test :: num = " + num + " : " + list.toString());
-
         return list;
     }
 
@@ -145,7 +154,6 @@ public class PriceService {
         List<WebElement> elements = driver.findElements(By.cssSelector(".tb_body .calendar-unselectable"));
         elements.forEach(element -> list.add(element.getAttribute("data-tst_cal_datetext")));
 
-        System.out.println("test22 :: " + list.toString());
         return list;
     }
 
