@@ -24,11 +24,11 @@ public class Room {
 
     private String name;
 
-    @Column(name = "person_max_no")
-    private String personMaxNo;
+    @Column(name = "person_max_num")
+    private int personMaxNum;
 
-    @Column(name = "pet_max_no")
-    private String petMaxNo;
+    @Column(name = "pet_max_num")
+    private int petMaxNum;
 
     @Column(name = "pet_sizelimit")
     private String petSizeLimit;
