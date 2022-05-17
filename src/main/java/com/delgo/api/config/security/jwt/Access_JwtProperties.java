@@ -1,4 +1,4 @@
-package com.delgo.api.security.jwt;
+package com.delgo.api.config.security.jwt;
 
 public interface Access_JwtProperties {
 	String SECRET = "Access_DelgoSecretKey"; // Key 값

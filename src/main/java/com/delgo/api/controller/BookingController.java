@@ -8,7 +8,7 @@ import com.delgo.api.dto.BookingDTO;
 import com.delgo.api.dto.common.ResponseDTO;
 import com.delgo.api.service.BookingService;
 import com.delgo.api.service.UserService;
-import com.delgo.api.smsCertified.SmsService;
+import com.delgo.api.config.ncp.smsCertified.SmsService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -24,7 +24,7 @@ public class BookingController {
     private final SmsService smsService;
     private final UserService userService;
 
-    // TODO: 예약 요청 API
+    // TODO: 예약 요청 API [ 여기서 쿠폰 사용 여부 설정 해줄까? ]
     @PostMapping("/request")
     public ResponseEntity bookingRequest(@RequestBody BookingDTO dto) {
         // TODO: 예약 요청 정보를 Booking Table에 저장 , booking_status - W[wait]

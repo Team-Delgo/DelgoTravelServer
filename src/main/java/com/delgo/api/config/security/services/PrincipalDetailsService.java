@@ -1,4 +1,4 @@
-package com.delgo.api.security.services;
+package com.delgo.api.config.security.services;
 
 import com.delgo.api.domain.user.User;
 import com.delgo.api.repository.UserRepository;

@@ -1,4 +1,4 @@
-package com.delgo.api.security;
+package com.delgo.api.config.security;
 
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;

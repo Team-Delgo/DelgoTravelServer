@@ -16,12 +16,6 @@ spring:
     hibernate:
       ddl-auto: none
 
-logging:
-  level:
-    root: info
-
-
-
 config:
 #  driverLocation: C:\\Users\\admin\\Desktop\\chromedriver.exe #Local
   driverLocation: /var/www/chrome/chromedriver #Dev

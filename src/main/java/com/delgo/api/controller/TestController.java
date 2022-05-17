@@ -3,20 +3,12 @@ package com.delgo.api.controller;
 import com.delgo.api.domain.Place;
 import com.delgo.api.domain.user.User;
 import com.delgo.api.repository.UserRepository;
-import com.delgo.api.security.services.PrincipalDetails;
+import com.delgo.api.config.security.services.PrincipalDetails;
 import com.delgo.api.service.TestService;
-import com.delgo.api.smsCertified.SmsService;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URISyntaxException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.text.ParseException;
 import java.util.Optional;
 
 @RestController
