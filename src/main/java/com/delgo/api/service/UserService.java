@@ -4,7 +4,7 @@ import com.delgo.api.domain.pet.Pet;
 import com.delgo.api.domain.user.User;
 import com.delgo.api.repository.PetRepository;
 import com.delgo.api.repository.UserRepository;
-import com.delgo.api.smsCertified.SmsService;
+import com.delgo.api.config.ncp.smsCertified.SmsService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

@@ -1,7 +1,7 @@
-package com.delgo.api.security.jwt;
+package com.delgo.api.config.security.jwt;
 
 import com.delgo.api.dto.LoginDTO;
-import com.delgo.api.security.services.PrincipalDetails;
+import com.delgo.api.config.security.services.PrincipalDetails;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;

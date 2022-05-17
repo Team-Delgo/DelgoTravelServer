@@ -1,6 +1,6 @@
 package com.delgo;
 
-import com.delgo.api.smsCertified.SmsService;
+import com.delgo.api.config.ncp.smsCertified.SmsService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.junit.Test;
 import org.junit.runner.RunWith;

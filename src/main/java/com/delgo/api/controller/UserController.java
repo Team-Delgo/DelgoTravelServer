@@ -3,15 +3,13 @@ package com.delgo.api.controller;
 import com.delgo.api.domain.user.User;
 import com.delgo.api.dto.UserDTO;
 import com.delgo.api.dto.common.ResponseDTO;
-import com.delgo.api.repository.UserRepository;
-import com.delgo.api.security.jwt.Access_JwtProperties;
-import com.delgo.api.security.jwt.Refresh_JwtProperties;
+import com.delgo.api.config.security.jwt.Access_JwtProperties;
+import com.delgo.api.config.security.jwt.Refresh_JwtProperties;
 import com.delgo.api.service.TokenService;
 import com.delgo.api.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;

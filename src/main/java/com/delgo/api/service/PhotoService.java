@@ -1,6 +1,6 @@
 package com.delgo.api.service;
 
-import com.delgo.api.ncp.objectStorage.ObjectStorageService;
+import com.delgo.api.config.ncp.objectStorage.ObjectStorageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
