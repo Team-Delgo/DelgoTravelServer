@@ -22,8 +22,12 @@ public class Coupon {
     @Column(name = "user_id")
     private int userId;
 
+    // 나중에  Eunm 사용하도록 변경
+//    @Column(name = "coupon_type")
+//    private CouponType couponType;
+
     @Column(name = "coupon_type")
-    private int couponType;
+    private String couponType;
 
     @CreationTimestamp
     @Column(name = "regist_dt")
@@ -33,6 +37,10 @@ public class Coupon {
     @Column(name = "used_dt")
     private LocalDate usedDt;
 
-    @Column(name = "isUsed")
-    private String isUsed;
+    @Column(name = "is_used")
+    private int isUsed;
+
+    private String name = "";
+
+    private String discount;
 }

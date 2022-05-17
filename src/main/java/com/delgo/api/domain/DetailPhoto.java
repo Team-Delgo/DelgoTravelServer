@@ -27,4 +27,6 @@ public class DetailPhoto {
     @CreationTimestamp
     @Column(name = "regist_dt")
     private Timestamp registDt;
+
+    private String url;
 }
