@@ -6,7 +6,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.*;
-import java.sql.Timestamp;
+import java.time.LocalDate;
 import java.util.List;
 
 @Data
@@ -35,7 +35,7 @@ public class Room {
 
     @CreationTimestamp
     @Column(name = "regist_dt")
-    private Timestamp registDt;
+    private LocalDate registDt;
 
     @Column(name = "crawling_url")
     private String crawlingUrl;

@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.*;
-import java.sql.Timestamp;
+import java.time.LocalDate;
 
 @Data
 @NoArgsConstructor
@@ -38,6 +38,6 @@ public class Pet {
 
     @CreationTimestamp
     @Column(name="regist_dt")
-    private Timestamp registDt;
+    private LocalDate registDt;
 
 }
