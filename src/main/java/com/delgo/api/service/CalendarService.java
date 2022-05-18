@@ -19,7 +19,10 @@ public class CalendarService {
     public List<String> getReservedDateList(int roomId) {
         List<Price> priceList = priceRepository.findByRoomIdAndIsBooking(roomId, 1);
         List<String> dateList = new ArrayList<String>();
-        priceList.forEach(price -> dateList.add(price.getPriceDate()));
+        priceList.forEach(price -> {
+            String date = price.getPriceDate().replace("-","");
+            dateList.add(date);
+        });
         return dateList;
     }
 
