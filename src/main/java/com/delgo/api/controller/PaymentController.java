@@ -1,51 +1,120 @@
 package com.delgo.api.controller;
 
-import com.delgo.api.dto.common.ResponseDTO;
-import lombok.RequiredArgsConstructor;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
-import org.json.JSONObject;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.*;
+import org.springframework.http.client.ClientHttpResponse;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.ResponseErrorHandler;
+import org.springframework.web.client.RestTemplate;
 
-import java.io.IOException;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
+import javax.annotation.PostConstruct;
+import java.util.Base64;
+import java.util.HashMap;
+import java.util.Map;
 
 @Slf4j
-@RestController
-@RequiredArgsConstructor
-@RequestMapping("/payment")
+@Controller
 public class PaymentController {
+    private final RestTemplate restTemplate = new RestTemplate();
 
-    @PostMapping("/reqBilling")
-    public void reqeustBilling() throws IOException, InterruptedException {
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("https://api.tosspayments.com/v1/billing/authorizations/card"))
-                .header("Authorization", "Basic dGVzdF9za19BRHBleE1na1czNkdKcUtFSm9CVkdiUjVvek8wOg==")
-                .header("Content-Type", "application/json")
-                .method("POST", HttpRequest.BodyPublishers.ofString("{\"cardNumber\":\"4330123412341234\",\"cardExpirationYear\":\"24\",\"cardExpirationMonth\":\"07\",\"cardPassword\":\"12\",\"customerIdentityNumber\":\"881212\",\"customerKey\":\"Ok-FOrvmE0_9_sSH3oGq0\"}"))
-                .build();
-        HttpResponse<String> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
-        System.out.println(response.body());
-        String jsonString = response.body();
-        JSONObject jObject = new JSONObject(jsonString);
-        String billingKey = jObject.getString("billingKey");
-        requestPayment(billingKey);
+    private final ObjectMapper objectMapper = new ObjectMapper();
+
+    @PostConstruct
+    private void init() {
+        restTemplate.setErrorHandler(new ResponseErrorHandler() {
+            @Override
+            public boolean hasError(ClientHttpResponse response) {
+                return false;
+            }
+
+            @Override
+            public void handleError(ClientHttpResponse response) {
+            }
+        });
     }
 
-    public ResponseEntity<?> requestPayment(String billingKey) throws IOException, InterruptedException {
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("https://api.tosspayments.com/v1/billing/" + billingKey))
-                .header("Authorization", "Basic dGVzdF9za19BRHBleE1na1czNkdKcUtFSm9CVkdiUjVvek8wOg==")
-                .header("Content-Type", "application/json")
-                .method("POST", HttpRequest.BodyPublishers.ofString("{\"customerKey\":\"Ok-FOrvmE0_9_sSH3oGq0\",\"amount\":15000,\"orderId\":\"l3bmuH2rQIKEuLUVK-WuR\",\"orderName\":\"토스 티셔츠 외 2건\"}"))
-                .build();
-        HttpResponse<String> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
-        System.out.println(response.body());
-        return ResponseEntity.ok().body(ResponseDTO.builder().code(200).codeMsg("paying is accepted").data(response.body()).build());
+    private final String SECRET_KEY = "test_sk_ADpexMgkW36GJqKEJoBVGbR5ozO0";
+
+    @RequestMapping("/success")
+    public String confirmPayment(
+            @RequestParam String paymentKey, @RequestParam String orderId, @RequestParam Long amount,
+            Model model) throws Exception {
+
+        HttpHeaders headers = new HttpHeaders();
+        // headers.setBasicAuth(SECRET_KEY, ""); // spring framework 5.2 이상 버전에서 지원
+        headers.set("Authorization", "Basic " + Base64.getEncoder().encodeToString((SECRET_KEY + ":").getBytes()));
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        Map<String, String> payloadMap = new HashMap<>();
+        payloadMap.put("orderId", orderId);
+        payloadMap.put("amount", String.valueOf(amount));
+
+        HttpEntity<String> request = new HttpEntity<>(objectMapper.writeValueAsString(payloadMap), headers);
+
+        ResponseEntity<JsonNode> responseEntity = restTemplate.postForEntity(
+                "https://api.tosspayments.com/v1/payments/" + paymentKey, request, JsonNode.class);
+
+        if (responseEntity.getStatusCode() == HttpStatus.OK) {
+            JsonNode successNode = responseEntity.getBody();
+            model.addAttribute("orderId", successNode.get("orderId").asText());
+            String secret = successNode.get("secret").asText(); // 가상계좌의 경우 입금 callback 검증을 위해서 secret을 저장하기를 권장함
+            return "success";
+        } else {
+            JsonNode failNode = responseEntity.getBody();
+            model.addAttribute("message", failNode.get("message").asText());
+            model.addAttribute("code", failNode.get("code").asText());
+            return "fail";
+        }
+    }
+
+    @RequestMapping("/fail")
+    public String failPayment(@RequestParam String message, @RequestParam String code, Model model) {
+        model.addAttribute("message", message);
+        model.addAttribute("code", code);
+        return "fail";
+    }
+
+    @RequestMapping("/virtual-account/callback")
+    @ResponseStatus(HttpStatus.OK)
+    public void handleVirtualAccountCallback(@RequestBody CallbackPayload payload) {
+        if (payload.getStatus().equals("DONE")) {
+            // handle deposit result
+        }
+    }
+
+    private static class CallbackPayload {
+        public CallbackPayload() {}
+
+        private String secret;
+        private String status;
+        private String orderId;
+
+        public String getSecret() {
+            return secret;
+        }
+
+        public void setSecret(String secret) {
+            this.secret = secret;
+        }
+
+        public String getStatus() {
+            return status;
+        }
+
+        public void setStatus(String status) {
+            this.status = status;
+        }
+
+        public String getOrderId() {
+            return orderId;
+        }
+
+        public void setOrderId(String orderId) {
+            this.orderId = orderId;
+        }
     }
 }
