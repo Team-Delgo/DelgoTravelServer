@@ -1,43 +1,38 @@
 package com.delgo.api.domain.coupon;
 
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.*;
 import java.time.LocalDate;
+
 
 @Data
 @Entity
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Coupon {
+public class CouponManager {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "coupon_id")
-    private int couponId;
-
-    @Column(name = "user_id")
-    private int userId;
-
     @Column(name = "coupon_manage_id")
     private int couponManageId;
 
-    @Column(name = "is_used")
-    private int isUsed;
+    private String couponCode;
+
+    private String couponType;
+
+    private int discountNum;
+
+    private int adminId;
 
     @CreationTimestamp
     @Column(name = "regist_dt")
     private LocalDate registDt;
 
-    @Column(name = "expire_dt ")
+    @Column(name = "expire_dt")
     private LocalDate expireDt;
 
-    private String couponType;
-
-    private int discountNum;
+    private int validDt;
 }
