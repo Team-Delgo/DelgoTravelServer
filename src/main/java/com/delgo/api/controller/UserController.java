@@ -77,6 +77,11 @@ public class UserController {
         try {
             String checkedPhoneNo = phoneNo.orElseThrow(() -> new NullPointerException("Param Empty"));
             checkedPhoneNo = checkedPhoneNo.replaceAll("[^0-9]", "");
+            if(userService.isPhoneNoExisting(checkedPhoneNo)){
+                return ResponseEntity.ok().body(
+                        ResponseDTO.builder().code(303).codeMsg("It's already registered phone number").build());
+            }
+
             int smsId = userService.sendSMS(checkedPhoneNo);
             return ResponseEntity.ok().body(
                     ResponseDTO.builder().code(200).codeMsg("sending phone number check sms success").data(smsId).build()
