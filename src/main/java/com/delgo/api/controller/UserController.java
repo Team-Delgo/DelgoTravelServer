@@ -77,9 +77,9 @@ public class UserController {
         try {
             String checkedPhoneNo = phoneNo.orElseThrow(() -> new NullPointerException("Param Empty"));
             checkedPhoneNo = checkedPhoneNo.replaceAll("[^0-9]", "");
-            randNum = userService.sendSMS(checkedPhoneNo);
+            int smsId = userService.sendSMS(checkedPhoneNo);
             return ResponseEntity.ok().body(
-                    ResponseDTO.builder().code(200).codeMsg("sending phone number check sms success").build()
+                    ResponseDTO.builder().code(200).codeMsg("sending phone number check sms success").data("smsId: " + smsId).build()
             );
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(ResponseDTO.builder().code(303).codeMsg("sending phone number check sms failed").build());
@@ -87,10 +87,10 @@ public class UserController {
     }
 
     @GetMapping("/authRandNum")
-    public ResponseEntity<?> randNumCheck(Optional<String> enterNum) {
+    public ResponseEntity<?> randNumCheck(int smsId, Optional<String> enterNum) {
         try {
             String checkedEnterNum = enterNum.orElseThrow(() -> new NullPointerException("Param Empty"));
-            userService.checkSMS(randNum, checkedEnterNum);
+            userService.checkSMS(smsId, checkedEnterNum);
             return ResponseEntity.ok().body(
                     ResponseDTO.builder().code(200).codeMsg("PhoneNo is authorized").build()
             );
