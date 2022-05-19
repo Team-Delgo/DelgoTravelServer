@@ -79,7 +79,7 @@ public class UserController {
             checkedPhoneNo = checkedPhoneNo.replaceAll("[^0-9]", "");
             int smsId = userService.sendSMS(checkedPhoneNo);
             return ResponseEntity.ok().body(
-                    ResponseDTO.builder().code(200).codeMsg("sending phone number check sms success").data("smsId: " + smsId).build()
+                    ResponseDTO.builder().code(200).codeMsg("sending phone number check sms success").data(smsId).build()
             );
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(ResponseDTO.builder().code(303).codeMsg("sending phone number check sms failed").build());
