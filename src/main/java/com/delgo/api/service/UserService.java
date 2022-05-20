@@ -93,6 +93,11 @@ public class UserService {
         smsAuthRepository.delete(findSmsAuth.get());
     }
 
+    public boolean isPhoneNoExisting(String phoneNo){
+        Optional<User> findUser = userRepository.findByPhoneNo(phoneNo);
+        return findUser.isPresent();
+    }
+
 
     public boolean isEmailExisting(String email) {
         Optional<User> findUser = userRepository.findByEmail(email);
