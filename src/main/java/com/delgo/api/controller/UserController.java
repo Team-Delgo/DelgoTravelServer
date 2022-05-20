@@ -70,7 +70,24 @@ public class UserController {
         }
     }
 
-    String randNum;
+    @GetMapping("/phoneNoAuth")
+    public ResponseEntity<?> phoneNoAuth(Optional<String> phoneNo) {
+        try {
+            String checkedPhoneNo = phoneNo.orElseThrow(() -> new NullPointerException("Param Empty"));
+            checkedPhoneNo = checkedPhoneNo.replaceAll("[^0-9]", "");
+            if(!userService.isPhoneNoExisting(checkedPhoneNo)){
+                return ResponseEntity.ok().body(
+                        ResponseDTO.builder().code(303).codeMsg("It isn't registered phone number").build());
+            }
+
+            int smsId = userService.sendSMS(checkedPhoneNo);
+            return ResponseEntity.ok().body(
+                    ResponseDTO.builder().code(200).codeMsg("sending phone number check sms success").data(smsId).build()
+            );
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(ResponseDTO.builder().code(303).codeMsg("sending phone number check sms failed").build());
+        }
+    }
 
     @GetMapping("/phoneNoCheck")
     public ResponseEntity<?> phoneNoCheck(Optional<String> phoneNo) {
