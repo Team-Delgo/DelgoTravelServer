@@ -38,7 +38,8 @@ public class CouponService {
         return couponRepository.save(coupon);
     }
 
-    // ------------------- Coupon Manager -------------------------------------
+
+    // ------------------------------------- Coupon Manager -------------------------------------
     public CouponManager insertOrUpdateCouponManager(CouponManager couponManager) {
         return couponManagerRepository.save(couponManager);
     }
