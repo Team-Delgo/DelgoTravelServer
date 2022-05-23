@@ -24,8 +24,8 @@ public class Coupon {
     @Column(name = "user_id")
     private int userId;
 
-    @Column(name = "coupon_manage_id")
-    private int couponManageId;
+    @Column(name = "coupon_manager_id")
+    private int couponManagerId;
 
     @Column(name = "is_used")
     private int isUsed;

@@ -12,11 +12,9 @@ import java.util.List;
 @Data
 public class CouponDTO {
 
-    public CouponDTO(List<Coupon> couponList, List<Coupon> expireList) {
+    public CouponDTO(List<Coupon> couponList) {
         this.couponList = couponList;
-        this.expireList = expireList;
     }
 
     private List<Coupon> couponList; // 7일 뒤 만료 쿠폰 리스트
-    private List<Coupon> expireList; // 그 외 쿠폰 리스트
 }

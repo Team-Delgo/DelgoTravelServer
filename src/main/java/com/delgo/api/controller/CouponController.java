@@ -1,5 +1,6 @@
 package com.delgo.api.controller;
 
+
 import com.delgo.api.domain.coupon.Coupon;
 import com.delgo.api.domain.coupon.CouponManager;
 import com.delgo.api.dto.CouponManagerDTO;
@@ -74,9 +75,9 @@ public class CouponController {
 
         CouponManager cm = option.get();
         // ERROR: 이미 발행된 쿠폰
-        if (couponService.checkCouponExisting(userId.get(), cm.getCouponManageId())) {
+        if (couponService.checkCouponExisting(userId.get(), cm.getCouponManagerId())) {
             return ResponseEntity.ok().body(
-                    ResponseDTO.builder().code(303).codeMsg("이미 등록된 쿠폰입니다.").build());
+                    ResponseDTO.builder().code(303).codeMsg("Coupon is existed").build());
         }
 
         // 만료 일자 계산
@@ -89,7 +90,7 @@ public class CouponController {
                         .discountNum(cm.getDiscountNum())
                         .expireDt(expireDt)
                         .isUsed(0)
-                        .couponManageId(cm.getCouponManageId())
+                        .couponManagerId(cm.getCouponManagerId())
                         .userId(userId.get())
                         .build()
         );
