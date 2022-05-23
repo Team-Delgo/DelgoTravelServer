@@ -99,8 +99,7 @@ public class ObjectStorageService {
         }
     }
 
-    public void uploadObjects(String objectName, String filePath) {
-        String bucketName = "delgo-pet-profile";
+    public void uploadObjects(String bucketName, String objectName, String filePath) {
         // create folder
 //        String folderName = "sample-folder/";
 //
@@ -127,8 +126,8 @@ public class ObjectStorageService {
         }
     }
 
-    public void selectObjects() {
-        String bucketName = "delgo-storage";
+    public void selectObjects(String bucketName) {
+//        String bucketName = "delgo-storage";
 
         // list all in the bucket
         try {
@@ -250,6 +249,16 @@ public class ObjectStorageService {
         } catch (SdkClientException | IOException e) {
             e.printStackTrace();
             return null;
+        }
+    }
+
+    public void deleteObject(String bucketName, String objectName) {
+        // delete object
+        try {
+            s3.deleteObject(bucketName, objectName);
+            System.out.format("Object %s has been deleted.\n", objectName);
+        } catch (SdkClientException e) {
+            e.printStackTrace();
         }
     }
 }
