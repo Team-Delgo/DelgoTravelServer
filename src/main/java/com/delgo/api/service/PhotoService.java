@@ -41,10 +41,8 @@ public class PhotoService {
             // NCP Link
             return link;
         } catch (Exception e) {
-            e.printStackTrace();
+            return "error:" + e.getMessage();
         }
-
-        return "error";
     }
 
     // NCP에 ReviewPhoto Upload 후 접근 URL 반환
@@ -70,9 +68,7 @@ public class PhotoService {
             // NCP Link
             return link;
         } catch (Exception e) {
-            e.printStackTrace();
+            return "error:" + e.getMessage();
         }
-
-        return "error";
     }
 }
