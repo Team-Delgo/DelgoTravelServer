@@ -20,6 +20,7 @@ public class PhotoService {
 
     // NCP에 petProfile Upload 후 접근 URL 반환
     public String uploadPetProfile(int userId, MultipartFile file) {
+        // ex) png, jpg, jpeg
         String[] type = Objects.requireNonNull(file.getOriginalFilename()).split("\\.");
 
         String fileName = userId + "_pet_profile." + type[type.length - 1];
@@ -29,22 +30,45 @@ public class PhotoService {
         try {
             // 서버에 저장
             File f = new File(dir + fileName);
-            file.transferTo(f); // multipart를 이용한 저장
+            file.transferTo(f);
 
-            // 서버에 저장된 파일 읽어서 NCP에 업로드
-            objectStorageService.uploadObjects(fileName, dir + fileName);
+            // Upload NCP
+            objectStorageService.uploadObjects("delgo-pet-profile", fileName, dir + fileName);
 
             // 서버에 저장된 사진 삭제
-            if (f.exists()) {
-                f.delete();
-            }
+            if (f.exists()) f.delete();
 
-            // TODO: 저장된 NCP의 링크 반환
+            // NCP Link
             return link;
         } catch (Exception e) {
-            e.printStackTrace();
+            return "error:" + e.getMessage();
         }
+    }
 
-        return "error";
+    // NCP에 ReviewPhoto Upload 후 접근 URL 반환
+    public String uploadReviewPhoto(int reviewId, int order, MultipartFile file) {
+        // ex) png, jpg, jpeg
+        String[] type = Objects.requireNonNull(file.getOriginalFilename()).split("\\.");
+
+        String fileName = reviewId + "_review" + order + "." + type[type.length - 1];
+        String dir = "/var/www/delgo-api/";
+        String link = "https://kr.object.ncloudstorage.com/delgo-review/" + fileName;
+
+        try {
+            // 서버에 저장
+            File f = new File(dir + fileName);
+            file.transferTo(f);
+
+            // Upload NCP
+            objectStorageService.uploadObjects("delgo-review", fileName, dir + fileName);
+
+            // 서버에 저장된 사진 삭제
+            if (f.exists()) f.delete();
+
+            // NCP Link
+            return link;
+        } catch (Exception e) {
+            return "error:" + e.getMessage();
+        }
     }
 }

@@ -16,8 +16,8 @@ import java.time.LocalDate;
 public class CouponManager {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "coupon_manage_id")
-    private int couponManageId;
+    @Column(name = "coupon_manager_id")
+    private int couponManagerId;
 
     private String couponCode;
 

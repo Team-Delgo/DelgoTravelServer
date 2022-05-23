@@ -29,8 +29,8 @@ public class CouponService {
         return couponRepository.findByCouponId(couponId);
     }
 
-    public boolean checkCouponExisting(int couponId, int couponManageId) {
-        Optional<Coupon> option = couponRepository.findByUserIdAndCouponManageId(couponId, couponManageId);
+    public boolean checkCouponExisting(int couponId, int couponManagerId) {
+        Optional<Coupon> option = couponRepository.findByUserIdAndCouponManagerId(couponId, couponManagerId);
         return option.isPresent();
     }
 
@@ -38,7 +38,8 @@ public class CouponService {
         return couponRepository.save(coupon);
     }
 
-    // ------------------- Coupon Manager -------------------------------------
+
+    // ------------------------------------- Coupon Manager -------------------------------------
     public CouponManager insertOrUpdateCouponManager(CouponManager couponManager) {
         return couponManagerRepository.save(couponManager);
     }
