@@ -30,6 +30,7 @@ public class PriceService {
     String driverLocation;
     private WebDriver driver;
     private WebDriverWait webDriverWait;
+
     public void crawlingProcess(List<Room> roomList) {
 
         System.setProperty("webdriver.chrome.driver", driverLocation); // Local
@@ -81,36 +82,38 @@ public class PriceService {
             List<String> typeList = getPriceType(); // 가격의 종류 List
             // 예약 가능한 날짜 가격별로 조회
             for (int i = 0; i < typeList.size() - 2; i++) {
-                List<String> bookingTrueList = getBookingTrueList(i);
+                List<String> canBookingList = getCanBookingList(i);
                 String price = typeList.get(i + 2);
-                bookingTrueList.forEach(date -> {
+                canBookingList.forEach(date -> {
                     LocalDate localDate = LocalDate.parse(date);
                     // 오늘 기준 2달까지만 DB에 저장한다.
-                    if ((localDate.isAfter(today) && localDate.isBefore(lastDay)) || localDate.isEqual(today) || localDate.isEqual(lastDay)) {
-                        Price pObject = new Price();
-                        pObject.setPlaceId(placeId);
-                        pObject.setRoomId(roomId);
-                        pObject.setPriceDate(date);
-                        pObject.setPrice(price);
-                        resultList.add(pObject);
-                    }
+                    if ((localDate.isAfter(today) && localDate.isBefore(lastDay)) || localDate.isEqual(today) || localDate.isEqual(lastDay))
+                        resultList.add(
+                                Price.builder()
+                                        .placeId(placeId)
+                                        .roomId(roomId)
+                                        .priceDate(date)
+                                        .price(price)
+                                        .isWait(0)
+                                        .build());
                 });
             }
 
             // 예약 불가능한 날짜 조회
-            List<String> bookingFalseList = getBookingFalseList();
-            bookingFalseList.forEach(date -> {
+            List<String> canNotBookingList = getCanNotBookingList();
+            canNotBookingList.forEach(date -> {
                 LocalDate localDate = LocalDate.parse(date);
                 // 오늘 기준 2달까지만 DB에 저장한다.
-                if ((localDate.isAfter(today) && localDate.isBefore(lastDay)) || localDate.isEqual(today) || localDate.isEqual(lastDay)) {
-                    Price pObject = new Price();
-                    pObject.setPlaceId(placeId);
-                    pObject.setRoomId(roomId);
-                    pObject.setPriceDate(date);
-                    pObject.setPrice("0");
-                    pObject.setIsBooking(1);
-                    resultList.add(pObject);
-                }
+                if ((localDate.isAfter(today) && localDate.isBefore(lastDay)) || localDate.isEqual(today) || localDate.isEqual(lastDay))
+                    resultList.add(
+                            Price.builder()
+                                    .placeId(placeId)
+                                    .roomId(roomId)
+                                    .priceDate(date)
+                                    .price("0")
+                                    .isBooking(1)
+                                    .isWait(0)
+                                    .build());
             });
             System.out.println("-------------------------------------------------------------");
             nextBtnClick();
@@ -140,7 +143,7 @@ public class PriceService {
     }
 
     // 예약 가능한 날짜 가격별로 조회
-    private List<String> getBookingTrueList(int num) throws InterruptedException {
+    private List<String> getCanBookingList(int num) throws InterruptedException {
         List<String> list = new ArrayList<String>();
         List<WebElement> elements = driver.findElements(By.cssSelector(".tb_body .color1" + num));
         elements.forEach(element -> list.add(element.getAttribute("data-tst_cal_datetext")));
@@ -149,7 +152,7 @@ public class PriceService {
     }
 
     // 예약 불가능한 날짜 조회
-    private List<String> getBookingFalseList() throws InterruptedException {
+    private List<String> getCanNotBookingList() throws InterruptedException {
         List<String> list = new ArrayList<String>();
         List<WebElement> elements = driver.findElements(By.cssSelector(".tb_body .calendar-unselectable"));
         elements.forEach(element -> list.add(element.getAttribute("data-tst_cal_datetext")));
