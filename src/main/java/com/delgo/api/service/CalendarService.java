@@ -17,13 +17,19 @@ public class CalendarService {
     private final PriceRepository priceRepository;
 
     public List<String> getReservedDateList(int roomId) {
-        List<Price> priceList = priceRepository.findByRoomIdAndIsBooking(roomId, 1);
-        List<String> dateList = new ArrayList<String>();
-        priceList.forEach(price -> {
-            String date = price.getPriceDate().replace("-","");
-            dateList.add(date);
+        List<String> reservedDateList = new ArrayList<String>(); // 결과 반환 리스트
+        List<Price> bookedList = priceRepository.findByRoomIdAndIsBooking(roomId, 1); // 예약된 방 조회
+        bookedList.forEach(price -> {
+            String date = price.getPriceDate().replace("-", "");
+            reservedDateList.add(date);
         });
-        return dateList;
+        List<Price> waitList = priceRepository.findByRoomIdAndIsWait(roomId, 1); // 예약 대기중인 방 조회
+        waitList.forEach(price -> {
+            String date = price.getPriceDate().replace("-", "");
+            reservedDateList.add(date);
+        });
+
+        return reservedDateList;
     }
 
 }
