@@ -18,11 +18,10 @@ public class DeleteYesterdayDataJob extends QuartzJobBean {
 
     @Override
     protected void executeInternal(JobExecutionContext jobExecutionContext) throws JobExecutionException {
-        // 스케줄러에 의해 돌아갈 코드 작성
-        LocalTime now = LocalTime.now();
+        log.info(LocalTime.now() + ": DeleteYesterdayDataJob  Execute");
+
         String yesterday = LocalDate.now().minusDays(1).toString();
         priceService.deleteYesterdayPrice(yesterday);
 
-        log.info(now + ": DeleteYesterdayDataJob  Execute");
     }
 }
