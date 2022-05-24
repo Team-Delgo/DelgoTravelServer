@@ -13,6 +13,8 @@ public interface PriceRepository extends JpaRepository<Price, PriceId> {
 
     List<Price> findByRoomIdAndIsBooking(int roomId, int isBooking);
 
+    List<Price> findByRoomIdAndIsWait(int roomId, int isWait);
+
     List<Price> findByRoomIdAndIsBookingAndPriceDateBetween(int roomId, int isBooking, String startDate, String endDate);
 
     Price findByPriceDateAndRoomId(String priceDate, int roomId);
