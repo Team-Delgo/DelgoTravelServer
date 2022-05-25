@@ -38,7 +38,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
 				.addFilter(new JwtAuthenticationFilter(authenticationManager()))
 				.addFilter(new JwtAuthorizationFilter(authenticationManager(),userRepository))
 				.authorizeRequests()
-				.antMatchers("/api/**").authenticated()
+//				.antMatchers("/test").authenticated()
+//				.antMatchers("/test2").authenticated()
+//				.antMatchers("/wish/**").authenticated()
+//				.antMatchers("/booking/**").authenticated()
+//				.antMatchers("/coupon/**").authenticated()
+//				.antMatchers("/review/write").authenticated()
 				.anyRequest().permitAll();
 	}
 }

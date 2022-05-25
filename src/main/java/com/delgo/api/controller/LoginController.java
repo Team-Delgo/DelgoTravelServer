@@ -2,12 +2,12 @@ package com.delgo.api.controller;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
+import com.delgo.api.config.security.jwt.Access_JwtProperties;
+import com.delgo.api.config.security.jwt.Refresh_JwtProperties;
 import com.delgo.api.domain.pet.Pet;
 import com.delgo.api.domain.user.User;
 import com.delgo.api.dto.UserDTO;
 import com.delgo.api.dto.common.ResponseDTO;
-import com.delgo.api.config.security.jwt.Access_JwtProperties;
-import com.delgo.api.config.security.jwt.Refresh_JwtProperties;
 import com.delgo.api.service.PetService;
 import com.delgo.api.service.TokenService;
 import com.delgo.api.service.UserService;
@@ -16,6 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
@@ -89,16 +90,9 @@ public class LoginController {
                 ResponseDTO.builder().code(303).codeMsg("Login Fail").build());
     }
 
-    @GetMapping("/tokenError")
+    @RequestMapping("/tokenError")
     public ResponseEntity<?> getTokenError() {
-        log.info("Get tokenError");
-        return ResponseEntity.ok().body(
-                ResponseDTO.builder().code(304).codeMsg("Token Certification failed").build());
-    }
-
-    @PostMapping("/tokenError")
-    public ResponseEntity<?> postTokenError() {
-        log.info("Post tokenError");
+        log.info("tokenError");
         return ResponseEntity.ok().body(
                 ResponseDTO.builder().code(304).codeMsg("Token Certification failed").build());
     }

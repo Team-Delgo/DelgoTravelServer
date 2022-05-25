@@ -43,20 +43,17 @@ public class PlaceService {
     public String getLowestPrice(int placeId) {
         List<Price> list = priceRepository.findByPlaceId(placeId);
 
-//        if (list.isEmpty()) return ""; // 예외처리
-
         List<Integer> priceList = new ArrayList<Integer>();
         list.forEach(p -> {
             String price = p.getPrice();
             if (!price.equals("")) {
                 price = price.replace(",", "");
                 price = price.replace("원", "");
-                priceList.add(Integer.parseInt(price));
+                if (!price.equals("0")) priceList.add(Integer.parseInt(price));
             }
         });
 
         DecimalFormat df = new DecimalFormat("###,###원"); //포맷팅
-//        log.info(df.format(Collections.min(priceList)));
         return df.format(Collections.min(priceList)); // 최소가격
     }
 
