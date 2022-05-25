@@ -142,6 +142,12 @@ public class PlaceController {
             });
         }
 
+        // 최저가격 계산
+        canBookingList.forEach(place -> {
+            String lowestPrice = placeService.getLowestPrice(place.getPlaceId());
+            place.setLowestPrice(lowestPrice);
+        });
+
         return ResponseEntity.ok().body(
                 ResponseDTO.builder().code(200).codeMsg("Success").data(canBookingList).build());
     }
