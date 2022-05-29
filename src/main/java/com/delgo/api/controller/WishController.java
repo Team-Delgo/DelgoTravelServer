@@ -61,10 +61,10 @@ public class WishController {
     public ResponseEntity selectWishData(int userId) {
         try {
             List<Wish> wishList = wishService.getWishList(userId);
-            List<Place> placeList = new ArrayList<Place>();
+            List<Optional<Place>> placeList = new ArrayList<>();
             for (int i = 0; i < wishList.size(); i++) {
-                Place place = placeService.findByPlaceId(wishList.get(i).getPlaceId());
-                place.setWishId(wishList.get(i).getWishId());
+                Optional<Place> place = placeService.findByPlaceId(wishList.get(i).getPlaceId());
+                place.get().setWishId(wishList.get(i).getWishId());
                 placeList.add(place);
             }
             return ResponseEntity.ok().body(
