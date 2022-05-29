@@ -32,6 +32,10 @@ public class User {
     @Column(nullable = false, name="phone_no")
     private String phoneNo;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = true, name="social")
+    private UserSocial userSocial;
+
     @CreationTimestamp
     @Column(name="regist_dt")
     private LocalDate registDt;
