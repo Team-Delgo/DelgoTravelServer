@@ -134,10 +134,8 @@ public class UserController {
             String phoneNoUpdate = checkedUserDTO.getUser().getPhoneNo().replaceAll("[^0-9]", "");
             checkedUserDTO.getUser().setPhoneNo(phoneNoUpdate);
             checkedUserDTO.getUser().setEmail("");
-            checkedUserDTO.getUser().setPassword("");
 
-            User user = userService.signup(checkedUserDTO.getUser(), checkedUserDTO.getPet());
-            user.setPassword(""); // 보안
+            User user = userService.socialSignup(checkedUserDTO.getUser(), checkedUserDTO.getPet());
 
             String Access_jwtToken = tokenService.createToken("Access", checkedUserDTO.getUser().getPhoneNo()); // Access Token 생성
             String Refresh_jwtToken = tokenService.createToken("Refresh", checkedUserDTO.getUser().getPhoneNo()); // Refresh Token 생성
