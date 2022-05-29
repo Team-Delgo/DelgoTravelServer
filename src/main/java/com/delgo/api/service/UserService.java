@@ -50,6 +50,18 @@ public class UserService {
     }
 
     @Transactional
+    public User socialSignup(User user, Pet pet) {
+        // User Data save
+        user.setPassword("");
+        User owner = userRepository.save(user);
+        // Pet Data save
+        pet.setUserId(owner.getUserId());
+        petRepository.save(pet);
+
+        return owner;
+    }
+
+    @Transactional
     public void deleteUser(String email){
         User user = userRepository.findByEmail(email).orElseThrow(() -> new IllegalArgumentException("The email does not exist"));
         Pet pet = petRepository.findByUserId(user.getUserId()).orElseThrow(() -> new IllegalArgumentException("Something wrong"));

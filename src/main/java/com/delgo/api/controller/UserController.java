@@ -127,6 +127,29 @@ public class UserController {
         }
     }
 
+    @PostMapping("/socialSignup")
+    public ResponseEntity<?> registerUserBySocial(@RequestBody Optional<UserDTO> userDTO, HttpServletResponse response) {
+        try { // Param Empty Check
+            UserDTO checkedUserDTO = userDTO.orElseThrow(() -> new NullPointerException("Param Empty"));
+            String phoneNoUpdate = checkedUserDTO.getUser().getPhoneNo().replaceAll("[^0-9]", "");
+            checkedUserDTO.getUser().setPhoneNo(phoneNoUpdate);
+            checkedUserDTO.getUser().setEmail("");
+
+            User user = userService.socialSignup(checkedUserDTO.getUser(), checkedUserDTO.getPet());
+
+            String Access_jwtToken = tokenService.createToken("Access", checkedUserDTO.getUser().getPhoneNo()); // Access Token 생성
+            String Refresh_jwtToken = tokenService.createToken("Refresh", checkedUserDTO.getUser().getPhoneNo()); // Refresh Token 생성
+
+            response.addHeader(Access_JwtProperties.HEADER_STRING, Access_JwtProperties.TOKEN_PREFIX + Access_jwtToken);
+            response.addHeader(Refresh_JwtProperties.HEADER_STRING, Refresh_JwtProperties.TOKEN_PREFIX + Refresh_jwtToken);
+
+            return ResponseEntity.ok().body(ResponseDTO.builder().code(200).codeMsg("signup success").data(user).build());
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(
+                    ResponseDTO.builder().code(303).codeMsg(e.getMessage()).build());
+        }
+    }
+
     @PostMapping("/signup")
     public ResponseEntity<?> registerUser(@RequestBody Optional<UserDTO> userDTO, HttpServletResponse response) {
         try { // Param Empty Check
