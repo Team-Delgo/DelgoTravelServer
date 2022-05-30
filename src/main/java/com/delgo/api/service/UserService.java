@@ -1,8 +1,10 @@
 package com.delgo.api.service;
 
+import com.delgo.api.domain.SmsAuth;
 import com.delgo.api.domain.pet.Pet;
 import com.delgo.api.domain.user.User;
 import com.delgo.api.repository.PetRepository;
+import com.delgo.api.repository.SmsAuthRepository;
 import com.delgo.api.repository.UserRepository;
 import com.delgo.api.comm.ncp.smsCertified.SmsService;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -27,6 +29,7 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final PetRepository petRepository;
+    private final SmsAuthRepository smsAuthRepository;
     private final PasswordEncoder passwordEncoder;
     private final SmsService smsService;
 
@@ -38,6 +41,18 @@ public class UserService {
         String encodedPassword = passwordEncoder.encode(user.getPassword());
         user.setPassword(encodedPassword);
         // User Data save
+        User owner = userRepository.save(user);
+        // Pet Data save
+        pet.setUserId(owner.getUserId());
+        petRepository.save(pet);
+
+        return owner;
+    }
+
+    @Transactional
+    public User socialSignup(User user, Pet pet) {
+        // User Data save
+        user.setPassword("");
         User owner = userRepository.save(user);
         // Pet Data save
         pet.setUserId(owner.getUserId());
@@ -61,7 +76,7 @@ public class UserService {
         userRepository.save(user);
     }
 
-    public String sendSMS(String phoneNo) throws UnsupportedEncodingException, NoSuchAlgorithmException, URISyntaxException, InvalidKeyException, JsonProcessingException {
+    public int sendSMS(String phoneNo) throws UnsupportedEncodingException, NoSuchAlgorithmException, URISyntaxException, InvalidKeyException, JsonProcessingException {
         Random rand = new Random();
         String randNum = "";
         for (int i = 0; i < 4; i++) {
@@ -69,19 +84,30 @@ public class UserService {
             randNum += ran;
         }
         String message = "[Delgo] 인증번호 " + randNum;
+        SmsAuth smsAuth = new SmsAuth();
         try{
             smsService.sendSMS(phoneNo, message);
+            smsAuth.setRandNum(randNum);
+            smsAuthRepository.save(smsAuth);
         } catch (Exception e) {
             throw new IllegalStateException(e.getMessage());
         }
-        return randNum;
+        int smsId = smsAuth.getSmsId();
+        return smsId;
     }
 
-    public void checkSMS(String randNum, String enterNum) {
-        if (!randNum.equals(enterNum)) {
+    public void checkSMS(int smsId, String enterNum) {
+        Optional<SmsAuth> findSmsAuth = smsAuthRepository.findBySmsId(smsId);
+        if (!findSmsAuth.get().getRandNum().equals(enterNum)) {
             log.warn("The authentication numbers do not match");
             throw new IllegalStateException("The authentication numbers do not match");
         }
+        smsAuthRepository.delete(findSmsAuth.get());
+    }
+
+    public boolean isPhoneNoExisting(String phoneNo){
+        Optional<User> findUser = userRepository.findByPhoneNo(phoneNo);
+        return findUser.isPresent();
     }
 
 
