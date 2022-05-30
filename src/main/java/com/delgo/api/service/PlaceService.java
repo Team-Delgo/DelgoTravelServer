@@ -1,8 +1,10 @@
 package com.delgo.api.service;
 
+import com.delgo.api.domain.photo.DetailPhoto;
 import com.delgo.api.domain.Place;
 import com.delgo.api.domain.Room;
 import com.delgo.api.domain.price.Price;
+import com.delgo.api.repository.DetailPhotoRepository;
 import com.delgo.api.repository.PlaceRepository;
 import com.delgo.api.repository.PriceRepository;
 import com.delgo.api.repository.RoomRepository;
@@ -26,9 +28,36 @@ public class PlaceService {
     private final PlaceRepository placeRepository;
     private final RoomRepository roomRepository;
     private final PriceRepository priceRepository;
+    private final DetailPhotoRepository detailPhotoRepository;
 
-    public List<Place> getAllPlace() {
-        return placeRepository.findAll();
+    public List<Place> getWhereToGoData() {
+        // 전체 Place 리스트 조회
+        List<Place> placeList = placeRepository.findAll();
+        if (placeList.size() > 0) {
+            // place MainPhoto 설정
+            placeList.forEach(place -> {
+                Optional<DetailPhoto> mainPhoto = detailPhotoRepository.findByPlaceIdAndIsMain(place.getPlaceId(), 1);
+                mainPhoto.ifPresent(photo -> place.setMainPhotoUrl(photo.getUrl()));
+            });
+
+            // 예약가능한 Place Check
+            placeList.forEach(place -> {
+                // place 예약 가능 여부 Check ( 초기 페이지에서는 오늘 기준 1박으로 잡는다. )
+                boolean isBooking = checkBooking(place.getPlaceId(), LocalDate.now(), LocalDate.now().plusDays(1));
+                if (!isBooking) place.setIsBooking(1);
+            });
+
+            // 최저가격 계산
+            placeList.forEach(place -> {
+                if (place.getIsBooking() == 0) { // 예약가능할 경우 최저가격 계산
+                    String lowestPrice = getLowestPrice(place.getPlaceId(), LocalDate.now(), LocalDate.now().plusDays(1));
+                    place.setLowestPrice(lowestPrice);
+                } else { // 예약 불가능할 경우 0원 입력
+                    place.setLowestPrice("0원");
+                }
+            });
+        }
+        return placeList;
     }
 
     public Optional<Place> findByPlaceId(int placeId) {
@@ -36,8 +65,33 @@ public class PlaceService {
     }
 
     // 검색
-    public List<Place> searchPlace(Map<String, Object> searchKeys) {
-        return placeRepository.findAll(PlaceSpecification.searchPlace(searchKeys));
+    public List<Place> getSearchPlaceListData(Map<String, Object> searchKeys, LocalDate StartDt, LocalDate endDt) {
+        // 전체 Place 리스트 조회
+        List<Place> placeList = placeRepository.findAll(PlaceSpecification.searchPlace(searchKeys));
+        if (placeList.size() > 0) {
+            // place MainPhoto 설정
+            placeList.forEach(place -> {
+                Optional<DetailPhoto> mainPhoto = detailPhotoRepository.findByPlaceIdAndIsMain(place.getPlaceId(), 1);
+                mainPhoto.ifPresent(photo -> place.setMainPhotoUrl(photo.getUrl()));
+            });
+
+            // 예약가능한 Place Check
+            placeList.forEach(place -> {
+                // place 예약 가능 여부 Check ( 초기 페이지에서는 오늘 기준 1박으로 잡는다. )
+                boolean isBooking = checkBooking(place.getPlaceId(), StartDt, endDt);
+                if (isBooking) place.setIsBooking(1);
+            });
+
+            // 최저가격 계산
+            placeList.forEach(place -> {
+                if (place.getIsBooking() == 0) { // 예약가능할 경우 최저가격 계산
+                    String lowestPrice = getLowestPrice(place.getPlaceId(), StartDt, endDt);
+                    place.setLowestPrice(lowestPrice);
+                } else  // 예약 불가능할 경우 0원 입력
+                    place.setLowestPrice("0원");
+            });
+        }
+        return placeList;
     }
 
     // 최저가격 계산
@@ -67,8 +121,8 @@ public class PlaceService {
         if (minPricelist.size() == 0)
             return "0원";
 
-            DecimalFormat df = new DecimalFormat("###,###원"); //포맷팅
-            return df.format(Collections.min(minPricelist)); // place의 최소 값.
+        DecimalFormat df = new DecimalFormat("###,###원"); //포맷팅
+        return df.format(Collections.min(minPricelist)); // place의 최소 값.
     }
 
     // 최대 2주치만 검색 가능

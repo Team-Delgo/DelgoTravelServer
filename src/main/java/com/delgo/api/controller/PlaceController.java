@@ -4,10 +4,12 @@ package com.delgo.api.controller;
 import com.delgo.api.comm.CommService;
 import com.delgo.api.comm.exception.API;
 import com.delgo.api.comm.exception.ApiCode;
+import com.delgo.api.domain.photo.DetailPhoto;
 import com.delgo.api.domain.Place;
 import com.delgo.api.domain.Room;
 import com.delgo.api.domain.Wish;
 import com.delgo.api.dto.DetailDTO;
+import com.delgo.api.service.PhotoService;
 import com.delgo.api.service.PlaceService;
 import com.delgo.api.service.RoomService;
 import com.delgo.api.service.WishService;
@@ -19,7 +21,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDate;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @Slf4j
 @RestController
@@ -31,6 +36,7 @@ public class PlaceController {
     private final WishService wishService;
     private final RoomService roomService;
     private final CommService commService;
+    private final PhotoService photoService;
 
     @GetMapping("/selectWheretogo")
     public ResponseEntity selectWhereTogo(Optional<Integer> userId) {
@@ -38,45 +44,25 @@ public class PlaceController {
         if (!userId.isPresent())
             return API.ErrorReturn(303, ApiCode.PARAM_ERROR);
 
-        // 전체 place 조회 ( List )
-        List<Place> placeList = placeService.getAllPlace();
-        // 예약가능한 Place Check
-        if (placeList.size() > 0)
-            placeList.forEach(place -> {
-                // place 예약 가능 여부 Check ( 초기 페이지에서는 오늘 기준 1박으로 잡는다. )
-                boolean isBooking = placeService.checkBooking(place.getPlaceId(), LocalDate.now(), LocalDate.now().plusDays(1));
-                if (!isBooking) place.setIsBooking(1);
-            });
-
-        // 최저가격 계산
-        if (placeList.size() > 0)
-            placeList.forEach(place -> {
-                if (place.getIsBooking() == 0) { // 예약가능할 경우 최저가격 계산
-                    String lowestPrice = placeService.getLowestPrice(place.getPlaceId(), LocalDate.now(), LocalDate.now().plusDays(1));
-                    place.setLowestPrice(lowestPrice);
-                } else { // 예약 불가능할 경우 0원 입력
-                    place.setLowestPrice("0원");
-                }
-            });
+        // 전체 Place 조회 ( List )
+        List<Place> placeList = placeService.getWhereToGoData();
 
         // wish 여부 Check [userId == 0일 경우 로그인 안했다고 판단. ]
+        // placeList에 wish 등록 여부 적용
         if (userId.get() != 0 && placeList.size() > 0) {
             List<Wish> wishList = wishService.getWishList(userId.get());
             if (wishList.size() > 0)
-                wishList.forEach(wish -> { // placeList에 wishList 등록여부 적용
+                wishList.forEach(wish -> {
                     placeList.forEach(place -> {
                         if (place.getPlaceId() == wish.getPlaceId())
                             place.setWishId(wish.getWishId());
                     });
                 });
         }
+
         // TODO: 추후 placeList 보여주는 알고리즘 추가 예정 (광고 등등..)
-        // placeList Random shuffle
-        Collections.shuffle(placeList);
 
         return API.SuccessReturn(placeList);
-
-
     }
 
     @GetMapping("/selectDetail")
@@ -88,6 +74,7 @@ public class PlaceController {
         if (startDt.get().isEmpty())
             return API.ErrorReturn(303, ApiCode.PARAM_ERROR);
 
+        // Detail Place 조회
         Optional<Place> place = placeService.findByPlaceId(placeId.get()); // place 조회
         if (!place.isPresent()) // Validate
             return API.ErrorReturn(303, ApiCode.SELECT_DATA_NOT_EXIST);
@@ -103,11 +90,15 @@ public class PlaceController {
             else place.get().setWishId(0);
         }
 
+        // PlaceId로 Place에 속한 Room 조회
         List<Room> roomList = roomService.selectRoomList(placeId.get(), startDt.get());
         if (roomList.size() == 0) // Validate
             return API.ErrorReturn(303, ApiCode.SELECT_DATA_NOT_EXIST);
 
-        return API.SuccessReturn(new DetailDTO(place.get(), roomList));
+        // PlaceId로 Detail 상단에서 보여줄 Photo List 조회
+        List<DetailPhoto> detailPhotos = photoService.getDetailPhotoList(placeId.get());
+
+        return API.SuccessReturn(new DetailDTO(place.get(), roomList, detailPhotos));
     }
 
     @GetMapping("/search")
@@ -132,30 +123,15 @@ public class PlaceController {
         address.ifPresent(a -> searchKeys.put("address", a));
 
         // Name, Address로 placeList 조회
-        List<Place> placeList = placeService.searchPlace(searchKeys);
+        List<Place> placeList = placeService.getSearchPlaceListData(searchKeys, LocalDate.parse(startDt.get()), LocalDate.parse(endDt.get()));
 
-        // 예약가능한 Place Check
-        if (placeList.size() > 0) {
+        // userId == 0 이면 로그인 없이 API 조회 // userId 있을 경우 wish 여부 Check
+        if (userId.get() != 0 && placeList.size() > 0) {
+            List<Wish> wishList = wishService.getWishList(userId.get());
             placeList.forEach(place -> {
-                // place 예약 가능 여부 Check
-                boolean isBooking = placeService.checkBooking(place.getPlaceId(), LocalDate.parse(startDt.get()), LocalDate.parse(endDt.get()));
-                if (isBooking) place.setIsBooking(1);
-            });
-
-            // userId == 0 이면 로그인 없이 API 조회 // userId 있을 경우 wish 여부 Check
-            if (userId.get() != 0) {
-                List<Wish> wishList = wishService.getWishList(userId.get());
-                placeList.forEach(place -> {
-                    wishList.forEach(wish -> {
-                        if (place.getPlaceId() == wish.getPlaceId()) place.setWishId(wish.getWishId());
-                    });
+                wishList.forEach(wish -> {
+                    if (place.getPlaceId() == wish.getPlaceId()) place.setWishId(wish.getWishId());
                 });
-            }
-
-            // 최저가격 계산
-            placeList.forEach(place -> {
-                String lowestPrice = placeService.getLowestPrice(place.getPlaceId(), LocalDate.parse(startDt.get()), LocalDate.parse(endDt.get()));
-                place.setLowestPrice(lowestPrice);
             });
         }
 

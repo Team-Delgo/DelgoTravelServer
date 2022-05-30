@@ -1,5 +1,6 @@
 package com.delgo.api.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -15,24 +16,21 @@ import java.time.LocalDate;
 public class Place {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "place_id")
     private int placeId;
     private String name;
     private String address;
-
     @CreationTimestamp
-    @Column(name = "regist_dt")
+    @JsonIgnore
     private LocalDate registDt;
-
-    @Column(name = "main_photo_url")
-    private String mainPhotoUrl;
+    private String checkin;
+    private String checkout;
 
     @Transient
-    private String lowestPrice;
-
+    private String mainPhotoUrl;
     @Transient
     private int wishId = 0;
-
     @Transient
     private int isBooking = 0;
+    @Transient
+    private String lowestPrice;
 }
