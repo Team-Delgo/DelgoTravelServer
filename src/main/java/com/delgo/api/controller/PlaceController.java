@@ -2,12 +2,12 @@ package com.delgo.api.controller;
 
 
 import com.delgo.api.comm.CommService;
+import com.delgo.api.comm.exception.API;
 import com.delgo.api.comm.exception.ApiCode;
 import com.delgo.api.domain.Place;
 import com.delgo.api.domain.Room;
 import com.delgo.api.domain.Wish;
 import com.delgo.api.dto.DetailDTO;
-import com.delgo.api.dto.common.ResponseDTO;
 import com.delgo.api.service.PlaceService;
 import com.delgo.api.service.RoomService;
 import com.delgo.api.service.WishService;
@@ -36,8 +36,7 @@ public class PlaceController {
     public ResponseEntity selectWhereTogo(Optional<Integer> userId) {
         // Validate - Null Check;
         if (!userId.isPresent())
-            return ResponseEntity.ok().body(
-                    ResponseDTO.builder().code(303).codeMsg(ApiCode.PARAM_ERROR).build());
+            return API.ErrorReturn(303, ApiCode.PARAM_ERROR);
 
         // 전체 place 조회 ( List )
         List<Place> placeList = placeService.getAllPlace();
@@ -75,25 +74,23 @@ public class PlaceController {
         // placeList Random shuffle
         Collections.shuffle(placeList);
 
-        return ResponseEntity.ok().body(
-                ResponseDTO.builder().code(200).codeMsg(ApiCode.SUCCESS).data(placeList).build());
+        return API.SuccessReturn(placeList);
+
+
     }
 
     @GetMapping("/selectDetail")
     public ResponseEntity selectDetail(Optional<Integer> userId, Optional<Integer> placeId, Optional<String> startDt) {
         // Validate - Null Check;
         if (!userId.isPresent() || !placeId.isPresent() || !startDt.isPresent())
-            return ResponseEntity.ok().body(
-                    ResponseDTO.builder().code(303).codeMsg(ApiCode.PARAM_ERROR).build());
+            return API.ErrorReturn(303, ApiCode.PARAM_ERROR);
         // Validate - Blank Check; [ String 만 해주면 됨 ]
         if (startDt.get().isEmpty())
-            return ResponseEntity.ok().body(
-                    ResponseDTO.builder().code(303).codeMsg(ApiCode.PARAM_ERROR).build());
+            return API.ErrorReturn(303, ApiCode.PARAM_ERROR);
 
         Optional<Place> place = placeService.findByPlaceId(placeId.get()); // place 조회
         if (!place.isPresent()) // Validate
-            return ResponseEntity.ok().body(
-                    ResponseDTO.builder().code(303).codeMsg("Place isn't exist").build());
+            return API.ErrorReturn(303, ApiCode.SELECT_DATA_NOT_EXIST);
 
         place.get().setLowestPrice("0원"); //Detail Page에서 사용 x.
         // wish 설정
@@ -108,11 +105,9 @@ public class PlaceController {
 
         List<Room> roomList = roomService.selectRoomList(placeId.get(), startDt.get());
         if (roomList.size() == 0) // Validate
-            return ResponseEntity.ok().body(
-                    ResponseDTO.builder().code(200).codeMsg(ApiCode.FAIL).build());
+            return API.ErrorReturn(303, ApiCode.SELECT_DATA_NOT_EXIST);
 
-        return ResponseEntity.ok().body(
-                ResponseDTO.builder().code(200).codeMsg(ApiCode.SUCCESS).data(new DetailDTO(place.get(), roomList)).build());
+        return API.SuccessReturn(new DetailDTO(place.get(), roomList));
     }
 
     @GetMapping("/search")
@@ -124,16 +119,13 @@ public class PlaceController {
             Optional<String> endDt) {
         // Validate - Null Check;
         if (!userId.isPresent() || !startDt.isPresent() || !endDt.isPresent())
-            return ResponseEntity.ok().body(
-                    ResponseDTO.builder().code(303).codeMsg(ApiCode.PARAM_ERROR).build());
+            return API.ErrorReturn(303, ApiCode.PARAM_ERROR);
         // Validate - Blank Check; [ String 만 해주면 됨 ]
         if (startDt.get().isEmpty() || endDt.get().isEmpty())
-            return ResponseEntity.ok().body(
-                    ResponseDTO.builder().code(303).codeMsg(ApiCode.PARAM_ERROR).build());
+            return API.ErrorReturn(303, ApiCode.PARAM_ERROR);
         // Validate - 날짜 차이가 2주 이내인가? 시작날짜가 오늘보다 같거나 큰가? 종료날짜는 만료날짜랑 같거나 작은가?
         if (!commService.checkDate(startDt.get(), endDt.get()))
-            return ResponseEntity.ok().body(
-                    ResponseDTO.builder().code(303).codeMsg("Date range Error").build());
+            return API.ErrorReturn(303, ApiCode.DATE_RANGE_ERROR);
 
         Map<String, Object> searchKeys = new HashMap<>();
         name.ifPresent(n -> searchKeys.put("name", n));
@@ -167,7 +159,6 @@ public class PlaceController {
             });
         }
 
-        return ResponseEntity.ok().body(
-                ResponseDTO.builder().code(200).codeMsg("Success").data(placeList).build());
+        return API.SuccessReturn(placeList);
     }
 }

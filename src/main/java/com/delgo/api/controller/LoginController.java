@@ -2,8 +2,8 @@ package com.delgo.api.controller;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
-import com.delgo.api.config.security.jwt.Access_JwtProperties;
-import com.delgo.api.config.security.jwt.Refresh_JwtProperties;
+import com.delgo.api.comm.security.jwt.Access_JwtProperties;
+import com.delgo.api.comm.security.jwt.Refresh_JwtProperties;
 import com.delgo.api.domain.pet.Pet;
 import com.delgo.api.domain.user.User;
 import com.delgo.api.dto.UserDTO;

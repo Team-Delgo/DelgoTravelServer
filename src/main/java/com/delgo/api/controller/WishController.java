@@ -63,9 +63,9 @@ public class WishController {
             List<Wish> wishList = wishService.getWishList(userId);
             List<Place> placeList = new ArrayList<Place>();
             for (int i = 0; i < wishList.size(); i++) {
-                Place place = placeService.findByPlaceId(wishList.get(i).getPlaceId());
-                place.setWishId(wishList.get(i).getWishId());
-                placeList.add(place);
+                Optional<Place> place = placeService.findByPlaceId(wishList.get(i).getPlaceId());
+                place.get().setWishId(wishList.get(i).getWishId());
+                placeList.add(place.get());
             }
             return ResponseEntity.ok().body(
                     ResponseDTO.builder().code(200).codeMsg("Wish Select Success").data(placeList).build()

@@ -1,7 +1,7 @@
-package com.delgo.api.config.quartz;
+package com.delgo.api.comm.quartz;
 
-import com.delgo.api.config.quartz.job.DeleteYesterdayDataJob;
-import com.delgo.api.config.quartz.job.RefreshPriceJob;
+import com.delgo.api.comm.quartz.job.DeleteYesterdayDataJob;
+import com.delgo.api.comm.quartz.job.RefreshPriceJob;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.*;
 import org.springframework.beans.factory.annotation.Autowired;
