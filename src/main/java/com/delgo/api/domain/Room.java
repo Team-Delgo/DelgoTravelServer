@@ -1,5 +1,6 @@
 package com.delgo.api.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -7,7 +8,6 @@ import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.*;
 import java.time.LocalDate;
-import java.util.List;
 
 @Data
 @Entity
@@ -16,40 +16,26 @@ import java.util.List;
 public class Room {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "room_id")
     private int roomId;
-
-    @Column(name = "place_id")
     private int placeId;
-
     private String name;
-
-    @Column(name = "person_max_num")
     private int personMaxNum;
-
-    @Column(name = "pet_max_num")
+    private int personStandardNum;
     private int petMaxNum;
-
-    @Column(name = "pet_sizelimit")
+    private int petStandardNum;
     private String petSizeLimit;
-
     @CreationTimestamp
-    @Column(name = "regist_dt")
+    @JsonIgnore
     private LocalDate registDt;
-
-    @Column(name = "crawling_url")
+    @JsonIgnore
     private String crawlingUrl;
-
-    private String checkin;
-
-    private String checkout;
 
     @Transient
     private String price;
-
     @Transient
     private int isBooking;
-
     @Transient
-    private List<DetailPhoto> detailPhotos;
+    private String mainPhotoUrl;
+//    @Transient
+//    private List<DetailPhoto> detailPhotos;
 }

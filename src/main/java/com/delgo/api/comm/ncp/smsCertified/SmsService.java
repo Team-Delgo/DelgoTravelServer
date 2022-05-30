@@ -1,4 +1,4 @@
-package com.delgo.api.config.ncp.smsCertified;
+package com.delgo.api.comm.ncp.smsCertified;
 
 
 import com.delgo.api.dto.MessagesRequestDTO;

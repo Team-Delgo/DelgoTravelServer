@@ -1,6 +1,10 @@
 package com.delgo.api.service;
 
-import com.delgo.api.config.ncp.objectStorage.ObjectStorageService;
+import com.delgo.api.comm.ncp.objectStorage.ObjectStorageService;
+import com.delgo.api.domain.photo.DetailPhoto;
+import com.delgo.api.domain.photo.DetailRoomPhoto;
+import com.delgo.api.repository.DetailPhotoRepository;
+import com.delgo.api.repository.DetailRoomPhotoRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -8,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
+import java.util.List;
 import java.util.Objects;
 
 @Slf4j
@@ -17,6 +22,8 @@ import java.util.Objects;
 public class PhotoService {
 
     private final ObjectStorageService objectStorageService;
+    private final DetailPhotoRepository detailPhotoRepository;
+    private final DetailRoomPhotoRepository detailRoomPhotoRepository;
 
     // NCP에 petProfile Upload 후 접근 URL 반환
     public String uploadPetProfile(int userId, MultipartFile file) {
@@ -70,5 +77,13 @@ public class PhotoService {
         } catch (Exception e) {
             return "error:" + e.getMessage();
         }
+    }
+
+    public List<DetailPhoto> getDetailPhotoList(int placeId) {
+        return detailPhotoRepository.findByPlaceId(placeId);
+    }
+
+    public List<DetailRoomPhoto> getDetailRoomPhotoList(int roomId) {
+        return detailRoomPhotoRepository.findByRoomId(roomId);
     }
 }

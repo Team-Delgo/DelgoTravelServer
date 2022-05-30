@@ -1,10 +1,10 @@
-package com.delgo.api.config.security.jwt;
+package com.delgo.api.comm.security.jwt;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.delgo.api.domain.user.User;
 import com.delgo.api.repository.UserRepository;
-import com.delgo.api.config.security.services.PrincipalDetails;
+import com.delgo.api.comm.security.services.PrincipalDetails;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;

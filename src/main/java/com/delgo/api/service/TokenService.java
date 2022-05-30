@@ -2,8 +2,8 @@ package com.delgo.api.service;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
-import com.delgo.api.config.security.jwt.Access_JwtProperties;
-import com.delgo.api.config.security.jwt.Refresh_JwtProperties;
+import com.delgo.api.comm.security.jwt.Access_JwtProperties;
+import com.delgo.api.comm.security.jwt.Refresh_JwtProperties;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

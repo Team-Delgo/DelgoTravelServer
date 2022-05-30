@@ -1,11 +1,15 @@
 package com.delgo.api.controller;
 
 
+import com.delgo.api.comm.CommService;
+import com.delgo.api.comm.exception.API;
+import com.delgo.api.comm.exception.ApiCode;
+import com.delgo.api.domain.photo.DetailPhoto;
 import com.delgo.api.domain.Place;
 import com.delgo.api.domain.Room;
 import com.delgo.api.domain.Wish;
 import com.delgo.api.dto.DetailDTO;
-import com.delgo.api.dto.common.ResponseDTO;
+import com.delgo.api.service.PhotoService;
 import com.delgo.api.service.PlaceService;
 import com.delgo.api.service.RoomService;
 import com.delgo.api.service.WishService;
@@ -17,7 +21,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDate;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @Slf4j
 @RestController
@@ -28,127 +35,106 @@ public class PlaceController {
     private final PlaceService placeService;
     private final WishService wishService;
     private final RoomService roomService;
+    private final CommService commService;
+    private final PhotoService photoService;
 
     @GetMapping("/selectWheretogo")
     public ResponseEntity selectWhereTogo(Optional<Integer> userId) {
+        // Validate - Null Check;
         if (!userId.isPresent())
-            return ResponseEntity.ok().body(
-                    ResponseDTO.builder().code(303).codeMsg("Param Error").build());
-        // 전체 place 조회 ( List )
-        List<Place> placeList = placeService.getAllPlace();
+            return API.ErrorReturn(303, ApiCode.PARAM_ERROR);
 
-        // 최저가격 계산
-        placeList.forEach(place -> {
-            String lowestPrice = placeService.getLowestPrice(place.getPlaceId());
-            place.setLowestPrice(lowestPrice);
-        });
+        // 전체 Place 조회 ( List )
+        List<Place> placeList = placeService.getWhereToGoData();
 
-        // userId == 0 이면 로그인 없이 API 조회
-        if (userId.get() != 0) {
+        // wish 여부 Check [userId == 0일 경우 로그인 안했다고 판단. ]
+        // placeList에 wish 등록 여부 적용
+        if (userId.get() != 0 && placeList.size() > 0) {
             List<Wish> wishList = wishService.getWishList(userId.get());
             if (wishList.size() > 0)
-                wishList.forEach(wish -> { // placeList에 wishList 등록여부 적용
+                wishList.forEach(wish -> {
                     placeList.forEach(place -> {
                         if (place.getPlaceId() == wish.getPlaceId())
                             place.setWishId(wish.getWishId());
                     });
                 });
         }
-        // TODO: 추후 placeList 보여주는 알고리즘 추가 예정 (광고 등등..)
-        // placeList Random shuffle
-        Collections.shuffle(placeList);
 
-        return ResponseEntity.ok().body(
-                ResponseDTO.builder().code(200).codeMsg("Success").data(placeList).build());
+        // TODO: 추후 placeList 보여주는 알고리즘 추가 예정 (광고 등등..)
+
+        return API.SuccessReturn(placeList);
     }
 
     @GetMapping("/selectDetail")
-    public ResponseEntity selectDetail(Optional<Integer> userId, Optional<Integer> placeId) {
-        if (!userId.isPresent() || !placeId.isPresent())
-            return ResponseEntity.ok().body(
-                    ResponseDTO.builder().code(303).codeMsg("Param Error").build());
+    public ResponseEntity selectDetail(Optional<Integer> userId, Optional<Integer> placeId, Optional<String> startDt) {
+        // Validate - Null Check;
+        if (!userId.isPresent() || !placeId.isPresent() || !startDt.isPresent())
+            return API.ErrorReturn(303, ApiCode.PARAM_ERROR);
+        // Validate - Blank Check; [ String 만 해주면 됨 ]
+        if (startDt.get().isEmpty())
+            return API.ErrorReturn(303, ApiCode.PARAM_ERROR);
 
+        // Detail Place 조회
         Optional<Place> place = placeService.findByPlaceId(placeId.get()); // place 조회
-        if (!place.isPresent())
-            return ResponseEntity.ok().body(
-                    ResponseDTO.builder().code(303).codeMsg("Place isn't exist").build());
+        if (!place.isPresent()) // Validate
+            return API.ErrorReturn(303, ApiCode.SELECT_DATA_NOT_EXIST);
 
-        place.get().setWishId(0);
-        place.get().setLowestPrice(placeService.getLowestPrice(place.get().getPlaceId()));  // 최저가격 설정
-
-        // wish 여부 설정
+        place.get().setLowestPrice("0원"); //Detail Page에서 사용 x.
+        // wish 설정
         if (userId.get() != 0) {
             List<Wish> wishList = wishService.getWishList(userId.get());
             if (wishList.size() > 0)
                 wishList.forEach(wish -> {
-                    if (place.get().getPlaceId() == wish.getPlaceId())
-                        place.get().setWishId(wish.getWishId());
+                    if (place.get().getPlaceId() == wish.getPlaceId()) place.get().setWishId(wish.getWishId());
                 });
+            else place.get().setWishId(0);
         }
 
-        List<Room> roomList = roomService.selectRoomList(place.get().getPlaceId());
+        // PlaceId로 Place에 속한 Room 조회
+        List<Room> roomList = roomService.selectRoomList(placeId.get(), startDt.get());
+        if (roomList.size() == 0) // Validate
+            return API.ErrorReturn(303, ApiCode.SELECT_DATA_NOT_EXIST);
 
-        DetailDTO detailDto = new DetailDTO();
-        detailDto.setPlace(place.get());
-        detailDto.setRoomList(roomList);
+        // PlaceId로 Detail 상단에서 보여줄 Photo List 조회
+        List<DetailPhoto> detailPhotos = photoService.getDetailPhotoList(placeId.get());
 
-        return ResponseEntity.ok().body(
-                ResponseDTO.builder().code(200).codeMsg("Success").data(detailDto).build()
-        );
+        return API.SuccessReturn(new DetailDTO(place.get(), roomList, detailPhotos));
     }
 
-    // TODO: 해당 날짜에 예약이 가능한 숙소만 선택 구현해야 함.
     @GetMapping("/search")
-    public ResponseEntity search(Optional<Integer> userId, Optional<String> name, Optional<String> address, Optional<String> startDt, Optional<String> endDt) {
+    public ResponseEntity search(
+            Optional<Integer> userId,
+            Optional<String> name,
+            Optional<String> address,
+            Optional<String> startDt,
+            Optional<String> endDt) {
+        // Validate - Null Check;
         if (!userId.isPresent() || !startDt.isPresent() || !endDt.isPresent())
-            return ResponseEntity.ok().body(
-                    ResponseDTO.builder().code(303).codeMsg("Param Error").build());
-
-        LocalDate now = LocalDate.now(); // 오늘 날짜
-        LocalDate expireDate = now.plusMonths(2); // 만료 날짜
-        LocalDate startDate = LocalDate.parse(startDt.get()); // 시작 날짜
-        LocalDate endDate = LocalDate.parse(endDt.get()); // 종료 날짜
-        LocalDate maxDate = startDate.plusWeeks(2); // 시작 날짜 기준 최대 예약 날짜 ( 14일 )
-        log.info("now :{}, expire: {}, start:{}, end: {}, max:{}", now, expireDate, startDate, endDate, maxDate);
-
+            return API.ErrorReturn(303, ApiCode.PARAM_ERROR);
+        // Validate - Blank Check; [ String 만 해주면 됨 ]
+        if (startDt.get().isEmpty() || endDt.get().isEmpty())
+            return API.ErrorReturn(303, ApiCode.PARAM_ERROR);
         // Validate - 날짜 차이가 2주 이내인가? 시작날짜가 오늘보다 같거나 큰가? 종료날짜는 만료날짜랑 같거나 작은가?
-        if (endDate.isAfter(maxDate) || now.isAfter(startDate) || endDate.isAfter(expireDate))
-            return ResponseEntity.ok().body(
-                    ResponseDTO.builder().code(303).codeMsg("Date range Error").build());
+        if (!commService.checkDate(startDt.get(), endDt.get()))
+            return API.ErrorReturn(303, ApiCode.DATE_RANGE_ERROR);
 
         Map<String, Object> searchKeys = new HashMap<>();
         name.ifPresent(n -> searchKeys.put("name", n));
         address.ifPresent(a -> searchKeys.put("address", a));
 
         // Name, Address로 placeList 조회
-        List<Place> placeList = placeService.searchPlace(searchKeys);
-
-        // 예약가능한 Place Check
-        List<Place> canBookingList = new ArrayList<Place>();
-        if (placeList.size() > 0)
-            placeList.forEach(place -> {
-                // place 예약 가능 여부 Check
-                boolean isBooking = placeService.checkBooking(place.getPlaceId(), LocalDate.parse(startDt.get()), LocalDate.parse(endDt.get()));
-                if (isBooking) canBookingList.add(place);
-            });
+        List<Place> placeList = placeService.getSearchPlaceListData(searchKeys, LocalDate.parse(startDt.get()), LocalDate.parse(endDt.get()));
 
         // userId == 0 이면 로그인 없이 API 조회 // userId 있을 경우 wish 여부 Check
-        if (userId.get() != 0) {
+        if (userId.get() != 0 && placeList.size() > 0) {
             List<Wish> wishList = wishService.getWishList(userId.get());
-            canBookingList.forEach(place -> {
+            placeList.forEach(place -> {
                 wishList.forEach(wish -> {
                     if (place.getPlaceId() == wish.getPlaceId()) place.setWishId(wish.getWishId());
                 });
             });
         }
 
-        // 최저가격 계산
-        canBookingList.forEach(place -> {
-            String lowestPrice = placeService.getLowestPrice(place.getPlaceId());
-            place.setLowestPrice(lowestPrice);
-        });
-
-        return ResponseEntity.ok().body(
-                ResponseDTO.builder().code(200).codeMsg("Success").data(canBookingList).build());
+        return API.SuccessReturn(placeList);
     }
 }
