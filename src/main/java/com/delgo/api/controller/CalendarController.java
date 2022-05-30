@@ -1,7 +1,11 @@
 package com.delgo.api.controller;
 
-import com.delgo.api.dto.common.ResponseDTO;
+import com.delgo.api.comm.exception.API;
+import com.delgo.api.domain.photo.DetailRoomPhoto;
+import com.delgo.api.dto.CalendarDTO;
+import com.delgo.api.dto.DateDTO;
 import com.delgo.api.service.CalendarService;
+import com.delgo.api.service.PhotoService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -18,12 +22,13 @@ import java.util.List;
 public class CalendarController {
 
     private final CalendarService calendarService;
+    private final PhotoService photoService;
 
-    @GetMapping("/getReservedDateList")
-    public ResponseEntity getReservedDateList(int roomId){
-        List<String> dateList = calendarService.getReservedDateList(roomId);
+    @GetMapping("/getDetailRoomCalendarData")
+    public ResponseEntity getDetailRoomCalendarData(int roomId) {
+        List<DetailRoomPhoto> detailPhotos = photoService.getDetailRoomPhotoList(roomId);
+        List<DateDTO> dateList = calendarService.getDetailRoomCalendarData(roomId);
 
-        return ResponseEntity.ok().body(
-                ResponseDTO.builder().code(200).codeMsg("Success").data(dateList).build());
+        return API.SuccessReturn(new CalendarDTO(detailPhotos, dateList));
     }
 }

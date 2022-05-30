@@ -1,6 +1,6 @@
 package com.delgo.api.service;
 
-import com.delgo.api.domain.price.Price;
+import com.delgo.api.dto.DateDTO;
 import com.delgo.api.repository.PriceRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,20 +16,15 @@ public class CalendarService {
 
     private final PriceRepository priceRepository;
 
-    public List<String> getReservedDateList(int roomId) {
-        List<String> reservedDateList = new ArrayList<String>(); // 결과 반환 리스트
-        List<Price> bookedList = priceRepository.findByRoomIdAndIsBooking(roomId, 1); // 예약된 방 조회
-        bookedList.forEach(price -> {
-            String date = price.getPriceDate().replace("-", "");
-            reservedDateList.add(date);
-        });
-        List<Price> waitList = priceRepository.findByRoomIdAndIsWait(roomId, 1); // 예약 대기중인 방 조회
-        waitList.forEach(price -> {
-            String date = price.getPriceDate().replace("-", "");
-            reservedDateList.add(date);
+
+    public List<DateDTO> getDetailRoomCalendarData(int roomId) {
+        List<DateDTO> calendarDTOList = new ArrayList<DateDTO>();
+        // RoomId로 날짜별 가격 조회
+        priceRepository.findByRoomId(roomId).forEach(price -> {
+            calendarDTOList.add(new DateDTO(price.getPriceDate(), price.getPrice(), price.getIsBooking()));
         });
 
-        return reservedDateList;
+        return calendarDTOList;
     }
 
 }
