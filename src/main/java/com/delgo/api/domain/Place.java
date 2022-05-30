@@ -32,4 +32,7 @@ public class Place {
 
     @Transient
     private int wishId = 0;
+
+    @Transient
+    private int isBooking = 0;
 }
