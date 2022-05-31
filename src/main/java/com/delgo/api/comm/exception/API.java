@@ -1,21 +1,22 @@
 package com.delgo.api.comm.exception;
 
-import com.delgo.api.dto.common.ResponseDTO;
-import org.springframework.http.ResponseEntity;
-
 public class API {
-    static public ResponseEntity SuccessReturn(Object data) {
-        return ResponseEntity.ok().body(
-                ResponseDTO.builder().code(200).codeMsg(ApiCode.SUCCESS).data(data).build());
-    }
+    public static class CODE {
+        public static final int SUCCESS = 200;
+        public static final int PARAM_ERROR = 301;
+        public static final int PARAM_DATE_ERROR = 302;
+        public static final int DB_ERROR = 302;
+        public static final int SESSION_END = 303;
 
-    static public ResponseEntity SuccessReturn() {
-        return ResponseEntity.ok().body(
-                ResponseDTO.builder().code(200).codeMsg(ApiCode.SUCCESS).build());
-    }
+        public static final int NOT_FOUND_SEARCH = 308;
+        public static final int USER_ID_NOT_FOUND = 310;
+        public static final int PHONE_ID_NOT_FOUND = 311;
+        public static final int INIT_PASSWORD_FAIL = 312;
+        public static final int TERMS_NOT_ALLOWED = 313;
 
-    static public ResponseEntity ErrorReturn(int code, String codeMsg) {
-        return ResponseEntity.ok().body(
-                ResponseDTO.builder().code(code).codeMsg(codeMsg).build());
+        public static final int UNKNOWN_ERROR = 1000;
+        public static final int SERVER_TIMEOUT_ERROR = 1001;
+        public static final int SERVER_ERROR = 1003;
     }
+    public static final String SUCCESS_MSG = "성공";
 }
