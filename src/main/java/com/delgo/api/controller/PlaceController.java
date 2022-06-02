@@ -66,12 +66,12 @@ public class PlaceController extends CommController {
     }
 
     @GetMapping("/selectDetail")
-    public ResponseEntity selectDetail(Optional<Integer> userId, Optional<Integer> placeId, Optional<String> startDt) {
+    public ResponseEntity selectDetail(Optional<Integer> userId, Optional<Integer> placeId, Optional<String> startDt, Optional<String> endDt) {
         // Validate - Null Check;
-        if (userId.isEmpty() || placeId.isEmpty() || startDt.isEmpty())
+        if (userId.isEmpty() || placeId.isEmpty() || startDt.isEmpty() || endDt.isEmpty())
             return ErrorReturn(ApiCode.PARAM_ERROR);
         // Validate - Blank Check; [ String 만 해주면 됨 ]
-        if (startDt.get().isEmpty())
+        if (startDt.get().isEmpty() || endDt.get().isEmpty())
             return ErrorReturn(ApiCode.PARAM_ERROR);
         // Validate - 날짜 차이가 2주 이내인가? 시작날짜가 오늘보다 같거나 큰가? 종료날짜는 만료날짜랑 같거나 작은가?
         if (!commService.checkDate(startDt.get()))
@@ -94,7 +94,7 @@ public class PlaceController extends CommController {
         }
 
         // PlaceId로 Place에 속한 Room 조회
-        List<Room> roomList = roomService.selectRoomList(placeId.get(), startDt.get());
+        List<Room> roomList = roomService.selectRoomList(placeId.get(), LocalDate.parse(startDt.get()), LocalDate.parse(endDt.get()));
         System.out.println(roomList.toString());
         if (roomList.size() == 0) // Validate
             return ErrorReturn(ApiCode.NOT_FOUND_SEARCH);
