@@ -20,8 +20,11 @@ public class CalendarService {
     public List<DateDTO> getDetailRoomCalendarData(int roomId) {
         List<DateDTO> calendarDTOList = new ArrayList<DateDTO>();
         // RoomId로 날짜별 가격 조회
-        priceRepository.findByRoomId(roomId).forEach(price -> {
-            calendarDTOList.add(new DateDTO(price.getPriceDate(), price.getPrice(), price.getIsBooking()));
+        priceRepository.findByRoomId(roomId).forEach(p -> {
+            String price = p.getPrice();
+            price = price.replace(",", "");
+            price = price.replace("원", "");
+            calendarDTOList.add(new DateDTO(p.getPriceDate(), Integer.parseInt(price), p.getIsBooking()));
         });
 
         return calendarDTOList;
