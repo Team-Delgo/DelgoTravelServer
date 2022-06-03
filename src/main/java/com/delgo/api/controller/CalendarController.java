@@ -1,6 +1,6 @@
 package com.delgo.api.controller;
 
-import com.delgo.api.comm.exception.API;
+import com.delgo.api.comm.CommController;
 import com.delgo.api.domain.photo.DetailRoomPhoto;
 import com.delgo.api.dto.CalendarDTO;
 import com.delgo.api.dto.DateDTO;
@@ -19,7 +19,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/calendar")
-public class CalendarController {
+public class CalendarController extends CommController {
 
     private final CalendarService calendarService;
     private final PhotoService photoService;
@@ -29,6 +29,6 @@ public class CalendarController {
         List<DetailRoomPhoto> detailPhotos = photoService.getDetailRoomPhotoList(roomId);
         List<DateDTO> dateList = calendarService.getDetailRoomCalendarData(roomId);
 
-        return API.SuccessReturn(new CalendarDTO(detailPhotos, dateList));
+        return SuccessReturn(new CalendarDTO(detailPhotos, dateList));
     }
 }

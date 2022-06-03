@@ -7,6 +7,6 @@ import lombok.Data;
 @AllArgsConstructor
 public class DateDTO {
     private String date;
-    private String price;
+    private int price;
     private int isBooking;
 }
