@@ -1,11 +1,15 @@
 package com.delgo.api.domain.coupon;
 
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.*;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 
 @Data
@@ -17,22 +21,13 @@ public class CouponManager {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "coupon_manager_id")
-    private int couponManagerId;
-
+    private Integer couponManagerId;
     private String couponCode;
-
     private String couponType;
-
-    private int discountNum;
-
-    private int adminId;
-
+    private Integer discountNum;
+    private Integer adminId;
     @CreationTimestamp
-    @Column(name = "regist_dt")
-    private LocalDate registDt;
-
-    @Column(name = "expire_dt")
+    private LocalDateTime registDt;
     private LocalDate expireDt;
-
-    private int validDt;
+    private Integer validDt;
 }

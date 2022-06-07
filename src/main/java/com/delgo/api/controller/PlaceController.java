@@ -18,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDate;
@@ -39,18 +40,14 @@ public class PlaceController extends CommController {
     private final PhotoService photoService;
 
     @GetMapping("/selectWheretogo")
-    public ResponseEntity selectWhereTogo(Optional<Integer> userId) {
-        // Validate - Null Check;
-        if (userId.isEmpty())
-            return ErrorReturn(ApiCode.PARAM_ERROR);
-
+    public ResponseEntity selectWhereTogo(@RequestParam Integer userId) {
         // 전체 Place 조회 ( List )
         List<Place> placeList = placeService.getWhereToGoData();
 
         // wish 여부 Check [userId == 0일 경우 로그인 안했다고 판단. ]
         // placeList에 wish 등록 여부 적용
-        if (userId.get() != 0 && placeList.size() > 0) {
-            List<Wish> wishList = wishService.getWishList(userId.get());
+        if (userId != 0 && placeList.size() > 0) {
+            List<Wish> wishList = wishService.getWishListByUserId(userId);
             if (wishList.size() > 0)
                 wishList.forEach(wish -> {
                     placeList.forEach(place -> {
@@ -66,26 +63,27 @@ public class PlaceController extends CommController {
     }
 
     @GetMapping("/selectDetail")
-    public ResponseEntity selectDetail(Optional<Integer> userId, Optional<Integer> placeId, Optional<String> startDt, Optional<String> endDt) {
-        // Validate - Null Check;
-        if (userId.isEmpty() || placeId.isEmpty() || startDt.isEmpty() || endDt.isEmpty())
-            return ErrorReturn(ApiCode.PARAM_ERROR);
+    public ResponseEntity selectDetail(
+            @RequestParam Integer userId,
+            @RequestParam Integer placeId,
+            @RequestParam String startDt,
+            @RequestParam String endDt) {
         // Validate - Blank Check; [ String 만 해주면 됨 ]
-        if (startDt.get().isEmpty() || endDt.get().isEmpty())
+        if (startDt.isBlank() || endDt.isBlank())
             return ErrorReturn(ApiCode.PARAM_ERROR);
         // Validate - 날짜 차이가 2주 이내인가? 시작날짜가 오늘보다 같거나 큰가? 종료날짜는 만료날짜랑 같거나 작은가?
-        if (!commService.checkDate(startDt.get()))
+        if (!commService.checkDate(startDt, endDt))
             return ErrorReturn(ApiCode.PARAM_DATE_ERROR);
 
         // Detail Place 조회
-        Optional<Place> place = placeService.findByPlaceId(placeId.get()); // place 조회
-        if (!place.isPresent()) // Validate
+        Optional<Place> place = placeService.findByPlaceId(placeId); // place 조회
+        if (place.isEmpty()) // Validate
             return ErrorReturn(ApiCode.NOT_FOUND_SEARCH);
 
         place.get().setLowestPrice("0원"); //Detail Page에서 사용 x.
         // wish 설정
-        if (userId.get() != 0) {
-            List<Wish> wishList = wishService.getWishList(userId.get());
+        if (userId != 0) {
+            List<Wish> wishList = wishService.getWishListByUserId(userId);
             if (wishList.size() > 0)
                 wishList.forEach(wish -> {
                     if (place.get().getPlaceId() == wish.getPlaceId()) place.get().setWishId(wish.getWishId());
@@ -94,44 +92,40 @@ public class PlaceController extends CommController {
         }
 
         // PlaceId로 Place에 속한 Room 조회
-        List<Room> roomList = roomService.selectRoomList(placeId.get(), LocalDate.parse(startDt.get()), LocalDate.parse(endDt.get()));
-        System.out.println(roomList.toString());
+        List<Room> roomList = roomService.selectRoomList(placeId, LocalDate.parse(startDt), LocalDate.parse(endDt));
         if (roomList.size() == 0) // Validate
             return ErrorReturn(ApiCode.NOT_FOUND_SEARCH);
 
         // PlaceId로 Detail 상단에서 보여줄 Photo List 조회
-        List<DetailPhoto> detailPhotos = photoService.getDetailPhotoList(placeId.get());
+        List<DetailPhoto> detailPhotos = photoService.getDetailPhotoList(placeId);
 
         return SuccessReturn(new DetailDTO(place.get(), roomList, detailPhotos));
     }
 
     @GetMapping("/search")
     public ResponseEntity search(
-            Optional<Integer> userId,
-            Optional<String> name,
-            Optional<String> address,
-            Optional<String> startDt,
-            Optional<String> endDt) {
-        // Validate - Null Check;
-        if (userId.isEmpty() || startDt.isEmpty() || endDt.isEmpty())
-            return ErrorReturn(ApiCode.PARAM_ERROR);
+            @RequestParam Integer userId,
+            @RequestParam String name,
+            @RequestParam String address,
+            @RequestParam String startDt,
+            @RequestParam String endDt) {
         // Validate - Blank Check; [ String 만 해주면 됨 ]
-        if (startDt.get().isEmpty() || endDt.get().isEmpty())
+        if (startDt.isBlank() || endDt.isBlank())
             return ErrorReturn(ApiCode.PARAM_ERROR);
         // Validate - 날짜 차이가 2주 이내인가? 시작날짜가 오늘보다 같거나 큰가? 종료날짜는 만료날짜랑 같거나 작은가?
-        if (!commService.checkDate(startDt.get(), endDt.get()))
+        if (!commService.checkDate(startDt, endDt))
             return ErrorReturn(ApiCode.PARAM_DATE_ERROR);
 
         Map<String, Object> searchKeys = new HashMap<>();
-        name.ifPresent(n -> searchKeys.put("name", n));
-        address.ifPresent(a -> searchKeys.put("address", a));
+        if(!name.isBlank()) searchKeys.put("name", name);
+        if(!address.isBlank()) searchKeys.put("address", address);
 
         // Name, Address로 placeList 조회
-        List<Place> placeList = placeService.getSearchPlaceListData(searchKeys, LocalDate.parse(startDt.get()), LocalDate.parse(endDt.get()));
+        List<Place> placeList = placeService.getSearchPlaceListData(searchKeys, LocalDate.parse(startDt), LocalDate.parse(endDt));
 
         // userId == 0 이면 로그인 없이 조회 // userId 있을 경우 wish 여부 Check
-        if (userId.get() != 0 && placeList.size() > 0) {
-            List<Wish> wishList = wishService.getWishList(userId.get());
+        if (userId != 0 && placeList.size() > 0) {
+            List<Wish> wishList = wishService.getWishListByUserId(userId);
             placeList.forEach(place -> {
                 wishList.forEach(wish -> {
                     if (place.getPlaceId() == wish.getPlaceId()) place.setWishId(wish.getWishId());

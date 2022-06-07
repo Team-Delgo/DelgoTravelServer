@@ -61,7 +61,14 @@ public class PlaceService {
     }
 
     public Optional<Place> findByPlaceId(int placeId) {
-        return placeRepository.findByPlaceId(placeId);
+        // 전체 Place 리스트 조회
+        Optional<Place> place = placeRepository.findByPlaceId(placeId);
+        if (place.isPresent()) { // place MainPhoto 설정
+            Optional<DetailPhoto> mainPhoto = detailPhotoRepository.findByPlaceIdAndIsMain(place.get().getPlaceId(), 1);
+            mainPhoto.ifPresent(photo -> place.get().setMainPhotoUrl(photo.getUrl()));
+        }
+
+        return place;
     }
 
     // 검색

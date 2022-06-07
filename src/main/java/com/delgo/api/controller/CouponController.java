@@ -1,14 +1,16 @@
 package com.delgo.api.controller;
 
 
+import com.delgo.api.comm.CommController;
+import com.delgo.api.comm.exception.ApiCode;
 import com.delgo.api.domain.coupon.Coupon;
 import com.delgo.api.domain.coupon.CouponManager;
 import com.delgo.api.dto.CouponManagerDTO;
-import com.delgo.api.dto.common.ResponseDTO;
 import com.delgo.api.service.CouponService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -19,66 +21,47 @@ import java.util.Optional;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/coupon")
-public class CouponController {
+public class CouponController extends CommController {
 
     private final CouponService couponService;
 
     // 각 쿠폰의 정보
     @GetMapping("/getCouponList")
-    public ResponseEntity getCouponList(Optional<Integer> userId) {
-        if (!userId.isPresent())
-            return ResponseEntity.ok().body(
-                    ResponseDTO.builder().code(303).codeMsg("Param Error").build());
-
+    public ResponseEntity getCouponList(@RequestParam Integer userId) {
         // 쿠폰 조회 ( List )
-        List<Coupon> list = couponService.getCouponListByUserId(userId.get());
-
-        return ResponseEntity.ok().body(
-                ResponseDTO.builder().code(200).codeMsg("Success").data(list).build());
+        List<Coupon> couponList = couponService.getCouponListByUserId(userId);
+        return SuccessReturn(couponList);
     }
 
     // Coupon 사용시 사용여부 업데이트
     @PostMapping("/use")
-    public ResponseEntity useCoupon(@RequestParam Optional<Integer> couponId) {
-        if (!couponId.isPresent())
-            return ResponseEntity.ok().body(
-                    ResponseDTO.builder().code(303).codeMsg("Param Error").build());
+    public ResponseEntity useCoupon(@RequestParam Integer couponId) {
+        Optional<Coupon> coupon = couponService.getCouponByCouponId(couponId);
+        if (coupon.isEmpty()) return ErrorReturn(ApiCode.COUPON_SELECT_ERROR);
 
-        Optional<Coupon> option = couponService.getCouponByCouponId(couponId.get());
-        if (!option.isPresent())
-            return ResponseEntity.ok().body(
-                    ResponseDTO.builder().code(303).codeMsg("fail").build());
+        coupon.get().setIsUsed(1);
+        couponService.insertOrUpdateCoupon(coupon.get());
 
-        Coupon coupon = option.get();
-        coupon.setIsUsed(1);
-        couponService.insertOrUpdateCoupon(coupon);
-
-        return ResponseEntity.ok().body(
-                ResponseDTO.builder().code(200).codeMsg("Success").build());
+        return SuccessReturn();
     }
 
     // 쿠폰 등록 API [ 사용자 ]
     @PostMapping("/regist")
     public ResponseEntity registCoupon(
-            @RequestParam Optional<Integer> userId,
-            @RequestParam Optional<String> couponCode
-    ) {
-        if (!userId.isPresent() || !couponCode.isPresent())
-            return ResponseEntity.ok().body(
-                    ResponseDTO.builder().code(303).codeMsg("Param Error").build());
+            @RequestParam Integer userId,
+            @RequestParam String couponCode) {
+        // Validate - Blank Check; [ String 만 해주면 됨 ]
+        if (couponCode.isBlank())
+            return ErrorReturn(ApiCode.PARAM_ERROR);
 
-        Optional<CouponManager> option = couponService.getCouponManagerByCode(couponCode.get());
+        Optional<CouponManager> option = couponService.getCouponManagerByCode(couponCode);
         // ERROR: Coupon Code 잘못된 입력
-        if (!option.isPresent())
-            return ResponseEntity.ok().body(
-                    ResponseDTO.builder().code(303).codeMsg("Coupon Code is Wrong").build());
+        if (option.isEmpty()) return ErrorReturn(ApiCode.COUPON_SELECT_ERROR);
 
         CouponManager cm = option.get();
         // ERROR: 이미 발행된 쿠폰
-        if (couponService.checkCouponExisting(userId.get(), cm.getCouponManagerId())) {
-            return ResponseEntity.ok().body(
-                    ResponseDTO.builder().code(303).codeMsg("Coupon is existed").build());
-        }
+        if (couponService.checkCouponExisting(userId, cm.getCouponManagerId()))
+            return ErrorReturn(ApiCode.COUPON_DUPLICATE_ERROR);
 
         // 만료 일자 계산
         LocalDate expireDt = LocalDate.now().plusDays(cm.getValidDt());
@@ -91,18 +74,16 @@ public class CouponController {
                         .expireDt(expireDt)
                         .isUsed(0)
                         .couponManagerId(cm.getCouponManagerId())
-                        .userId(userId.get())
+                        .userId(userId)
                         .build()
         );
 
-        return ResponseEntity.ok().body(
-                ResponseDTO.builder().code(200).codeMsg("Success").build());
+        return SuccessReturn();
     }
 
-    // 쿠폰 등록 API [ 사용자 ]
-    // TODO: Null Check 하는법 생각해야 함.
+    // 쿠폰 관리 등록 API [ 관리자 ]
     @PostMapping("/regist/manager")
-    public ResponseEntity registCouponManager(@RequestBody CouponManagerDTO dto) {
+    public ResponseEntity registCouponManager(@Validated @RequestBody CouponManagerDTO dto) {
         couponService.insertOrUpdateCouponManager(
                 CouponManager.builder()
                         .couponCode(dto.getCouponCode())
@@ -113,8 +94,6 @@ public class CouponController {
                         .discountNum(dto.getDiscountNum())
                         .build()
         );
-
-        return ResponseEntity.ok().body(
-                ResponseDTO.builder().code(200).codeMsg("Success").build());
+       return SuccessReturn();
     }
 }
