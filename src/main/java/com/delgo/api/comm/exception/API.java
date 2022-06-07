@@ -5,7 +5,11 @@ public class API {
         public static final int SUCCESS = 200;
         public static final int PARAM_ERROR = 301;
         public static final int PARAM_DATE_ERROR = 302;
+
         public static final int DB_ERROR = 302;
+        public static final int DB_DELETE_ERROR = 304;
+
+
         public static final int SESSION_END = 303;
 
         public static final int NOT_FOUND_SEARCH = 308;
@@ -18,5 +22,4 @@ public class API {
         public static final int SERVER_TIMEOUT_ERROR = 1001;
         public static final int SERVER_ERROR = 1003;
     }
-    public static final String SUCCESS_MSG = "성공";
 }

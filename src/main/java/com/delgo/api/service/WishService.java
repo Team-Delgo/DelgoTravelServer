@@ -17,8 +17,7 @@ public class WishService {
 
     private final WishRepository wishRepository;
 
-    // 조회
-    public List<Wish> getWishList(int userId) {
+    public List<Wish> getWishListByUserId(int userId) {
         return wishRepository.findByUserIdOrderByRegistDtDesc(userId);
     }
 
