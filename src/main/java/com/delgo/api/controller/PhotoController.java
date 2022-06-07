@@ -1,8 +1,9 @@
 package com.delgo.api.controller;
 
+import com.delgo.api.comm.CommController;
+import com.delgo.api.comm.exception.ApiCode;
 import com.delgo.api.domain.Review;
 import com.delgo.api.domain.user.User;
-import com.delgo.api.dto.common.ResponseDTO;
 import com.delgo.api.service.PhotoService;
 import com.delgo.api.service.ReviewService;
 import com.delgo.api.service.UserService;
@@ -23,7 +24,7 @@ import java.util.Optional;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/photo")
-public class PhotoController {
+public class PhotoController extends CommController {
 
     private final PhotoService photoService;
     private final UserService userService;
@@ -31,40 +32,40 @@ public class PhotoController {
 
     @PostMapping("/upload/petProfile")
     public ResponseEntity<?> uploadPetProfile(
-            @RequestParam(value = "userId", required = true) int userId,
-            @RequestParam(value = "file", required = true) MultipartFile file) {
-        try {
-            String profileUrl = photoService.uploadPetProfile(userId, file);
-            if (profileUrl.split(":")[0].equals("error")) //NCP ERROR
-                return ResponseEntity.ok().body(
-                        ResponseDTO.builder().code(303).codeMsg(profileUrl.split(":")[1]).build());
+            @RequestParam Integer userId,
+            @RequestParam MultipartFile file) {
+        // Validate - Empty Check;
+        if (file.isEmpty())
+            return ErrorReturn(ApiCode.PARAM_ERROR);
 
-            User user = userService.findByUserId(userId);
-            user.setProfile(profileUrl);
-
-            userService.updateUserData(user);
-
-            return ResponseEntity.ok().body(
-                    ResponseDTO.builder().code(200).data(profileUrl).codeMsg("PetProfile Upload Success").build());
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(
-                    ResponseDTO.builder().code(303).codeMsg(e.getMessage()).build());
+        String profileUrl = photoService.uploadPetProfile(userId, file);
+        //NCP ERROR
+        if (profileUrl.split(":")[0].equals("error")) {
+            log.info("NCP ERROR : {}", profileUrl.split(":")[1]);
+            return ErrorReturn(ApiCode.NCP_ERROR);
         }
+
+        User user = userService.findByUserId(userId);
+        user.setProfile(profileUrl);
+
+        userService.updateUserData(user);
+
+        return SuccessReturn();
     }
 
     @PostMapping("/upload/reviewPhoto")
     public ResponseEntity<?> uploadReviewPhoto(
-            @RequestParam int reviewId,
-            @RequestParam(value = "photo1", required = false) Optional<MultipartFile> photo1,
-            @RequestParam(value = "photo2", required = false) Optional<MultipartFile> photo2,
-            @RequestParam(value = "photo3", required = false) Optional<MultipartFile> photo3,
-            @RequestParam(value = "photo4", required = false) Optional<MultipartFile> photo4,
-            @RequestParam(value = "photo5", required = false) Optional<MultipartFile> photo5) {
+            @RequestParam Integer reviewId,
+            @RequestParam(value = "photo1", required = false) MultipartFile photo1,
+            @RequestParam(value = "photo2", required = false) MultipartFile photo2,
+            @RequestParam(value = "photo3", required = false) MultipartFile photo3,
+            @RequestParam(value = "photo4", required = false) MultipartFile photo4,
+            @RequestParam(value = "photo5", required = false) MultipartFile photo5) {
         // Review 존재 여부 확인
         Optional<Review> review = reviewService.getReviewDataByReview(reviewId);
-        if (!review.isPresent())
-            return ResponseEntity.ok().body(
-                    ResponseDTO.builder().code(303).codeMsg("ReviewId is Wrong.").build());
+        if (review.isEmpty())
+            return ErrorReturn(ApiCode.REVIEW_NOT_EXIST);
+
         Review checkdReview = review.get();
 
         // data 초기화
@@ -75,29 +76,37 @@ public class PhotoController {
         checkdReview.setReviewPhoto5(null);
 
         List<MultipartFile> multiList = new ArrayList<MultipartFile>();
-        if (photo1.isPresent()) multiList.add(photo1.get());
-        if (photo2.isPresent()) multiList.add(photo2.get());
-        if (photo3.isPresent()) multiList.add(photo3.get());
-        if (photo4.isPresent()) multiList.add(photo4.get());
-        if (photo5.isPresent()) multiList.add(photo5.get());
+        if (!photo1.isEmpty()) multiList.add(photo1);
+        if (!photo2.isEmpty()) multiList.add(photo2);
+        if (!photo3.isEmpty()) multiList.add(photo3);
+        if (!photo4.isEmpty()) multiList.add(photo4);
+        if (!photo5.isEmpty()) multiList.add(photo5);
 
 
         for (int i = 0; i < multiList.size(); i++) {
             String reviewUrl = photoService.uploadReviewPhoto(reviewId, i + 1, multiList.get(i));
             if (reviewUrl.split(":")[0].equals("error")) //NCP ERROR
-                return ResponseEntity.ok().body(
-                        ResponseDTO.builder().code(303).codeMsg(reviewUrl.split(":")[1]).build());
+                return ErrorReturn(ApiCode.NCP_ERROR);
             switch (i) {
-                case 0: checkdReview.setReviewPhoto1(reviewUrl); break;
-                case 1: checkdReview.setReviewPhoto2(reviewUrl); break;
-                case 2: checkdReview.setReviewPhoto3(reviewUrl); break;
-                case 3: checkdReview.setReviewPhoto4(reviewUrl); break;
-                case 4: checkdReview.setReviewPhoto5(reviewUrl); break;
+                case 0:
+                    checkdReview.setReviewPhoto1(reviewUrl);
+                    break;
+                case 1:
+                    checkdReview.setReviewPhoto2(reviewUrl);
+                    break;
+                case 2:
+                    checkdReview.setReviewPhoto3(reviewUrl);
+                    break;
+                case 3:
+                    checkdReview.setReviewPhoto4(reviewUrl);
+                    break;
+                case 4:
+                    checkdReview.setReviewPhoto5(reviewUrl);
+                    break;
             }
         }
         Review updatedReview = reviewService.insertOrUpdateReview(checkdReview);
 
-        return ResponseEntity.ok().body(
-                ResponseDTO.builder().code(200).data(updatedReview).codeMsg("ReviewPhoto Upload Success").build());
+        return SuccessReturn();
     }
 }
