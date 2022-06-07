@@ -20,25 +20,9 @@ public class CommService {
         LocalDate startDate = LocalDate.parse(startDt); // 시작 날짜
         LocalDate endDate = LocalDate.parse(endDt); // 종료 날짜
         LocalDate maxDate = startDate.plusWeeks(2); // 시작 날짜 기준 최대 예약 날짜 ( 14일 )
-        log.info("now :{}, expire: {}, start:{}, end: {}, max:{}", now, expireDate, startDate, endDate, maxDate);
+//        log.info("now :{}, expire: {}, start:{}, end: {}, max:{}", now, expireDate, startDate, endDate, maxDate);
 
-        if (!startDate.isBefore(endDate) || endDate.isAfter(maxDate) || now.isAfter(startDate) || endDate.isAfter(expireDate))
-            return false;
-
-        return true;
+        return startDate.isBefore(endDate) && !endDate.isAfter(maxDate) && !now.isAfter(startDate) && !endDate.isAfter(expireDate);
     }
 
-    public boolean checkDate(String startDt) {
-        LocalDate now = LocalDate.now(); // 오늘 날짜
-        LocalDate expireDate = now.plusMonths(2); // 만료 날짜
-        LocalDate startDate = LocalDate.parse(startDt); // 시작 날짜
-        LocalDate endDate = LocalDate.parse(startDt).plusDays(1); // 종료 날짜
-        LocalDate maxDate = startDate.plusWeeks(2); // 시작 날짜 기준 최대 예약 날짜 ( 14일 )
-        log.info("now :{}, expire: {}, start:{}, end: {}, max:{}", now, expireDate, startDate, endDate, maxDate);
-
-        if (!startDate.isBefore(endDate) || endDate.isAfter(maxDate) || now.isAfter(startDate) || endDate.isAfter(expireDate))
-            return false;
-
-        return true;
-    }
 }
