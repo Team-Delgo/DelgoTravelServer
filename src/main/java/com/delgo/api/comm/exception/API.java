@@ -10,6 +10,13 @@ public class API {
         public static final int DB_DELETE_ERROR = 304;
 
 
+
+        public static final int COUPON_SELECT_ERROR = 304;
+        public static final int COUPON_DUPLICATE_ERROR = 304;
+
+
+
+
         public static final int SESSION_END = 303;
 
         public static final int NOT_FOUND_SEARCH = 308;

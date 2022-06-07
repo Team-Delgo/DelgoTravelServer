@@ -1,23 +1,24 @@
 package com.delgo.api.dto;
 
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
 @Data
+@Builder
 public class CouponManagerDTO {
     @NotBlank
     private String couponCode;
+    @NotBlank
     private String couponType;
-    private int discountNum;
-    private int adminId;
+    @NotNull
+    private Integer discountNum;
+    private Integer adminId; // 나중에 NotNull 추가
+    @NotNull
     private LocalDate expireDt;
-    private int validDt;
+    @NotNull
+    private Integer validDt;
 }

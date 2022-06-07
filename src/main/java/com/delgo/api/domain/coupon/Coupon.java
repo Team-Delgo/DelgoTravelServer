@@ -7,8 +7,12 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Data
 @Entity
@@ -18,26 +22,13 @@ import java.time.LocalDate;
 public class Coupon {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "coupon_id")
-    private int couponId;
-
-    @Column(name = "user_id")
-    private int userId;
-
-    @Column(name = "coupon_manager_id")
-    private int couponManagerId;
-
-    @Column(name = "is_used")
-    private int isUsed;
-
+    private Integer couponId;
+    private Integer userId;
+    private Integer couponManagerId;
+    private Integer isUsed;
     @CreationTimestamp
-    @Column(name = "regist_dt")
-    private LocalDate registDt;
-
-    @Column(name = "expire_dt ")
+    private LocalDateTime registDt;
     private LocalDate expireDt;
-
     private String couponType;
-
-    private int discountNum;
+    private Integer discountNum;
 }
