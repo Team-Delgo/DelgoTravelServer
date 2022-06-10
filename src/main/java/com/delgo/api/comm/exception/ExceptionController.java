@@ -18,13 +18,13 @@ public class ExceptionController {
     public ResponseEntity exception(Exception e) {
         e.printStackTrace();
         return ResponseEntity.ok().body(
-                ResponseDTO.builder().code(303).codeMsg("알 수 없는 오류입니다.").build());
+                ResponseDTO.builder().code(ApiCode.UNKNOWN_ERROR.getCode()).codeMsg(ApiCode.UNKNOWN_ERROR.getMsg()).build());
     }
 
     // @RequestParam Param Error Check
     @ExceptionHandler({MissingServletRequestParameterException.class})
     public ResponseEntity missingServletRequestParameterException(MissingServletRequestParameterException e) {
-        log.info("RequestParam PARAM ERROR : {}" , e.getMessage());
+        log.info("RequestParam PARAM ERROR : {}", e.getMessage());
         return ResponseEntity.ok().body(
                 ResponseDTO.builder().code(ApiCode.PARAM_ERROR.getCode()).codeMsg(ApiCode.PARAM_ERROR.getMsg()).build());
     }
@@ -32,7 +32,7 @@ public class ExceptionController {
     // @RequestParam File Error Check
     @ExceptionHandler({MissingServletRequestPartException.class})
     public ResponseEntity missingServletRequestPartException(MissingServletRequestPartException e) {
-        log.info("RequestParam File ERROR : {}" , e.getMessage());
+        log.info("RequestParam File ERROR : {}", e.getMessage());
         return ResponseEntity.ok().body(
                 ResponseDTO.builder().code(ApiCode.PARAM_ERROR.getCode()).codeMsg(ApiCode.PARAM_ERROR.getMsg()).build());
     }
@@ -40,7 +40,7 @@ public class ExceptionController {
     // @RequestBody DTO Param Error Check
     @ExceptionHandler({MethodArgumentNotValidException.class})
     public ResponseEntity methodArgumentNotValidException(MethodArgumentNotValidException e) {
-        log.info("RequestBody DTO PARAM ERROR : {}" , e.getMessage());
+        log.info("RequestBody DTO PARAM ERROR : {}", e.getMessage());
         return ResponseEntity.ok().body(
                 ResponseDTO.builder().code(ApiCode.PARAM_ERROR.getCode()).codeMsg(ApiCode.PARAM_ERROR.getMsg()).build());
     }
