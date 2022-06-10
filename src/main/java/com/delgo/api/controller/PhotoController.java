@@ -42,7 +42,7 @@ public class PhotoController extends CommController {
         //NCP ERROR
         if (profileUrl.split(":")[0].equals("error")) {
             log.info("NCP ERROR : {}", profileUrl.split(":")[1]);
-            return ErrorReturn(ApiCode.NCP_ERROR);
+            return ErrorReturn(ApiCode.PHOTO_UPLOAD_ERROR);
         }
 
         User user = userService.findByUserId(userId);
@@ -86,7 +86,7 @@ public class PhotoController extends CommController {
         for (int i = 0; i < multiList.size(); i++) {
             String reviewUrl = photoService.uploadReviewPhoto(reviewId, i + 1, multiList.get(i));
             if (reviewUrl.split(":")[0].equals("error")) //NCP ERROR
-                return ErrorReturn(ApiCode.NCP_ERROR);
+                return ErrorReturn(ApiCode.PHOTO_UPLOAD_ERROR);
             switch (i) {
                 case 0:
                     checkdReview.setReviewPhoto1(reviewUrl);

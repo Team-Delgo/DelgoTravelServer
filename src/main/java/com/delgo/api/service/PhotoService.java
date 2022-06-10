@@ -39,12 +39,13 @@ public class PhotoService {
             File f = new File(dir + fileName);
             file.transferTo(f);
 
-            // Upload NCP
-            objectStorageService.uploadObjects("delgo-pet-profile", fileName, dir + fileName);
+            if (f.exists()) {
+                // Upload NCP
+                objectStorageService.uploadObjects("delgo-pet-profile", fileName, dir + fileName);
 
-            // 서버에 저장된 사진 삭제
-            if (f.exists()) f.delete();
-
+                // 서버에 저장된 사진 삭제
+                f.delete();
+            }
             // NCP Link
             return link;
         } catch (Exception e) {
@@ -66,11 +67,12 @@ public class PhotoService {
             File f = new File(dir + fileName);
             file.transferTo(f);
 
-            // Upload NCP
-            objectStorageService.uploadObjects("delgo-review", fileName, dir + fileName);
-
-            // 서버에 저장된 사진 삭제
-            if (f.exists()) f.delete();
+            if (f.exists()) {
+                // Upload NCP
+                objectStorageService.uploadObjects("delgo-review", fileName, dir + fileName);
+                // 서버에 저장된 사진 삭제
+                f.delete();
+            }
 
             // NCP Link
             return link;
