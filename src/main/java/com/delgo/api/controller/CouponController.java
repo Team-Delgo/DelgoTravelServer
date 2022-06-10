@@ -83,17 +83,9 @@ public class CouponController extends CommController {
 
     // 쿠폰 관리 등록 API [ 관리자 ]
     @PostMapping("/regist/manager")
-    public ResponseEntity registCouponManager(@Validated @RequestBody CouponManagerDTO dto) {
-        couponService.insertOrUpdateCouponManager(
-                CouponManager.builder()
-                        .couponCode(dto.getCouponCode())
-                        .couponType(dto.getCouponType())
-                        .adminId(dto.getAdminId())
-                        .expireDt(dto.getExpireDt())
-                        .validDt(dto.getValidDt())
-                        .discountNum(dto.getDiscountNum())
-                        .build()
-        );
-       return SuccessReturn();
+    public ResponseEntity registCouponManager(@Validated @RequestBody CouponManagerDTO couponManagerDTO) {
+        couponService.insertOrUpdateCouponManager(couponManagerDTO.build());
+
+        return SuccessReturn();
     }
 }

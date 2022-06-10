@@ -1,5 +1,6 @@
 package com.delgo.api.dto;
 
+import com.delgo.api.domain.coupon.CouponManager;
 import lombok.Builder;
 import lombok.Data;
 
@@ -21,4 +22,15 @@ public class CouponManagerDTO {
     private LocalDate expireDt;
     @NotNull
     private Integer validDt;
+
+    public CouponManager build() {
+        return CouponManager.builder()
+                .couponCode(this.couponCode)
+                .couponType(this.couponType)
+                .adminId(this.adminId)
+                .expireDt(this.expireDt)
+                .validDt(this.validDt)
+                .discountNum(this.discountNum)
+                .build();
+    }
 }
