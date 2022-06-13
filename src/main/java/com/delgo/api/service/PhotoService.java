@@ -26,9 +26,9 @@ public class PhotoService {
     private final DetailRoomPhotoRepository detailRoomPhotoRepository;
 
     // NCP에 petProfile Upload 후 접근 URL 반환
-    public String uploadPetProfile(int userId, MultipartFile file) {
+    public String uploadPetProfile(int userId, MultipartFile photo) {
         // ex) png, jpg, jpeg
-        String[] type = Objects.requireNonNull(file.getOriginalFilename()).split("\\.");
+        String[] type = Objects.requireNonNull(photo.getOriginalFilename()).split("\\.");
 
         String fileName = userId + "_pet_profile." + type[type.length - 1];
         String dir = "/var/www/delgo-api/";
@@ -37,7 +37,7 @@ public class PhotoService {
         try {
             // 서버에 저장
             File f = new File(dir + fileName);
-            file.transferTo(f);
+            photo.transferTo(f);
 
             if (f.exists()) {
                 // Upload NCP
@@ -54,9 +54,9 @@ public class PhotoService {
     }
 
     // NCP에 ReviewPhoto Upload 후 접근 URL 반환
-    public String uploadReviewPhoto(int reviewId, int order, MultipartFile file) {
+    public String uploadReviewPhoto(int reviewId, int order, MultipartFile photo) {
         // ex) png, jpg, jpeg
-        String[] type = Objects.requireNonNull(file.getOriginalFilename()).split("\\.");
+        String[] type = Objects.requireNonNull(photo.getOriginalFilename()).split("\\.");
 
         String fileName = reviewId + "_review" + order + "." + type[type.length - 1];
         String dir = "/var/www/delgo-api/";
@@ -65,7 +65,7 @@ public class PhotoService {
         try {
             // 서버에 저장
             File f = new File(dir + fileName);
-            file.transferTo(f);
+            photo.transferTo(f);
 
             if (f.exists()) {
                 // Upload NCP
