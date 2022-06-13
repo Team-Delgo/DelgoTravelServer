@@ -26,5 +26,7 @@ public class RefreshPriceJob extends QuartzJobBean {
         // 스케줄러에 의해 돌아갈 코드 작성
         List<Room> roomList = roomService.selectAll();
         priceService.crawlingProcess(roomList);
+
+        log.info(LocalTime.now() + ": RefreshPriceJob Exit");
     }
 }

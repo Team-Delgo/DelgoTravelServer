@@ -58,6 +58,16 @@ public class LoginController extends CommController {
     }
 
     /*
+     * Login 실패
+     * ErrorCode 반환.
+     */
+
+    @PostMapping("/loginFail")
+    public ResponseEntity<?> loginFail() {
+        return ErrorReturn(ApiCode.LOGIN_ERROR);
+    }
+
+    /*
      * Access_Token 재발급 API
      * Refresh_Token 인증 진행
      * 성공 : 재발급, 실패 : 오류 코드 반환
@@ -82,13 +92,12 @@ public class LoginController extends CommController {
         }
     }
 
-    @PostMapping("/loginFail")
-    public ResponseEntity<?> loginFail() {
-        return ErrorReturn(ApiCode.TOKEN_ERROR);
-    }
-
+    /*
+     * TOKEN 인증 프로세스중 에러 발생
+     * ErrorCode 반환.
+     */
     @RequestMapping("/tokenError")
-    public ResponseEntity<?> getTokenError() {
+    public ResponseEntity<?> tokenError() {
         return ErrorReturn(ApiCode.TOKEN_ERROR);
     }
 }

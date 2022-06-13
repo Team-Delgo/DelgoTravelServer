@@ -50,20 +50,15 @@ public class PriceService {
 
         //브라우저 선택
         roomList.forEach(room -> {
-            System.out.println("======================================================================================");
-            List<Price> list = null;
             try {
-                list = getDataList(room.getRoomId(), room.getPlaceId(), room.getCrawlingUrl());
+                List<Price> list = getDataList(room.getRoomId(), room.getPlaceId(), room.getCrawlingUrl());
+                priceRepository.saveAll(list);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            priceRepository.saveAll(list);
-            System.out.println("======================================================================================");
         });
-        System.out.println("driver 종료");
         driver.close();    //탭 닫기
         driver.quit();     //브라우저 닫기
-
     }
 
     private List<Price> getDataList(int roomId, int placeId, String url) throws InterruptedException {
@@ -115,7 +110,6 @@ public class PriceService {
                                     .isWait(0)
                                     .build());
             });
-            System.out.println("-------------------------------------------------------------");
             nextBtnClick();
         }
         return resultList;
@@ -136,8 +130,8 @@ public class PriceService {
         List<WebElement> elements = driver.findElements(By.cssSelector(".list_calendar_info li.item"));
         elements.forEach(element -> typeList.add(element.getText()));
 
-        typeList.forEach(type -> System.out.println("type: " + type));
-        System.out.println("Price Type length" + typeList.size());
+//        typeList.forEach(type -> System.out.println("type: " + type));
+//        System.out.println("Price Type length" + typeList.size());
 
         return typeList;
     }

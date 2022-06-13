@@ -16,6 +16,7 @@ import com.delgo.api.service.WishService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -33,12 +34,18 @@ import java.util.Optional;
 @RequestMapping("/place")
 public class PlaceController extends CommController {
 
-    private final PlaceService placeService;
-    private final WishService wishService;
-    private final RoomService roomService;
     private final CommService commService;
+    private final PlaceService placeService;
+    private final RoomService roomService;
     private final PhotoService photoService;
+    private final WishService wishService;
 
+    /*
+     * WhereToGO Page 조회
+     * Request Data : userId
+     * - wish 여부 판단
+     * Response Data : ALL Place List
+     */
     @GetMapping("/selectWheretogo")
     public ResponseEntity selectWhereTogo(@RequestParam Integer userId) {
         // 전체 Place 조회 ( List )
@@ -62,12 +69,20 @@ public class PlaceController extends CommController {
         return SuccessReturn(placeList);
     }
 
+    /*
+     * Detail Page 조회
+     * Request Data : userId, placeId, startDt,endDt
+     * - userId : wish 여부 check
+     * - placeId : 해당 placeId로 Place 조회 및 반환
+     * - startDt, endDt : 예약 가능 여부 및 최저가격 조회에 사용
+     * Response Data : placeId로 조회한 Place 반환
+     */
     @GetMapping("/selectDetail")
-    public ResponseEntity selectDetail(
-            @RequestParam Integer userId,
-            @RequestParam Integer placeId,
-            @RequestParam String startDt,
-            @RequestParam String endDt) {
+    public ResponseEntity selectDetail(ModelMap model,
+                                       @RequestParam Integer userId,
+                                       @RequestParam Integer placeId,
+                                       @RequestParam String startDt,
+                                       @RequestParam String endDt) {
         // Validate - Blank Check; [ String 만 해주면 됨 ]
         if (startDt.isBlank() || endDt.isBlank())
             return ErrorReturn(ApiCode.PARAM_ERROR);
@@ -78,7 +93,7 @@ public class PlaceController extends CommController {
         // Detail Place 조회
         Optional<Place> place = placeService.findByPlaceId(placeId); // place 조회
         if (place.isEmpty()) // Validate
-            return ErrorReturn(ApiCode.NOT_FOUND_SEARCH);
+            return ErrorReturn(ApiCode.NOT_FOUND_DATA);
 
         place.get().setLowestPrice("0원"); //Detail Page에서 사용 x.
         // wish 설정
@@ -94,7 +109,7 @@ public class PlaceController extends CommController {
         // PlaceId로 Place에 속한 Room 조회
         List<Room> roomList = roomService.selectRoomList(placeId, LocalDate.parse(startDt), LocalDate.parse(endDt));
         if (roomList.size() == 0) // Validate
-            return ErrorReturn(ApiCode.NOT_FOUND_SEARCH);
+            return ErrorReturn(ApiCode.NOT_FOUND_DATA);
 
         // PlaceId로 Detail 상단에서 보여줄 Photo List 조회
         List<DetailPhoto> detailPhotos = photoService.getDetailPhotoList(placeId);
@@ -102,6 +117,14 @@ public class PlaceController extends CommController {
         return SuccessReturn(new DetailDTO(place.get(), roomList, detailPhotos));
     }
 
+    /*
+     * WhereToGo 검색 결과 반환
+     * Request Data : userId, name, address, startDt, endDt
+     * - userId : wish 여부 check
+     * - name, address : DB에서 일치 여부 조회 (정확히 일치 X 해당 단어 포함 0) [ 빈 값 허용 ]
+     * - startDt, endDt : 예약 가능 여부 및 최저가격 조회에 사용
+     * Response Data : 검색조건에 부합하는 PlaceList 반환
+     */
     @GetMapping("/search")
     public ResponseEntity search(
             @RequestParam Integer userId,
@@ -117,8 +140,8 @@ public class PlaceController extends CommController {
             return ErrorReturn(ApiCode.PARAM_DATE_ERROR);
 
         Map<String, Object> searchKeys = new HashMap<>();
-        if(!name.isBlank()) searchKeys.put("name", name);
-        if(!address.isBlank()) searchKeys.put("address", address);
+        if (!name.isBlank()) searchKeys.put("name", name);
+        if (!address.isBlank()) searchKeys.put("address", address);
 
         // Name, Address로 placeList 조회
         List<Place> placeList = placeService.getSearchPlaceListData(searchKeys, LocalDate.parse(startDt), LocalDate.parse(endDt));
