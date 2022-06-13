@@ -23,5 +23,6 @@ public class DeleteYesterdayDataJob extends QuartzJobBean {
         String yesterday = LocalDate.now().minusDays(1).toString();
         priceService.deleteYesterdayPrice(yesterday);
 
+        log.info(LocalTime.now() + ": DeleteYesterdayDataJob  Exit");
     }
 }
