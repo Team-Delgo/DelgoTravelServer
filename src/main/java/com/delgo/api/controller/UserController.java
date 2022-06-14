@@ -13,10 +13,10 @@ import com.delgo.api.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
-import java.util.Optional;
 
 @Slf4j
 @RestController
@@ -28,11 +28,13 @@ public class UserController extends CommController {
     private final TokenService tokenService;
 
     @PostMapping("/changePetInfo")
-    public ResponseEntity<?> changePetInfo(@RequestBody UserDTO userDTO){
+    public ResponseEntity<?> changePetInfo(@Validated @RequestBody UserDTO userDTO){
         try{
             String checkedEmail = userDTO.getUser().getEmail();
-            if(checkedEmail == null)
+
+            if(checkedEmail == null){
                 return ErrorReturn(ApiCode.PARAM_ERROR);
+            }
 
             User user = userService.getUserByEmail(checkedEmail);
             int userId = user.getUserId();
@@ -66,10 +68,11 @@ public class UserController extends CommController {
     }
 
     @PostMapping("/changePassword")
-    public ResponseEntity<?> changePassword(@RequestBody UserDTO userDTO){
+    public ResponseEntity<?> changePassword(@Validated @RequestBody UserDTO userDTO){
         try {
             String checkedEmail = userDTO.getUser().getEmail();
             String newPassword = userDTO.getUser().getPassword();
+
             if(checkedEmail == null || newPassword == null)
                 return ErrorReturn(ApiCode.PARAM_ERROR);
 
@@ -87,8 +90,9 @@ public class UserController extends CommController {
     @GetMapping("/emailAuth")
     public ResponseEntity<?> emailAuth(@RequestParam String email) {
         try {
-            if(email == null)
+            if(email.isBlank()){
                 return ErrorReturn(ApiCode.PARAM_ERROR);
+            }
 
             if(userService.isEmailExisting(email)){
                 return SuccessReturn(userService.getUserByEmail(email).getPhoneNo());
@@ -105,9 +109,9 @@ public class UserController extends CommController {
     @GetMapping("/emailCheck")
     public ResponseEntity<?> emailCheck(@RequestParam String email) {
         try {
-            if(email == null)
+            if(email.isBlank()){
                 return ErrorReturn(ApiCode.PARAM_ERROR);
-
+            }
             if(userService.isEmailExisting(email) == false){
                 return SuccessReturn();
             } else {
@@ -123,8 +127,9 @@ public class UserController extends CommController {
     @GetMapping("/phoneNoAuth")
     public ResponseEntity<?> phoneNoAuth(@RequestParam String phoneNo) {
         try {
-            if(phoneNo == null)
+            if(phoneNo.isBlank()){
                 return ErrorReturn(ApiCode.PARAM_ERROR);
+            }
             phoneNo = phoneNo.replaceAll("[^0-9]", "");
             if(!userService.isPhoneNoExisting(phoneNo)){
                 return ErrorReturn(ApiCode.PHONE_NO_IS_NOT_EXISTING_ERROR);
@@ -142,8 +147,9 @@ public class UserController extends CommController {
     @GetMapping("/phoneNoCheck")
     public ResponseEntity<?> phoneNoCheck(@RequestParam String phoneNo) {
         try {
-            if(phoneNo == null)
+            if(phoneNo.isBlank()){
                 return ErrorReturn(ApiCode.PARAM_ERROR);
+            }
             phoneNo = phoneNo.replaceAll("[^0-9]", "");
 
             if(userService.isPhoneNoExisting(phoneNo)){
@@ -160,10 +166,11 @@ public class UserController extends CommController {
     }
 
     @GetMapping("/authRandNum")
-    public ResponseEntity<?> randNumCheck(@RequestParam int smsId, @RequestParam String enterNum) {
+    public ResponseEntity<?> randNumCheck(@RequestParam Integer smsId, @RequestParam String enterNum) {
         try {
-            if(enterNum == null)
+            if(enterNum.isBlank()){
                 return ErrorReturn(ApiCode.PARAM_ERROR);
+            }
 
             userService.checkSMS(smsId, enterNum);
             return SuccessReturn();
@@ -177,7 +184,7 @@ public class UserController extends CommController {
     }
 
     @PostMapping("/socialSignup")
-    public ResponseEntity<?> registerUserBySocial(@RequestBody UserDTO userDTO, HttpServletResponse response) {
+    public ResponseEntity<?> registerUserBySocial(@Validated @RequestBody UserDTO userDTO, HttpServletResponse response) {
         try {
             String phoneNoUpdate = userDTO.getUser().getPhoneNo().replaceAll("[^0-9]", "");
             String birthdayUpdate = userDTO.getPet().getBirthday().replaceAll("[^0-9]", "");
@@ -202,7 +209,7 @@ public class UserController extends CommController {
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<?> registerUser(@RequestBody UserDTO userDTO, HttpServletResponse response) {
+    public ResponseEntity<?> registerUser(@Validated @RequestBody UserDTO userDTO, HttpServletResponse response) {
         try {
             String phoneNoUpdate = userDTO.getUser().getPhoneNo().replaceAll("[^0-9]", "");
             String birthdayUpdate = userDTO.getPet().getBirthday().replaceAll("[^0-9]", "");
@@ -226,12 +233,8 @@ public class UserController extends CommController {
     }
 
     @PostMapping("/deleteUser")
-    public ResponseEntity<?> deleteUser(@RequestBody UserDTO userDTO){
+    public ResponseEntity<?> deleteUser(@Validated @RequestBody UserDTO userDTO){
         try{
-            String checkedEmail = userDTO.getUser().getEmail();
-            if(checkedEmail == null)
-                return ErrorReturn(ApiCode.PARAM_ERROR);
-
             userService.deleteUser(userDTO.getUser().getEmail());
 
             return SuccessReturn();
