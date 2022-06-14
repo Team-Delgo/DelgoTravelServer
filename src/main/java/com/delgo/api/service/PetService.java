@@ -17,11 +17,7 @@ public class PetService {
     private final PetRepository petRepository;
 
     @Transactional
-    public void changePetInfo(Pet pet, String birthday, String name, PetSize size, double weight){
-        pet.setBirthday(birthday);
-        pet.setName(name);
-        pet.setSize(size);
-        pet.setWeight(weight);
+    public void changePetInfo(Pet pet){
         petRepository.save(pet);
     }
 
