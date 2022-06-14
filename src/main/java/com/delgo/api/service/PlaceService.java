@@ -30,37 +30,19 @@ public class PlaceService {
     private final PriceRepository priceRepository;
     private final DetailPhotoRepository detailPhotoRepository;
 
-    public List<Place> getWhereToGoData() {
+    public List<Place> getPlaceAll() {
         // 전체 Place 리스트 조회
         List<Place> placeList = placeRepository.findAll();
         if (placeList.size() > 0) {
-            // place MainPhoto 설정
-            placeList.forEach(place -> {
-                Optional<DetailPhoto> mainPhoto = detailPhotoRepository.findByPlaceIdAndIsMain(place.getPlaceId(), 1);
-                mainPhoto.ifPresent(photo -> place.setMainPhotoUrl(photo.getUrl()));
-            });
-
-            // 예약가능한 Place Check
-            placeList.forEach(place -> {
-                // place 예약 가능 여부 Check ( 초기 페이지에서는 오늘 기준 1박으로 잡는다. )
-                boolean isBooking = checkBooking(place.getPlaceId(), LocalDate.now(), LocalDate.now().plusDays(1));
-                if (!isBooking) place.setIsBooking(1);
-            });
-
-            // 최저가격 계산
-            placeList.forEach(place -> {
-                if (place.getIsBooking() == 0) { // 예약가능할 경우 최저가격 계산
-                    String lowestPrice = getLowestPrice(place.getPlaceId(), LocalDate.now(), LocalDate.now().plusDays(1));
-                    place.setLowestPrice(lowestPrice);
-                } else { // 예약 불가능할 경우 0원 입력
-                    place.setLowestPrice("0원");
-                }
-            });
+            setMainPhoto(placeList); // place MainPhoto 설정
+            setCanBooking(placeList, LocalDate.now(), LocalDate.now().plusDays(1)); // 예약가능한 Place Check
+            setLowestPrice(placeList, LocalDate.now(), LocalDate.now().plusDays(1)); // 최저가격 계산
         }
+
         return placeList;
     }
 
-    public Optional<Place> findByPlaceId(int placeId) {
+    public Optional<Place> getPlaceByPlaceId(int placeId) {
         // 전체 Place 리스트 조회
         Optional<Place> place = placeRepository.findByPlaceId(placeId);
         if (place.isPresent()) { // place MainPhoto 설정
@@ -71,33 +53,60 @@ public class PlaceService {
         return place;
     }
 
-    // 검색
-    public List<Place> getSearchPlaceListData(Map<String, Object> searchKeys, LocalDate StartDt, LocalDate endDt) {
+    public List<Place> getSearchData(Map<String, Object> searchKeys, LocalDate StartDt, LocalDate endDt) {
         // 전체 Place 리스트 조회
         List<Place> placeList = placeRepository.findAll(PlaceSpecification.searchPlace(searchKeys));
         if (placeList.size() > 0) {
-            // place MainPhoto 설정
-            placeList.forEach(place -> {
-                Optional<DetailPhoto> mainPhoto = detailPhotoRepository.findByPlaceIdAndIsMain(place.getPlaceId(), 1);
-                mainPhoto.ifPresent(photo -> place.setMainPhotoUrl(photo.getUrl()));
-            });
-
-            // 예약가능한 Place Check
-            placeList.forEach(place -> {
-                // place 예약 가능 여부 Check ( 초기 페이지에서는 오늘 기준 1박으로 잡는다. )
-                boolean isBooking = checkBooking(place.getPlaceId(), StartDt, endDt);
-                if (isBooking) place.setIsBooking(1);
-            });
-
-            // 최저가격 계산
-            placeList.forEach(place -> {
-                if (place.getIsBooking() == 0) { // 예약가능할 경우 최저가격 계산
-                    String lowestPrice = getLowestPrice(place.getPlaceId(), StartDt, endDt);
-                    place.setLowestPrice(lowestPrice);
-                } else  // 예약 불가능할 경우 0원 입력
-                    place.setLowestPrice("0원");
-            });
+            setMainPhoto(placeList);  // place MainPhoto 설정
+            setCanBooking(placeList, StartDt, endDt); // 예약가능한 Place Check
+            setLowestPrice(placeList, StartDt, endDt); // 최저가격 계산
         }
+
+        return placeList;
+    }
+
+    // place MainPhoto 설정
+    public List<Place> setMainPhoto(List<Place> placeList) {
+        placeList.forEach(place -> {
+            Optional<DetailPhoto> mainPhoto = detailPhotoRepository.findByPlaceIdAndIsMain(place.getPlaceId(), 1);
+            mainPhoto.ifPresent(photo -> place.setMainPhotoUrl(photo.getUrl()));
+        });
+
+        return placeList;
+    }
+
+    // set canBooking Check
+    public List<Place> setCanBooking(List<Place> placeList, LocalDate startDt, LocalDate endDt) {
+        placeList.forEach(place -> {
+            // place 예약 가능 여부 Check ( 초기 페이지에서는 오늘 기준 1박으로 잡는다. )
+            boolean isBooking = checkCanBooking(place.getPlaceId(), startDt, endDt);
+            if (!isBooking) place.setIsBooking(1);
+        });
+
+        return placeList;
+    }
+
+    // 최대 2주치만 검색 가능
+    public boolean checkCanBooking(int placeId, LocalDate startDt, LocalDate endDt) {
+        Period period = Period.between(startDt, endDt); // 시작, 끝 간격
+        List<Room> roomList = roomRepository.findByPlaceId(placeId);
+        for (Room room : roomList) {
+            // roomId로 예약가능한 날짜 조회
+            List<Price> priceList = priceRepository.findByRoomIdAndIsBookingAndPriceDateBetween(room.getRoomId(), 0, startDt.toString(), endDt.toString());
+            // 단 한개의 Room이라도 예약 가능하다면 해당 Place는 보여져야 한다. 따라서 return true;
+            if (priceList.size() == period.getDays() + 1) return true;
+        }
+        return false;
+    }
+
+    // set LowestPrice
+    public List<Place> setLowestPrice(List<Place> placeList, LocalDate startDt, LocalDate endDt) {
+        placeList.forEach(place -> {
+            // 예약가능할 경우 최저가격 계산
+            if (place.getIsBooking() == 0) place.setLowestPrice(getLowestPrice(place.getPlaceId(), startDt, endDt));
+            else place.setLowestPrice("0원"); // 예약 불가능할 경우 0원 입력
+        });
+
         return placeList;
     }
 
@@ -130,18 +139,5 @@ public class PlaceService {
 
         DecimalFormat df = new DecimalFormat("###,###원"); //포맷팅
         return df.format(Collections.min(minPricelist)); // place의 최소 값.
-    }
-
-    // 최대 2주치만 검색 가능
-    public boolean checkBooking(int placeId, LocalDate startDt, LocalDate endDt) {
-        Period period = Period.between(startDt, endDt); // 시작, 끝 간격
-        List<Room> roomList = roomRepository.findByPlaceId(placeId);
-        for (Room room : roomList) {
-            // roomId로 예약가능한 날짜 조회
-            List<Price> priceList = priceRepository.findByRoomIdAndIsBookingAndPriceDateBetween(room.getRoomId(), 0, startDt.toString(), endDt.toString());
-            // 단 한개의 Room이라도 예약 가능하다면 해당 Place는 보여져야 한다. 따라서 return true;
-            if (priceList.size() == period.getDays() + 1) return true;
-        }
-        return false;
     }
 }
