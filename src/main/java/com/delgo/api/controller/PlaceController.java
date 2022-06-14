@@ -16,7 +16,6 @@ import com.delgo.api.service.WishService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -49,7 +48,7 @@ public class PlaceController extends CommController {
     @GetMapping("/selectWheretogo")
     public ResponseEntity selectWhereTogo(@RequestParam Integer userId) {
         // 전체 Place 조회 ( List )
-        List<Place> placeList = placeService.getWhereToGoData();
+        List<Place> placeList = placeService.getPlaceAll();
 
         // wish 여부 Check [userId == 0일 경우 로그인 안했다고 판단. ]
         // placeList에 wish 등록 여부 적용
@@ -78,11 +77,11 @@ public class PlaceController extends CommController {
      * Response Data : placeId로 조회한 Place 반환
      */
     @GetMapping("/selectDetail")
-    public ResponseEntity selectDetail(ModelMap model,
-                                       @RequestParam Integer userId,
-                                       @RequestParam Integer placeId,
-                                       @RequestParam String startDt,
-                                       @RequestParam String endDt) {
+    public ResponseEntity selectDetail(
+            @RequestParam Integer userId,
+            @RequestParam Integer placeId,
+            @RequestParam String startDt,
+            @RequestParam String endDt) {
         // Validate - Blank Check; [ String 만 해주면 됨 ]
         if (startDt.isBlank() || endDt.isBlank())
             return ErrorReturn(ApiCode.PARAM_ERROR);
@@ -91,7 +90,7 @@ public class PlaceController extends CommController {
             return ErrorReturn(ApiCode.PARAM_DATE_ERROR);
 
         // Detail Place 조회
-        Optional<Place> place = placeService.findByPlaceId(placeId); // place 조회
+        Optional<Place> place = placeService.getPlaceByPlaceId(placeId); // place 조회
         if (place.isEmpty()) // Validate
             return ErrorReturn(ApiCode.NOT_FOUND_DATA);
 
@@ -144,7 +143,7 @@ public class PlaceController extends CommController {
         if (!address.isBlank()) searchKeys.put("address", address);
 
         // Name, Address로 placeList 조회
-        List<Place> placeList = placeService.getSearchPlaceListData(searchKeys, LocalDate.parse(startDt), LocalDate.parse(endDt));
+        List<Place> placeList = placeService.getSearchData(searchKeys, LocalDate.parse(startDt), LocalDate.parse(endDt));
 
         // userId == 0 이면 로그인 없이 조회 // userId 있을 경우 wish 여부 Check
         if (userId != 0 && placeList.size() > 0) {

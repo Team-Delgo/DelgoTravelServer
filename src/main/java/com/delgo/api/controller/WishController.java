@@ -50,7 +50,7 @@ public class WishController extends CommController {
         List<Wish> wishList = wishService.getWishListByUserId(userId);
         List<Place> placeList = new ArrayList<>();
         wishList.forEach(wish -> {
-            Optional<Place> place = placeService.findByPlaceId(wish.getPlaceId());
+            Optional<Place> place = placeService.getPlaceByPlaceId(wish.getPlaceId());
             if (place.isPresent()) {
                 place.get().setWishId(wish.getWishId());
                 placeList.add(place.get());
