@@ -35,6 +35,17 @@ public class API {
         //BOOKING ERROR
         public static final int BOOKING_NOT_EXIST = 314;
 
+        //EMAIL ERROR
+        public static final int EMAIL_IS_NOT_EXISTING_ERROR = 315;
+        public static final int EMAIL_IS_EXISTING_ERROR = 316;
+
+        //SMS AUTH ERROR
+        public static final int AUTH_NO_IS_NOT_MATCHING_ERROR = 317;
+
+        //PHONE NO ERROR
+        public static final int PHONE_NO_IS_NOT_EXISTING_ERROR = 318;
+        public static final int PHONE_NO_IS_EXISTING_ERROR = 319;
+
 
         public static final int UNKNOWN_ERROR = 1000;
         public static final int SERVER_TIMEOUT_ERROR = 1001;
