@@ -1,8 +1,9 @@
 package com.delgo.api.controller;
 
+import com.delgo.api.comm.CommController;
+import com.delgo.api.comm.exception.ApiCode;
 import com.delgo.api.domain.user.User;
 import com.delgo.api.dto.UserDTO;
-import com.delgo.api.dto.common.ResponseDTO;
 import com.delgo.api.comm.security.jwt.Access_JwtProperties;
 import com.delgo.api.comm.security.jwt.Refresh_JwtProperties;
 import com.delgo.api.service.TokenService;
@@ -18,10 +19,26 @@ import java.util.Optional;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-public class UserController {
+public class UserController extends CommController {
 
     private final UserService userService;
     private final TokenService tokenService;
+
+    @PostMapping("/changePetInfo")
+    public ResponseEntity<?> changePetInfo(@RequestBody Optional<UserDTO> userDTO){
+        try{
+
+
+
+            return SuccessReturn();
+        } catch (IllegalStateException e){
+            return ErrorReturn(ApiCode.NOT_FOUND_DATA);
+        } catch (NullPointerException e){
+            return ErrorReturn(ApiCode.PARAM_ERROR);
+        } catch (Exception e){
+            return ErrorReturn(ApiCode.UNKNOWN_ERROR);
+        }
+    }
 
     @PostMapping("/changePassword")
     public ResponseEntity<?> changePassword(@RequestBody Optional<UserDTO> userDTO){
@@ -34,11 +51,12 @@ public class UserController {
 
             userService.changePassword(checkedEmail, newPassword);
 
-            return ResponseEntity.ok().body(ResponseDTO.builder().code(200).codeMsg("Change password success").build());
+            return SuccessReturn();
 
+        } catch (NullPointerException e){
+            return ErrorReturn(ApiCode.PARAM_ERROR);
         } catch (Exception e){
-            return ResponseEntity.badRequest().body(ResponseDTO.builder().code(303).codeMsg(e.getMessage()).build()
-            );
+            return ErrorReturn(ApiCode.UNKNOWN_ERROR);
         }
     }
 
@@ -47,12 +65,15 @@ public class UserController {
         try {
             String checkedEmail = email.orElseThrow(() -> new NullPointerException("Param Empty"));
 
-            return (userService.isEmailExisting(checkedEmail)) ?
-                    ResponseEntity.ok().body(ResponseDTO.builder().code(200).codeMsg("The email exists").data(userService.findByEmail(checkedEmail).getPhoneNo()).build()) :
-                    ResponseEntity.ok().body(ResponseDTO.builder().code(303).codeMsg("The email does not exist").build());
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(ResponseDTO.builder().code(303).codeMsg(e.getMessage()).build()
-            );
+            if(userService.isEmailExisting((checkedEmail))){
+                return SuccessReturn(userService.findByEmail(checkedEmail).getPhoneNo());
+            } else {
+                return ErrorReturn(ApiCode.EMAIL_IS_NOT_EXISTING_ERROR);
+            }
+        } catch (NullPointerException e){
+            return ErrorReturn(ApiCode.PARAM_ERROR);
+        } catch (Exception e){
+            return ErrorReturn(ApiCode.UNKNOWN_ERROR);
         }
     }
 
@@ -61,12 +82,15 @@ public class UserController {
         try { // Param Empty Check
             String checkedEmail = email.orElseThrow(() -> new NullPointerException("Param Empty"));
 
-            return (userService.isEmailExisting(checkedEmail)) ?
-                    ResponseEntity.ok().body(ResponseDTO.builder().code(303).codeMsg("Email is duplicate").build()) : // 이메일 중복 0
-                    ResponseEntity.ok().body(ResponseDTO.builder().code(200).codeMsg("No duplicate").build()); // 이메일 중복 x
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(ResponseDTO.builder().code(303).codeMsg(e.getMessage()).build()
-            );
+            if(userService.isEmailExisting(checkedEmail) == false){
+                return SuccessReturn();
+            } else {
+                return ErrorReturn(ApiCode.EMAIL_IS_EXISTING_ERROR);
+            }
+        } catch (NullPointerException e){
+            return ErrorReturn(ApiCode.PARAM_ERROR);
+        } catch (Exception e){
+            return ErrorReturn(ApiCode.UNKNOWN_ERROR);
         }
     }
 
@@ -76,16 +100,15 @@ public class UserController {
             String checkedPhoneNo = phoneNo.orElseThrow(() -> new NullPointerException("Param Empty"));
             checkedPhoneNo = checkedPhoneNo.replaceAll("[^0-9]", "");
             if(!userService.isPhoneNoExisting(checkedPhoneNo)){
-                return ResponseEntity.ok().body(
-                        ResponseDTO.builder().code(303).codeMsg("It isn't registered phone number").build());
+                return ErrorReturn(ApiCode.PHONE_NO_IS_NOT_EXISTING_ERROR);
             }
 
             int smsId = userService.sendSMS(checkedPhoneNo);
-            return ResponseEntity.ok().body(
-                    ResponseDTO.builder().code(200).codeMsg("sending phone number check sms success").data(smsId).build()
-            );
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(ResponseDTO.builder().code(303).codeMsg("sending phone number check sms failed").build());
+            return SuccessReturn(smsId);
+        } catch (NullPointerException e){
+            return ErrorReturn(ApiCode.PARAM_ERROR);
+        } catch (Exception e){
+            return ErrorReturn(ApiCode.UNKNOWN_ERROR);
         }
     }
 
@@ -95,16 +118,15 @@ public class UserController {
             String checkedPhoneNo = phoneNo.orElseThrow(() -> new NullPointerException("Param Empty"));
             checkedPhoneNo = checkedPhoneNo.replaceAll("[^0-9]", "");
             if(userService.isPhoneNoExisting(checkedPhoneNo)){
-                return ResponseEntity.ok().body(
-                        ResponseDTO.builder().code(303).codeMsg("It's already registered phone number").build());
+                return ErrorReturn(ApiCode.PHONE_NO_IS_EXISTING_ERROR);
             }
 
             int smsId = userService.sendSMS(checkedPhoneNo);
-            return ResponseEntity.ok().body(
-                    ResponseDTO.builder().code(200).codeMsg("sending phone number check sms success").data(smsId).build()
-            );
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(ResponseDTO.builder().code(303).codeMsg("sending phone number check sms failed").build());
+            return SuccessReturn(smsId);
+        } catch (NullPointerException e){
+            return ErrorReturn(ApiCode.PARAM_ERROR);
+        } catch (Exception e){
+            return ErrorReturn(ApiCode.UNKNOWN_ERROR);
         }
     }
 
@@ -113,17 +135,13 @@ public class UserController {
         try {
             String checkedEnterNum = enterNum.orElseThrow(() -> new NullPointerException("Param Empty"));
             userService.checkSMS(smsId, checkedEnterNum);
-            return ResponseEntity.ok().body(
-                    ResponseDTO.builder().code(200).codeMsg("PhoneNo is authorized").build()
-            );
-        }
-        catch (IllegalStateException e){
-            return ResponseEntity.ok().body(ResponseDTO.builder().code(303).codeMsg(e.getMessage()).build());
-        }
-        catch (Exception e) {
-            return ResponseEntity.badRequest().body(
-                    ResponseDTO.builder().code(303).codeMsg(e.getMessage()).build()
-            );
+            return SuccessReturn();
+        } catch (IllegalStateException e){
+            return ErrorReturn(ApiCode.AUTH_NO_IS_NOT_MATCHING);
+        } catch (NullPointerException e){
+            return ErrorReturn(ApiCode.PARAM_ERROR);
+        } catch (Exception e){
+            return ErrorReturn(ApiCode.UNKNOWN_ERROR);
         }
     }
 
@@ -143,10 +161,11 @@ public class UserController {
             response.addHeader(Access_JwtProperties.HEADER_STRING, Access_JwtProperties.TOKEN_PREFIX + Access_jwtToken);
             response.addHeader(Refresh_JwtProperties.HEADER_STRING, Refresh_JwtProperties.TOKEN_PREFIX + Refresh_jwtToken);
 
-            return ResponseEntity.ok().body(ResponseDTO.builder().code(200).codeMsg("signup success").data(user).build());
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(
-                    ResponseDTO.builder().code(303).codeMsg(e.getMessage()).build());
+            return SuccessReturn(user);
+        } catch (NullPointerException e){
+            return ErrorReturn(ApiCode.PARAM_ERROR);
+        } catch (Exception e){
+            return ErrorReturn(ApiCode.UNKNOWN_ERROR);
         }
     }
 
@@ -165,10 +184,11 @@ public class UserController {
             response.addHeader(Access_JwtProperties.HEADER_STRING, Access_JwtProperties.TOKEN_PREFIX + Access_jwtToken);
             response.addHeader(Refresh_JwtProperties.HEADER_STRING, Refresh_JwtProperties.TOKEN_PREFIX + Refresh_jwtToken);
 
-            return ResponseEntity.ok().body(ResponseDTO.builder().code(200).codeMsg("signup success").data(user).build());
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(
-                    ResponseDTO.builder().code(303).codeMsg(e.getMessage()).build());
+            return SuccessReturn(user);
+        } catch (NullPointerException e){
+            return ErrorReturn(ApiCode.PARAM_ERROR);
+        } catch (Exception e){
+            return ErrorReturn(ApiCode.UNKNOWN_ERROR);
         }
     }
 
@@ -182,10 +202,11 @@ public class UserController {
 
             userService.deleteUser(checkedUserDTO.getUser().getEmail());
 
-            return ResponseEntity.ok().body(ResponseDTO.builder().code(200).codeMsg("delete user success").build());
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(
-                    ResponseDTO.builder().code(303).codeMsg(e.getMessage()).build());
+            return SuccessReturn();
+        } catch (NullPointerException e){
+            return ErrorReturn(ApiCode.PARAM_ERROR);
+        } catch (Exception e){
+            return ErrorReturn(ApiCode.UNKNOWN_ERROR);
         }
     }
 

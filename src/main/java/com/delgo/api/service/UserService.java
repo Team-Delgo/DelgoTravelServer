@@ -100,7 +100,7 @@ public class UserService {
         Optional<SmsAuth> findSmsAuth = smsAuthRepository.findBySmsId(smsId);
         if (!findSmsAuth.get().getRandNum().equals(enterNum)) {
             log.warn("The authentication numbers do not match");
-            throw new IllegalStateException("The authentication numbers do not match");
+            throw new IllegalStateException();
         }
         smsAuthRepository.delete(findSmsAuth.get());
     }
