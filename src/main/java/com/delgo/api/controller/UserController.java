@@ -85,7 +85,7 @@ public class UserController extends CommController {
     }
 
     @GetMapping("/emailAuth")
-    public ResponseEntity<?> emailAuth(String email) {
+    public ResponseEntity<?> emailAuth(@RequestParam String email) {
         try {
             if(email == null)
                 return ErrorReturn(ApiCode.PARAM_ERROR);
@@ -103,7 +103,7 @@ public class UserController extends CommController {
     }
 
     @GetMapping("/emailCheck")
-    public ResponseEntity<?> emailCheck(String email) {
+    public ResponseEntity<?> emailCheck(@RequestParam String email) {
         try {
             if(email == null)
                 return ErrorReturn(ApiCode.PARAM_ERROR);
@@ -121,7 +121,7 @@ public class UserController extends CommController {
     }
 
     @GetMapping("/phoneNoAuth")
-    public ResponseEntity<?> phoneNoAuth(String phoneNo) {
+    public ResponseEntity<?> phoneNoAuth(@RequestParam String phoneNo) {
         try {
             if(phoneNo == null)
                 return ErrorReturn(ApiCode.PARAM_ERROR);
@@ -140,7 +140,7 @@ public class UserController extends CommController {
     }
 
     @GetMapping("/phoneNoCheck")
-    public ResponseEntity<?> phoneNoCheck(String phoneNo) {
+    public ResponseEntity<?> phoneNoCheck(@RequestParam String phoneNo) {
         try {
             if(phoneNo == null)
                 return ErrorReturn(ApiCode.PARAM_ERROR);
@@ -160,7 +160,7 @@ public class UserController extends CommController {
     }
 
     @GetMapping("/authRandNum")
-    public ResponseEntity<?> randNumCheck(int smsId, String enterNum) {
+    public ResponseEntity<?> randNumCheck(@RequestParam int smsId, @RequestParam String enterNum) {
         try {
             if(enterNum == null)
                 return ErrorReturn(ApiCode.PARAM_ERROR);
