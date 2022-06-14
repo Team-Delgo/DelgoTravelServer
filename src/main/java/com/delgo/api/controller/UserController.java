@@ -2,10 +2,12 @@ package com.delgo.api.controller;
 
 import com.delgo.api.comm.CommController;
 import com.delgo.api.comm.exception.ApiCode;
+import com.delgo.api.domain.pet.Pet;
 import com.delgo.api.domain.user.User;
 import com.delgo.api.dto.UserDTO;
 import com.delgo.api.comm.security.jwt.Access_JwtProperties;
 import com.delgo.api.comm.security.jwt.Refresh_JwtProperties;
+import com.delgo.api.service.PetService;
 import com.delgo.api.service.TokenService;
 import com.delgo.api.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -22,13 +24,37 @@ import java.util.Optional;
 public class UserController extends CommController {
 
     private final UserService userService;
+    private final PetService petService;
     private final TokenService tokenService;
 
     @PostMapping("/changePetInfo")
     public ResponseEntity<?> changePetInfo(@RequestBody Optional<UserDTO> userDTO){
         try{
+            UserDTO checkedUserDTO = userDTO.orElseThrow(() -> new NullPointerException("Param Empty"));
+            String checkedEmail = checkedUserDTO.getUser().getEmail();
+            if(checkedEmail == null)
+                throw new NullPointerException("Param Empty");
 
+            User user = userService.getUserByEmail(checkedEmail);
+            int userId = user.getUserId();
+            Pet originPet = petService.getPetByUserId(userId);
+            Pet changePet = checkedUserDTO.getPet();
 
+            changePet.setUserId(originPet.getUserId());
+
+            if(changePet.getBirthday() == null)
+                changePet.setBirthday(originPet.getBirthday());
+
+            if(changePet.getName() == null)
+                changePet.setName(originPet.getName());
+
+            if(changePet.getSize() == null)
+                changePet.setSize(originPet.getSize());
+
+            if(changePet.getWeight() == 0)
+                changePet.setWeight(originPet.getWeight());
+
+            petService.changePetInfo(originPet, changePet.getBirthday(), changePet.getName(), changePet.getSize(), changePet.getWeight());
 
             return SuccessReturn();
         } catch (IllegalStateException e){
@@ -66,7 +92,7 @@ public class UserController extends CommController {
             String checkedEmail = email.orElseThrow(() -> new NullPointerException("Param Empty"));
 
             if(userService.isEmailExisting((checkedEmail))){
-                return SuccessReturn(userService.findByEmail(checkedEmail).getPhoneNo());
+                return SuccessReturn(userService.getUserByEmail(checkedEmail).getPhoneNo());
             } else {
                 return ErrorReturn(ApiCode.EMAIL_IS_NOT_EXISTING_ERROR);
             }
@@ -150,7 +176,9 @@ public class UserController extends CommController {
         try { // Param Empty Check
             UserDTO checkedUserDTO = userDTO.orElseThrow(() -> new NullPointerException("Param Empty"));
             String phoneNoUpdate = checkedUserDTO.getUser().getPhoneNo().replaceAll("[^0-9]", "");
+            String birthdayUpdate = checkedUserDTO.getPet().getBirthday().replaceAll("[^0-9]", "");
             checkedUserDTO.getUser().setPhoneNo(phoneNoUpdate);
+            checkedUserDTO.getPet().setBirthday(birthdayUpdate);
             checkedUserDTO.getUser().setEmail("");
 
             User user = userService.socialSignup(checkedUserDTO.getUser(), checkedUserDTO.getPet());
@@ -174,7 +202,9 @@ public class UserController extends CommController {
         try { // Param Empty Check
             UserDTO checkedUserDTO = userDTO.orElseThrow(() -> new NullPointerException("Param Empty"));
             String phoneNoUpdate = checkedUserDTO.getUser().getPhoneNo().replaceAll("[^0-9]", "");
+            String birthdayUpdate = checkedUserDTO.getPet().getBirthday().replaceAll("[^0-9]", "");
             checkedUserDTO.getUser().setPhoneNo(phoneNoUpdate);
+            checkedUserDTO.getPet().setBirthday(birthdayUpdate);
              User user = userService.signup(checkedUserDTO.getUser(), checkedUserDTO.getPet());
              user.setPassword(""); // 보안
 
