@@ -116,12 +116,12 @@ public class UserService {
         return findUser.isPresent();
     }
 
-    public User findByEmail(String email) {
+    public User getUserByEmail(String email) {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new IllegalStateException("Not Found UserData"));
     }
 
-    public User findByUserId(int userId) {
+    public User getUserByUserId(int userId) {
         return userRepository.findByUserId(userId)
                 .orElseThrow(() -> new IllegalStateException("Not Found UserData"));
     }

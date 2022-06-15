@@ -45,8 +45,8 @@ public class LoginController extends CommController {
     public ResponseEntity<?> loginSuccess(HttpServletRequest request, HttpServletResponse response) {
         String email = request.getAttribute("email").toString();
 
-        User user = userService.findByEmail(email);
-        Pet pet = petService.findByUserId(user.getUserId());
+        User user = userService.getUserByEmail(email);
+        Pet pet = petService.getPetByUserId(user.getUserId());
 
         String Access_jwtToken = tokenService.createToken(ACCESS, email); // Access Token 생성
         String Refresh_jwtToken = tokenService.createToken(REFRESH, email); // Refresh Token 생성

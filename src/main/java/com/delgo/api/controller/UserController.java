@@ -2,19 +2,21 @@ package com.delgo.api.controller;
 
 import com.delgo.api.comm.CommController;
 import com.delgo.api.comm.exception.ApiCode;
+import com.delgo.api.domain.pet.Pet;
 import com.delgo.api.domain.user.User;
 import com.delgo.api.dto.UserDTO;
 import com.delgo.api.comm.security.jwt.Access_JwtProperties;
 import com.delgo.api.comm.security.jwt.Refresh_JwtProperties;
+import com.delgo.api.service.PetService;
 import com.delgo.api.service.TokenService;
 import com.delgo.api.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
-import java.util.Optional;
 
 @Slf4j
 @RestController
@@ -22,13 +24,38 @@ import java.util.Optional;
 public class UserController extends CommController {
 
     private final UserService userService;
+    private final PetService petService;
     private final TokenService tokenService;
 
     @PostMapping("/changePetInfo")
-    public ResponseEntity<?> changePetInfo(@RequestBody Optional<UserDTO> userDTO){
+    public ResponseEntity<?> changePetInfo(@Validated @RequestBody UserDTO userDTO){
         try{
+            String checkedEmail = userDTO.getUser().getEmail();
 
+            if(checkedEmail == null){
+                return ErrorReturn(ApiCode.PARAM_ERROR);
+            }
 
+            User user = userService.getUserByEmail(checkedEmail);
+            int userId = user.getUserId();
+            Pet originPet = petService.getPetByUserId(userId);
+            Pet changePet = userDTO.getPet();
+
+            changePet.setUserId(originPet.getUserId());
+
+            if(changePet.getBirthday() != null)
+                originPet.setBirthday(changePet.getBirthday());
+
+            if(changePet.getName() != null)
+                originPet.setName(changePet.getName());
+
+            if(changePet.getSize() != null)
+                originPet.setSize(changePet.getSize());
+
+            if(changePet.getWeight() != 0)
+                originPet.setWeight(changePet.getWeight());
+
+            petService.changePetInfo(originPet);
 
             return SuccessReturn();
         } catch (IllegalStateException e){
@@ -41,13 +68,13 @@ public class UserController extends CommController {
     }
 
     @PostMapping("/changePassword")
-    public ResponseEntity<?> changePassword(@RequestBody Optional<UserDTO> userDTO){
+    public ResponseEntity<?> changePassword(@Validated @RequestBody UserDTO userDTO){
         try {
-            UserDTO checkedUserDTO = userDTO.orElseThrow(() -> new NullPointerException("Param Empty"));
-            String checkedEmail = checkedUserDTO.getUser().getEmail();
-            String newPassword = checkedUserDTO.getUser().getPassword();
+            String checkedEmail = userDTO.getUser().getEmail();
+            String newPassword = userDTO.getUser().getPassword();
+
             if(checkedEmail == null || newPassword == null)
-                throw new NullPointerException("Param Empty");
+                return ErrorReturn(ApiCode.PARAM_ERROR);
 
             userService.changePassword(checkedEmail, newPassword);
 
@@ -61,12 +88,14 @@ public class UserController extends CommController {
     }
 
     @GetMapping("/emailAuth")
-    public ResponseEntity<?> emailAuth(Optional<String> email) {
+    public ResponseEntity<?> emailAuth(@RequestParam String email) {
         try {
-            String checkedEmail = email.orElseThrow(() -> new NullPointerException("Param Empty"));
+            if(email.isBlank()){
+                return ErrorReturn(ApiCode.PARAM_ERROR);
+            }
 
-            if(userService.isEmailExisting((checkedEmail))){
-                return SuccessReturn(userService.findByEmail(checkedEmail).getPhoneNo());
+            if(userService.isEmailExisting(email)){
+                return SuccessReturn(userService.getUserByEmail(email).getPhoneNo());
             } else {
                 return ErrorReturn(ApiCode.EMAIL_IS_NOT_EXISTING_ERROR);
             }
@@ -78,11 +107,12 @@ public class UserController extends CommController {
     }
 
     @GetMapping("/emailCheck")
-    public ResponseEntity<?> emailCheck(Optional<String> email) {
-        try { // Param Empty Check
-            String checkedEmail = email.orElseThrow(() -> new NullPointerException("Param Empty"));
-
-            if(userService.isEmailExisting(checkedEmail) == false){
+    public ResponseEntity<?> emailCheck(@RequestParam String email) {
+        try {
+            if(email.isBlank()){
+                return ErrorReturn(ApiCode.PARAM_ERROR);
+            }
+            if(userService.isEmailExisting(email) == false){
                 return SuccessReturn();
             } else {
                 return ErrorReturn(ApiCode.EMAIL_IS_EXISTING_ERROR);
@@ -95,15 +125,17 @@ public class UserController extends CommController {
     }
 
     @GetMapping("/phoneNoAuth")
-    public ResponseEntity<?> phoneNoAuth(Optional<String> phoneNo) {
+    public ResponseEntity<?> phoneNoAuth(@RequestParam String phoneNo) {
         try {
-            String checkedPhoneNo = phoneNo.orElseThrow(() -> new NullPointerException("Param Empty"));
-            checkedPhoneNo = checkedPhoneNo.replaceAll("[^0-9]", "");
-            if(!userService.isPhoneNoExisting(checkedPhoneNo)){
+            if(phoneNo.isBlank()){
+                return ErrorReturn(ApiCode.PARAM_ERROR);
+            }
+            phoneNo = phoneNo.replaceAll("[^0-9]", "");
+            if(!userService.isPhoneNoExisting(phoneNo)){
                 return ErrorReturn(ApiCode.PHONE_NO_IS_NOT_EXISTING_ERROR);
             }
 
-            int smsId = userService.sendSMS(checkedPhoneNo);
+            int smsId = userService.sendSMS(phoneNo);
             return SuccessReturn(smsId);
         } catch (NullPointerException e){
             return ErrorReturn(ApiCode.PARAM_ERROR);
@@ -113,15 +145,18 @@ public class UserController extends CommController {
     }
 
     @GetMapping("/phoneNoCheck")
-    public ResponseEntity<?> phoneNoCheck(Optional<String> phoneNo) {
+    public ResponseEntity<?> phoneNoCheck(@RequestParam String phoneNo) {
         try {
-            String checkedPhoneNo = phoneNo.orElseThrow(() -> new NullPointerException("Param Empty"));
-            checkedPhoneNo = checkedPhoneNo.replaceAll("[^0-9]", "");
-            if(userService.isPhoneNoExisting(checkedPhoneNo)){
+            if(phoneNo.isBlank()){
+                return ErrorReturn(ApiCode.PARAM_ERROR);
+            }
+            phoneNo = phoneNo.replaceAll("[^0-9]", "");
+
+            if(userService.isPhoneNoExisting(phoneNo)){
                 return ErrorReturn(ApiCode.PHONE_NO_IS_EXISTING_ERROR);
             }
 
-            int smsId = userService.sendSMS(checkedPhoneNo);
+            int smsId = userService.sendSMS(phoneNo);
             return SuccessReturn(smsId);
         } catch (NullPointerException e){
             return ErrorReturn(ApiCode.PARAM_ERROR);
@@ -131,10 +166,13 @@ public class UserController extends CommController {
     }
 
     @GetMapping("/authRandNum")
-    public ResponseEntity<?> randNumCheck(int smsId, Optional<String> enterNum) {
+    public ResponseEntity<?> randNumCheck(@RequestParam Integer smsId, @RequestParam String enterNum) {
         try {
-            String checkedEnterNum = enterNum.orElseThrow(() -> new NullPointerException("Param Empty"));
-            userService.checkSMS(smsId, checkedEnterNum);
+            if(enterNum.isBlank()){
+                return ErrorReturn(ApiCode.PARAM_ERROR);
+            }
+
+            userService.checkSMS(smsId, enterNum);
             return SuccessReturn();
         } catch (IllegalStateException e){
             return ErrorReturn(ApiCode.AUTH_NO_IS_NOT_MATCHING);
@@ -146,17 +184,18 @@ public class UserController extends CommController {
     }
 
     @PostMapping("/socialSignup")
-    public ResponseEntity<?> registerUserBySocial(@RequestBody Optional<UserDTO> userDTO, HttpServletResponse response) {
-        try { // Param Empty Check
-            UserDTO checkedUserDTO = userDTO.orElseThrow(() -> new NullPointerException("Param Empty"));
-            String phoneNoUpdate = checkedUserDTO.getUser().getPhoneNo().replaceAll("[^0-9]", "");
-            checkedUserDTO.getUser().setPhoneNo(phoneNoUpdate);
-            checkedUserDTO.getUser().setEmail("");
+    public ResponseEntity<?> registerUserBySocial(@Validated @RequestBody UserDTO userDTO, HttpServletResponse response) {
+        try {
+            String phoneNoUpdate = userDTO.getUser().getPhoneNo().replaceAll("[^0-9]", "");
+            String birthdayUpdate = userDTO.getPet().getBirthday().replaceAll("[^0-9]", "");
+            userDTO.getUser().setPhoneNo(phoneNoUpdate);
+            userDTO.getPet().setBirthday(birthdayUpdate);
+            userDTO.getUser().setEmail("");
 
-            User user = userService.socialSignup(checkedUserDTO.getUser(), checkedUserDTO.getPet());
+            User user = userService.socialSignup(userDTO.getUser(), userDTO.getPet());
 
-            String Access_jwtToken = tokenService.createToken("Access", checkedUserDTO.getUser().getPhoneNo()); // Access Token 생성
-            String Refresh_jwtToken = tokenService.createToken("Refresh", checkedUserDTO.getUser().getPhoneNo()); // Refresh Token 생성
+            String Access_jwtToken = tokenService.createToken("Access", userDTO.getUser().getPhoneNo()); // Access Token 생성
+            String Refresh_jwtToken = tokenService.createToken("Refresh", userDTO.getUser().getPhoneNo()); // Refresh Token 생성
 
             response.addHeader(Access_JwtProperties.HEADER_STRING, Access_JwtProperties.TOKEN_PREFIX + Access_jwtToken);
             response.addHeader(Refresh_JwtProperties.HEADER_STRING, Refresh_JwtProperties.TOKEN_PREFIX + Refresh_jwtToken);
@@ -170,16 +209,17 @@ public class UserController extends CommController {
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<?> registerUser(@RequestBody Optional<UserDTO> userDTO, HttpServletResponse response) {
-        try { // Param Empty Check
-            UserDTO checkedUserDTO = userDTO.orElseThrow(() -> new NullPointerException("Param Empty"));
-            String phoneNoUpdate = checkedUserDTO.getUser().getPhoneNo().replaceAll("[^0-9]", "");
-            checkedUserDTO.getUser().setPhoneNo(phoneNoUpdate);
-             User user = userService.signup(checkedUserDTO.getUser(), checkedUserDTO.getPet());
+    public ResponseEntity<?> registerUser(@Validated @RequestBody UserDTO userDTO, HttpServletResponse response) {
+        try {
+            String phoneNoUpdate = userDTO.getUser().getPhoneNo().replaceAll("[^0-9]", "");
+            String birthdayUpdate = userDTO.getPet().getBirthday().replaceAll("[^0-9]", "");
+            userDTO.getUser().setPhoneNo(phoneNoUpdate);
+            userDTO.getPet().setBirthday(birthdayUpdate);
+             User user = userService.signup(userDTO.getUser(), userDTO.getPet());
              user.setPassword(""); // 보안
 
-            String Access_jwtToken = tokenService.createToken("Access", checkedUserDTO.getUser().getEmail()); // Access Token 생성
-            String Refresh_jwtToken = tokenService.createToken("Refresh", checkedUserDTO.getUser().getEmail()); // Refresh Token 생성
+            String Access_jwtToken = tokenService.createToken("Access", userDTO.getUser().getEmail()); // Access Token 생성
+            String Refresh_jwtToken = tokenService.createToken("Refresh", userDTO.getUser().getEmail()); // Refresh Token 생성
 
             response.addHeader(Access_JwtProperties.HEADER_STRING, Access_JwtProperties.TOKEN_PREFIX + Access_jwtToken);
             response.addHeader(Refresh_JwtProperties.HEADER_STRING, Refresh_JwtProperties.TOKEN_PREFIX + Refresh_jwtToken);
@@ -193,14 +233,9 @@ public class UserController extends CommController {
     }
 
     @PostMapping("/deleteUser")
-    public ResponseEntity<?> deleteUser(@RequestBody Optional<UserDTO> userDTO){
+    public ResponseEntity<?> deleteUser(@Validated @RequestBody UserDTO userDTO){
         try{
-            UserDTO checkedUserDTO = userDTO.orElseThrow(() -> new NullPointerException("Param Empty"));
-            String checkedEmail = checkedUserDTO.getUser().getEmail();
-            if(checkedEmail == null)
-                throw new NullPointerException("Param Empty");
-
-            userService.deleteUser(checkedUserDTO.getUser().getEmail());
+            userService.deleteUser(userDTO.getUser().getEmail());
 
             return SuccessReturn();
         } catch (NullPointerException e){
