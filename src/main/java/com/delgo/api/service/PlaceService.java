@@ -1,5 +1,6 @@
 package com.delgo.api.service;
 
+import com.delgo.api.domain.Wish;
 import com.delgo.api.domain.photo.DetailPhoto;
 import com.delgo.api.domain.Place;
 import com.delgo.api.domain.Room;
@@ -30,63 +31,45 @@ public class PlaceService {
     private final PriceRepository priceRepository;
     private final DetailPhotoRepository detailPhotoRepository;
 
+    // 전체 Place 리스트 조회
     public List<Place> getPlaceAll() {
-        // 전체 Place 리스트 조회
-        List<Place> placeList = placeRepository.findAll();
-        if (placeList.size() > 0) {
-            setMainPhoto(placeList); // place MainPhoto 설정
-            setCanBooking(placeList, LocalDate.now(), LocalDate.now().plusDays(1)); // 예약가능한 Place Check
-            setLowestPrice(placeList, LocalDate.now(), LocalDate.now().plusDays(1)); // 최저가격 계산
-        }
-
-        return placeList;
+        return placeRepository.findAll();
     }
 
+    // PlaceId로 Place 조회
     public Optional<Place> getPlaceByPlaceId(int placeId) {
-        // 전체 Place 리스트 조회
-        Optional<Place> place = placeRepository.findByPlaceId(placeId);
-        if (place.isPresent()) { // place MainPhoto 설정
-            Optional<DetailPhoto> mainPhoto = detailPhotoRepository.findByPlaceIdAndIsMain(place.get().getPlaceId(), 1);
-            mainPhoto.ifPresent(photo -> place.get().setMainPhotoUrl(photo.getUrl()));
-        }
-
-        return place;
+        return placeRepository.findByPlaceId(placeId);
     }
 
+    // 검색조건에 맞는 Place 조회
     public List<Place> getSearchData(Map<String, Object> searchKeys, LocalDate StartDt, LocalDate endDt) {
-        // 전체 Place 리스트 조회
-        List<Place> placeList = placeRepository.findAll(PlaceSpecification.searchPlace(searchKeys));
-        if (placeList.size() > 0) {
-            setMainPhoto(placeList);  // place MainPhoto 설정
-            setCanBooking(placeList, StartDt, endDt); // 예약가능한 Place Check
-            setLowestPrice(placeList, StartDt, endDt); // 최저가격 계산
-        }
-
-        return placeList;
+        return placeRepository.findAll(PlaceSpecification.searchPlace(searchKeys));
     }
 
-    // place MainPhoto 설정
-    public List<Place> setMainPhoto(List<Place> placeList) {
+    // placeList MainPhoto 설정
+    public void setMainPhoto(List<Place> placeList) {
         placeList.forEach(place -> {
             Optional<DetailPhoto> mainPhoto = detailPhotoRepository.findByPlaceIdAndIsMain(place.getPlaceId(), 1);
             mainPhoto.ifPresent(photo -> place.setMainPhotoUrl(photo.getUrl()));
         });
-
-        return placeList;
     }
 
-    // set canBooking Check
-    public List<Place> setCanBooking(List<Place> placeList, LocalDate startDt, LocalDate endDt) {
+    // place MainPhoto 설정
+    public void setMainPhoto(Place place) {
+        Optional<DetailPhoto> mainPhoto = detailPhotoRepository.findByPlaceIdAndIsMain(place.getPlaceId(), 1);
+        mainPhoto.ifPresent(photo -> place.setMainPhotoUrl(photo.getUrl()));
+    }
+
+    // 예약가능 여부 설정
+    public void setCanBooking(List<Place> placeList, LocalDate startDt, LocalDate endDt) {
         placeList.forEach(place -> {
             // place 예약 가능 여부 Check ( 초기 페이지에서는 오늘 기준 1박으로 잡는다. )
             boolean isBooking = checkCanBooking(place.getPlaceId(), startDt, endDt);
             if (!isBooking) place.setIsBooking(1);
         });
-
-        return placeList;
     }
 
-    // 최대 2주치만 검색 가능
+    // 예약가능 여부 조회 ( 최대 2주 )
     public boolean checkCanBooking(int placeId, LocalDate startDt, LocalDate endDt) {
         Period period = Period.between(startDt, endDt); // 시작, 끝 간격
         List<Room> roomList = roomRepository.findByPlaceId(placeId);
@@ -99,18 +82,16 @@ public class PlaceService {
         return false;
     }
 
-    // set LowestPrice
-    public List<Place> setLowestPrice(List<Place> placeList, LocalDate startDt, LocalDate endDt) {
+    // 최저가격 설정
+    public void setLowestPrice(List<Place> placeList, LocalDate startDt, LocalDate endDt) {
         placeList.forEach(place -> {
             // 예약가능할 경우 최저가격 계산
             if (place.getIsBooking() == 0) place.setLowestPrice(getLowestPrice(place.getPlaceId(), startDt, endDt));
             else place.setLowestPrice("0원"); // 예약 불가능할 경우 0원 입력
         });
-
-        return placeList;
     }
 
-    // 최저가격 계산
+    // 가격조회 및 최저가격 계산
     public String getLowestPrice(int placeId, LocalDate startDt, LocalDate endDt) {
         Period period = Period.between(startDt, endDt); // 시작, 끝 간격
         List<Room> roomList = roomRepository.findByPlaceId(placeId); // place에 속한 room 조회
@@ -139,5 +120,20 @@ public class PlaceService {
 
         DecimalFormat df = new DecimalFormat("###,###원"); //포맷팅
         return df.format(Collections.min(minPricelist)); // place의 최소 값.
+    }
+
+    public void setWishId(List<Place> placeList, List<Wish> wishList) {
+        wishList.forEach(wish -> {
+            placeList.forEach(place -> {
+                if (place.getPlaceId() == wish.getPlaceId())
+                    place.setWishId(wish.getWishId());
+            });
+        });
+    }
+
+    public void setWishId(Place place, List<Wish> wishList) {
+        wishList.forEach(wish -> {
+            if (place.getPlaceId() == wish.getPlaceId()) place.setWishId(wish.getWishId());
+        });
     }
 }
