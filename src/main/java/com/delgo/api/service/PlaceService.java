@@ -42,7 +42,7 @@ public class PlaceService {
     }
 
     // 검색조건에 맞는 Place 조회
-    public List<Place> getSearchData(Map<String, Object> searchKeys, LocalDate StartDt, LocalDate endDt) {
+    public List<Place> getSearchData(Map<String, Object> searchKeys) {
         return placeRepository.findAll(PlaceSpecification.searchPlace(searchKeys));
     }
 

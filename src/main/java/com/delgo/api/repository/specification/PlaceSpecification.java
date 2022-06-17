@@ -9,12 +9,13 @@ import java.util.List;
 import java.util.Map;
 
 public class PlaceSpecification {
-    public static Specification<Place> searchPlace(Map<String, Object> searchKey){
+    public static Specification<Place> searchPlace(Map<String, Object> searchKey) {
         return ((root, query, criteriaBuilder) -> {
             List<Predicate> predicates = new ArrayList<>();
-            for(String key : searchKey.keySet()){
-                predicates.add(criteriaBuilder.like(root.get(key), "%"+searchKey.get(key)+"%"));;
+            for (String key : searchKey.keySet()) {
+                predicates.add(criteriaBuilder.like(root.get(key), "%" + searchKey.get(key) + "%"));
             }
+
             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
         });
     }

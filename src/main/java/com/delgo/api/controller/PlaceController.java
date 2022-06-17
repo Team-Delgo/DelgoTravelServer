@@ -138,7 +138,7 @@ public class PlaceController extends CommController {
         if (!address.isBlank()) searchKeys.put("address", address);
 
         // Name, Address로 placeList 조회
-        List<Place> placeList = placeService.getSearchData(searchKeys, LocalDate.parse(startDt), LocalDate.parse(endDt));
+        List<Place> placeList = placeService.getSearchData(searchKeys);
 
         if (placeList.size() > 0) {
             placeService.setMainPhoto(placeList); // place MainPhoto 설정
