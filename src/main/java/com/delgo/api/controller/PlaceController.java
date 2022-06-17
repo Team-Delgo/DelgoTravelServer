@@ -49,18 +49,16 @@ public class PlaceController extends CommController {
     public ResponseEntity selectWhereTogo(@RequestParam Integer userId) {
         // 전체 Place 조회 ( List )
         List<Place> placeList = placeService.getPlaceAll();
+        if (placeList.size() > 0) {
+            placeService.setMainPhoto(placeList); // place MainPhoto 설정
+            placeService.setCanBooking(placeList, LocalDate.now(), LocalDate.now().plusDays(1)); // 예약가능한 Place Check
+            placeService.setLowestPrice(placeList, LocalDate.now(), LocalDate.now().plusDays(1)); // 최저가격 계산
+        }
 
-        // wish 여부 Check [userId == 0일 경우 로그인 안했다고 판단. ]
-        // placeList에 wish 등록 여부 적용
+        // userId == 0일 경우 로그인 안했다고 판단.
         if (userId != 0 && placeList.size() > 0) {
             List<Wish> wishList = wishService.getWishListByUserId(userId);
-            if (wishList.size() > 0)
-                wishList.forEach(wish -> {
-                    placeList.forEach(place -> {
-                        if (place.getPlaceId() == wish.getPlaceId())
-                            place.setWishId(wish.getWishId());
-                    });
-                });
+            if (wishList.size() > 0) placeService.setWishId(placeList, wishList);
         }
 
         // TODO: 추후 placeList 보여주는 알고리즘 추가 예정 (광고 등등..)
@@ -94,15 +92,12 @@ public class PlaceController extends CommController {
         if (place.isEmpty()) // Validate
             return ErrorReturn(ApiCode.NOT_FOUND_DATA);
 
+        placeService.setMainPhoto(place.get()); // set MainPhoto
         place.get().setLowestPrice("0원"); //Detail Page에서 사용 x.
         // wish 설정
         if (userId != 0) {
             List<Wish> wishList = wishService.getWishListByUserId(userId);
-            if (wishList.size() > 0)
-                wishList.forEach(wish -> {
-                    if (place.get().getPlaceId() == wish.getPlaceId()) place.get().setWishId(wish.getWishId());
-                });
-            else place.get().setWishId(0);
+            if (wishList.size() > 0) placeService.setWishId(place.get(), wishList);
         }
 
         // PlaceId로 Place에 속한 Room 조회
@@ -143,16 +138,18 @@ public class PlaceController extends CommController {
         if (!address.isBlank()) searchKeys.put("address", address);
 
         // Name, Address로 placeList 조회
-        List<Place> placeList = placeService.getSearchData(searchKeys, LocalDate.parse(startDt), LocalDate.parse(endDt));
+        List<Place> placeList = placeService.getSearchData(searchKeys);
+
+        if (placeList.size() > 0) {
+            placeService.setMainPhoto(placeList); // place MainPhoto 설정
+            placeService.setCanBooking(placeList, LocalDate.now(), LocalDate.now().plusDays(1)); // 예약가능한 Place Check
+            placeService.setLowestPrice(placeList, LocalDate.now(), LocalDate.now().plusDays(1)); // 최저가격 계산
+        }
 
         // userId == 0 이면 로그인 없이 조회 // userId 있을 경우 wish 여부 Check
         if (userId != 0 && placeList.size() > 0) {
             List<Wish> wishList = wishService.getWishListByUserId(userId);
-            placeList.forEach(place -> {
-                wishList.forEach(wish -> {
-                    if (place.getPlaceId() == wish.getPlaceId()) place.setWishId(wish.getWishId());
-                });
-            });
+            placeService.setWishId(placeList, wishList);
         }
 
         return SuccessReturn(placeList);
