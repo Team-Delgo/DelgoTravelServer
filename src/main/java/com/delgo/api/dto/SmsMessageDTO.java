@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 @Service
 @AllArgsConstructor
 @NoArgsConstructor
-public class MessagesRequestDTO {
+public class SmsMessageDTO {
     private String to;
     private String content;
 }

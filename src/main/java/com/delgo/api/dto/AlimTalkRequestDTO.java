@@ -11,12 +11,8 @@ import java.util.List;
 @Service
 @AllArgsConstructor
 @NoArgsConstructor
-public class SmsRequestDTO {
-    private String type;
-    private String contentType;
-    private String countryCode;
-    private String from;
-    private String content;
-    private List<SmsMessageDTO> messages;
-
+public class AlimTalkRequestDTO {
+    private String plusFriendId;
+    private String templateCode;
+    private List<AlimTalkMessageDTO> messages;
 }

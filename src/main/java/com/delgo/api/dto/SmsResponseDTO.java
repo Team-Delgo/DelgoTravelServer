@@ -8,7 +8,7 @@ import java.sql.Timestamp;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class SendSmsResponseDTO {
+public class SmsResponseDTO {
     private String statusCode;
     private String statusName;
     private String requestId;
