@@ -1,17 +1,15 @@
 package com.delgo.api.controller;
 
-import com.delgo.api.domain.Place;
+import com.delgo.api.comm.security.services.PrincipalDetails;
 import com.delgo.api.domain.user.User;
 import com.delgo.api.repository.UserRepository;
-import com.delgo.api.config.security.services.PrincipalDetails;
 import com.delgo.api.service.TestService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Optional;
-
 @RestController
+@RequestMapping("/test")
 public class TestController {
 
     private final TestService testService;
@@ -37,17 +35,6 @@ public class TestController {
         System.out.println("principal : "+principal.getUser().getPassword());
 
         return "<h1>user</h1>";
-    }
-
-    @GetMapping("/")
-    @ResponseBody
-    public Place select() {
-        System.out.println("들어옴");
-        Optional<Place> result = testService.getPlaceData();
-        Place place = result.get();
-        System.out.println("test 성공,"+place.getName());
-
-        return place;
     }
 
     @GetMapping("/test")
