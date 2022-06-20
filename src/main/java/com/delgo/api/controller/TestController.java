@@ -9,9 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Optional;
-
 @RestController
+@RequestMapping("/test")
 public class TestController {
 
     private final TestService testService;
@@ -37,17 +36,6 @@ public class TestController {
         System.out.println("principal : "+principal.getUser().getPassword());
 
         return "<h1>user</h1>";
-    }
-
-    @GetMapping("/")
-    @ResponseBody
-    public Place select() {
-        System.out.println("들어옴");
-        Optional<Place> result = testService.getPlaceData();
-        Place place = result.get();
-        System.out.println("test 성공,"+place.getName());
-
-        return place;
     }
 
     @GetMapping("/test")
