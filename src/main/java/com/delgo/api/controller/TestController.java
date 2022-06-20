@@ -1,6 +1,7 @@
 package com.delgo.api.controller;
 
 import com.delgo.api.comm.security.services.PrincipalDetails;
+import com.delgo.api.domain.Place;
 import com.delgo.api.domain.user.User;
 import com.delgo.api.repository.UserRepository;
 import com.delgo.api.service.TestService;

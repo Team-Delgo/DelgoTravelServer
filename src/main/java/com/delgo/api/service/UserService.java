@@ -100,7 +100,7 @@ public class UserService {
         Optional<SmsAuth> findSmsAuth = smsAuthRepository.findBySmsId(smsId);
         if (!findSmsAuth.get().getRandNum().equals(enterNum)) {
             log.warn("The authentication numbers do not match");
-            throw new IllegalStateException("The authentication numbers do not match");
+            throw new IllegalStateException();
         }
         smsAuthRepository.delete(findSmsAuth.get());
     }
@@ -116,12 +116,12 @@ public class UserService {
         return findUser.isPresent();
     }
 
-    public User findByEmail(String email) {
+    public User getUserByEmail(String email) {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new IllegalStateException("Not Found UserData"));
     }
 
-    public User findByUserId(int userId) {
+    public User getUserByUserId(int userId) {
         return userRepository.findByUserId(userId)
                 .orElseThrow(() -> new IllegalStateException("Not Found UserData"));
     }

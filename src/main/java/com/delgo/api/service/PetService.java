@@ -1,6 +1,7 @@
 package com.delgo.api.service;
 
 import com.delgo.api.domain.pet.Pet;
+import com.delgo.api.domain.pet.PetSize;
 import com.delgo.api.repository.PetRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,9 +16,14 @@ public class PetService {
 
     private final PetRepository petRepository;
 
-    public Pet findByUserId(int userId) {
+    @Transactional
+    public void changePetInfo(Pet pet){
+        petRepository.save(pet);
+    }
+
+    public Pet getPetByUserId(int userId) {
         return petRepository.findByUserId(userId)
-                .orElseThrow(()->new NullPointerException("Not Found PetData"));
+                .orElseThrow(()->new IllegalStateException());
     }
 
 }

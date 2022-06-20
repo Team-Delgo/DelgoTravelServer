@@ -43,7 +43,7 @@ public class BookingController extends CommController {
         Booking savedBooking = bookingService.insertOrUpdateBooking(booking);
 
         // User에게 대기요청문자 발송 [ 문자 어떻게 들어가야 할지 생각 필요 ]
-        User user = userService.findByUserId(savedBooking.getUserId());
+        User user = userService.getUserByUserId(savedBooking.getUserId());
         log.info(user.toString());
         try {
             // TODO: 사용자에게 예약대기문자 발송 [ 내용 어떤 거 들어갈지 생각 필요 ]
