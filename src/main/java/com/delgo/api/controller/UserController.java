@@ -131,8 +131,8 @@ public class UserController extends CommController {
                 return ErrorReturn(ApiCode.PARAM_ERROR);
             }
             phoneNo = phoneNo.replaceAll("[^0-9]", "");
-            if(!userService.isPhoneNoExisting(phoneNo)){
-                return ErrorReturn(ApiCode.PHONE_NO_IS_NOT_EXISTING_ERROR);
+            if(userService.isPhoneNoExisting(phoneNo)){
+                return ErrorReturn(ApiCode.PHONE_NO_IS_EXISTING_ERROR);
             }
 
             int smsId = userService.sendSMS(phoneNo);
@@ -152,8 +152,8 @@ public class UserController extends CommController {
             }
             phoneNo = phoneNo.replaceAll("[^0-9]", "");
 
-            if(userService.isPhoneNoExisting(phoneNo)){
-                return ErrorReturn(ApiCode.PHONE_NO_IS_EXISTING_ERROR);
+            if(!userService.isPhoneNoExisting(phoneNo)){
+                return ErrorReturn(ApiCode.PHONE_NO_IS_NOT_EXISTING_ERROR);
             }
 
             int smsId = userService.sendSMS(phoneNo);

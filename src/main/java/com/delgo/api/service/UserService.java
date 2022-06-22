@@ -90,7 +90,7 @@ public class UserService {
             smsAuth.setRandNum(randNum);
             smsAuthRepository.save(smsAuth);
         } catch (Exception e) {
-            throw new IllegalStateException(e.getMessage());
+            throw new IllegalStateException();
         }
         int smsId = smsAuth.getSmsId();
         return smsId;
