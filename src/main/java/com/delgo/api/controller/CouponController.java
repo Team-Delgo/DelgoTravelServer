@@ -5,6 +5,7 @@ import com.delgo.api.comm.CommController;
 import com.delgo.api.comm.exception.ApiCode;
 import com.delgo.api.domain.coupon.Coupon;
 import com.delgo.api.domain.coupon.CouponManager;
+import com.delgo.api.dto.CouponDTO;
 import com.delgo.api.dto.CouponManagerDTO;
 import com.delgo.api.service.CouponService;
 import lombok.RequiredArgsConstructor;
@@ -47,20 +48,15 @@ public class CouponController extends CommController {
 
     // 쿠폰 등록 API [ 사용자 ]
     @PostMapping("/regist")
-    public ResponseEntity registCoupon(
-            @RequestParam Integer userId,
-            @RequestParam String couponCode) {
-        // Validate - Blank Check; [ String 만 해주면 됨 ]
-        if (couponCode.isBlank())
-            return ErrorReturn(ApiCode.PARAM_ERROR);
+    public ResponseEntity registCoupon(@Validated @RequestBody CouponDTO dto) {
 
-        Optional<CouponManager> option = couponService.getCouponManagerByCode(couponCode);
+        Optional<CouponManager> option = couponService.getCouponManagerByCode(dto.getCouponCode());
         // ERROR: Coupon Code 잘못된 입력
         if (option.isEmpty()) return ErrorReturn(ApiCode.COUPON_SELECT_ERROR);
 
         CouponManager cm = option.get();
         // ERROR: 이미 발행된 쿠폰
-        if (couponService.checkCouponExisting(userId, cm.getCouponManagerId()))
+        if (couponService.checkCouponExisting(dto.getUserId(), cm.getCouponManagerId()))
             return ErrorReturn(ApiCode.COUPON_DUPLICATE_ERROR);
 
         // 만료 일자 계산
@@ -74,7 +70,7 @@ public class CouponController extends CommController {
                         .expireDt(expireDt)
                         .isUsed(0)
                         .couponManagerId(cm.getCouponManagerId())
-                        .userId(userId)
+                        .userId(dto.getUserId())
                         .build()
         );
 

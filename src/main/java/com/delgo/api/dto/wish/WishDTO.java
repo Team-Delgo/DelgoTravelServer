@@ -1,4 +1,4 @@
-package com.delgo.api.dto;
+package com.delgo.api.dto.wish;
 
 import lombok.Data;
 
