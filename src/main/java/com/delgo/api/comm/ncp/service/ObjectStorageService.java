@@ -1,4 +1,4 @@
-package com.delgo.api.comm.ncp.objectStorage;
+package com.delgo.api.comm.ncp.service;
 
 import com.amazonaws.SdkClientException;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;

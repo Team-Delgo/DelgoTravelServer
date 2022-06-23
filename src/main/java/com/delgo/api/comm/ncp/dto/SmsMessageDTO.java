@@ -1,4 +1,4 @@
-package com.delgo.api.dto;
+package com.delgo.api.comm.ncp.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

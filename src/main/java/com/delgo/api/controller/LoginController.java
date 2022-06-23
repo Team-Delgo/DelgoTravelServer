@@ -8,7 +8,7 @@ import com.delgo.api.comm.security.jwt.Access_JwtProperties;
 import com.delgo.api.comm.security.jwt.Refresh_JwtProperties;
 import com.delgo.api.domain.pet.Pet;
 import com.delgo.api.domain.user.User;
-import com.delgo.api.dto.UserDTO;
+import com.delgo.api.dto.SignUpDTO;
 import com.delgo.api.service.PetService;
 import com.delgo.api.service.TokenService;
 import com.delgo.api.service.UserService;
@@ -54,7 +54,7 @@ public class LoginController extends CommController {
         response.addHeader(Access_JwtProperties.HEADER_STRING, Access_JwtProperties.TOKEN_PREFIX + Access_jwtToken);
         response.addHeader(Refresh_JwtProperties.HEADER_STRING, Refresh_JwtProperties.TOKEN_PREFIX + Refresh_jwtToken);
 
-        return SuccessReturn(new UserDTO(user, pet));
+        return SuccessReturn(new SignUpDTO(user, pet));
     }
 
     /*

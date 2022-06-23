@@ -4,7 +4,7 @@ package com.delgo.api.controller;
 import com.delgo.api.comm.CommController;
 import com.delgo.api.comm.CommService;
 import com.delgo.api.comm.exception.ApiCode;
-import com.delgo.api.comm.ncp.smsCertified.SmsService;
+import com.delgo.api.comm.ncp.service.SmsService;
 import com.delgo.api.domain.booking.Booking;
 import com.delgo.api.domain.booking.BookingState;
 import com.delgo.api.domain.user.User;

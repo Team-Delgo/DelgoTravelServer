@@ -1,6 +1,6 @@
 package com.delgo.api.service;
 
-import com.delgo.api.comm.ncp.objectStorage.ObjectStorageService;
+import com.delgo.api.comm.ncp.service.ObjectStorageService;
 import com.delgo.api.domain.photo.DetailPhoto;
 import com.delgo.api.domain.photo.DetailRoomPhoto;
 import com.delgo.api.repository.DetailPhotoRepository;

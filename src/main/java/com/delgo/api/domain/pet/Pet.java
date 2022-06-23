@@ -27,9 +27,6 @@ public class Pet {
     @Column(nullable = false, name="size")
     private PetSize size;
 
-    @Column(nullable = false, name="weight")
-    private double weight;
-
     @Column(nullable = false, name="birthday")
     private String birthday;
 
