@@ -1,18 +1,17 @@
-package com.delgo.api.dto;
+package com.delgo.api.comm.ncp.dto;
 
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.sql.Timestamp;
+
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class AlimTalkResponseDTO {
+public class SmsResponseDTO {
     private String statusCode;
     private String statusName;
     private String requestId;
     private Timestamp requestTime;
+
 }

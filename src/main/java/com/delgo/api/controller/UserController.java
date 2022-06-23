@@ -4,14 +4,18 @@ import com.delgo.api.comm.CommController;
 import com.delgo.api.comm.exception.ApiCode;
 import com.delgo.api.domain.pet.Pet;
 import com.delgo.api.domain.user.User;
+import com.delgo.api.dto.InfoDTO;
 import com.delgo.api.dto.UserDTO;
 import com.delgo.api.comm.security.jwt.Access_JwtProperties;
 import com.delgo.api.comm.security.jwt.Refresh_JwtProperties;
 import com.delgo.api.service.PetService;
 import com.delgo.api.service.TokenService;
 import com.delgo.api.service.UserService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -27,6 +31,18 @@ public class UserController extends CommController {
     private final PetService petService;
     private final TokenService tokenService;
 
+    @GetMapping("/myAccount")
+    public ResponseEntity<?> myAccount(@RequestParam Integer userId){
+        try{
+            InfoDTO infoDTO = userService.getInfoByUserId(userId);
+
+            return SuccessReturn(infoDTO);
+        } catch(Exception e){
+            return ErrorReturn(ApiCode.UNKNOWN_ERROR);
+        }
+    }
+
+    // 펫 정보 수정
     @PostMapping("/changePetInfo")
     public ResponseEntity<?> changePetInfo(@Validated @RequestBody UserDTO userDTO){
         try{
@@ -67,6 +83,7 @@ public class UserController extends CommController {
         }
     }
 
+    // 비밀번호 수정
     @PostMapping("/changePassword")
     public ResponseEntity<?> changePassword(@Validated @RequestBody UserDTO userDTO){
         try {
@@ -87,6 +104,7 @@ public class UserController extends CommController {
         }
     }
 
+    // 이메일 존재 유무 확인
     @GetMapping("/emailAuth")
     public ResponseEntity<?> emailAuth(@RequestParam String email) {
         try {
@@ -106,13 +124,14 @@ public class UserController extends CommController {
         }
     }
 
+    // 이메일 중복 확인
     @GetMapping("/emailCheck")
     public ResponseEntity<?> emailCheck(@RequestParam String email) {
         try {
             if(email.isBlank()){
                 return ErrorReturn(ApiCode.PARAM_ERROR);
             }
-            if(userService.isEmailExisting(email) == false){
+            if(!userService.isEmailExisting(email)){
                 return SuccessReturn();
             } else {
                 return ErrorReturn(ApiCode.EMAIL_IS_EXISTING_ERROR);
@@ -124,6 +143,7 @@ public class UserController extends CommController {
         }
     }
 
+    // 전화번호 존재 유무 확인
     @GetMapping("/phoneNoAuth")
     public ResponseEntity<?> phoneNoAuth(@RequestParam String phoneNo) {
         try {
@@ -144,6 +164,7 @@ public class UserController extends CommController {
         }
     }
 
+    // 전화번호 중복 확인
     @GetMapping("/phoneNoCheck")
     public ResponseEntity<?> phoneNoCheck(@RequestParam String phoneNo) {
         try {
@@ -165,6 +186,7 @@ public class UserController extends CommController {
         }
     }
 
+    // 인증번호 확인
     @GetMapping("/authRandNum")
     public ResponseEntity<?> randNumCheck(@RequestParam Integer smsId, @RequestParam String enterNum) {
         try {
@@ -183,6 +205,7 @@ public class UserController extends CommController {
         }
     }
 
+    // 소셜 회원가입
     @PostMapping("/socialSignup")
     public ResponseEntity<?> registerUserBySocial(@Validated @RequestBody UserDTO userDTO, HttpServletResponse response) {
         try {
@@ -208,6 +231,7 @@ public class UserController extends CommController {
         }
     }
 
+    // 회원가입
     @PostMapping("/signup")
     public ResponseEntity<?> registerUser(@Validated @RequestBody UserDTO userDTO, HttpServletResponse response) {
         try {
@@ -232,6 +256,7 @@ public class UserController extends CommController {
         }
     }
 
+    // 회원탈퇴
     @PostMapping("/deleteUser")
     public ResponseEntity<?> deleteUser(@Validated @RequestBody UserDTO userDTO){
         try{
