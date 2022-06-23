@@ -10,8 +10,8 @@ import java.util.Enumeration;
 /*
  * 요청이 들어온 API의 URI와 parameter를 로그로 남김
  */
-public class APILog {
-    private static Logger logger = LoggerFactory.getLogger(APILog.class);
+public class ERRLog {
+    private static Logger logger = LoggerFactory.getLogger(ERRLog.class);
 
     public static void debug(String format, Object... objects) {
         logger.debug(format, objects);

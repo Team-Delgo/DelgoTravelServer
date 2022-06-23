@@ -1,6 +1,7 @@
 package com.delgo.api.comm.interceptor;
 
 import com.delgo.api.comm.log.APILog;
+import com.delgo.api.comm.log.ERRLog;
 import com.delgo.api.dto.common.ResponseDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.web.servlet.HandlerInterceptor;
@@ -17,7 +18,11 @@ public class LogInterceptor implements HandlerInterceptor {
         ContentCachingResponseWrapper responseWrapper = getResponseWrapper(response);
         ResponseDTO responseDTO = getResponseBody(responseWrapper);
 
-        APILog.info(request, responseDTO.getCode(), responseDTO.getCodeMsg());
+        if (responseDTO.getCode() == 200)
+            APILog.info(request, responseDTO.getCode(), responseDTO.getCodeMsg());
+        else
+            ERRLog.info(request, responseDTO.getCode(), responseDTO.getCodeMsg());
+
     }
 
     private ResponseDTO getResponseBody(ContentCachingResponseWrapper responseWrapper) throws IOException {
