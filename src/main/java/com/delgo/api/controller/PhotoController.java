@@ -18,7 +18,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Slf4j
 @RestController
@@ -53,6 +52,7 @@ public class PhotoController extends CommController {
         }
 
         User user = userService.getUserByUserId(userId);
+        //TODO : Validation
         user.setProfile(profileUrl);
 
         userService.updateUserData(user);
@@ -77,16 +77,14 @@ public class PhotoController extends CommController {
             @RequestParam(value = "photo4", required = false) MultipartFile photo4,
             @RequestParam(value = "photo5", required = false) MultipartFile photo5) {
         // Review 존재 여부 확인
-        Optional<Review> review = reviewService.getReviewDataByReview(reviewId);
-        if (review.isEmpty()) return ErrorReturn(ApiCode.REVIEW_NOT_EXIST);
+        Review review = reviewService.getReviewDataByReview(reviewId);
 
-        Review checkdReview = review.get();
         // data 초기화
-        checkdReview.setReviewPhoto1(null);
-        checkdReview.setReviewPhoto2(null);
-        checkdReview.setReviewPhoto3(null);
-        checkdReview.setReviewPhoto4(null);
-        checkdReview.setReviewPhoto5(null);
+        review.setReviewPhoto1(null);
+        review.setReviewPhoto2(null);
+        review.setReviewPhoto3(null);
+        review.setReviewPhoto4(null);
+        review.setReviewPhoto5(null);
 
         List<MultipartFile> multiList = new ArrayList<MultipartFile>();
         if (!photo1.isEmpty()) multiList.add(photo1);
@@ -100,14 +98,14 @@ public class PhotoController extends CommController {
             String reviewUrl = photoService.uploadReviewPhoto(reviewId, i + 1, multiList.get(i));
             if (reviewUrl.split(":")[0].equals("error")) return ErrorReturn(ApiCode.PHOTO_UPLOAD_ERROR); //NCP ERROR
             switch (i) {
-                case 0: checkdReview.setReviewPhoto1(reviewUrl); break;
-                case 1: checkdReview.setReviewPhoto2(reviewUrl); break;
-                case 2: checkdReview.setReviewPhoto3(reviewUrl); break;
-                case 3: checkdReview.setReviewPhoto4(reviewUrl); break;
-                case 4: checkdReview.setReviewPhoto5(reviewUrl); break;
+                case 0: review.setReviewPhoto1(reviewUrl); break;
+                case 1: review.setReviewPhoto2(reviewUrl); break;
+                case 2: review.setReviewPhoto3(reviewUrl); break;
+                case 3: review.setReviewPhoto4(reviewUrl); break;
+                case 4: review.setReviewPhoto5(reviewUrl); break;
             }
         }
-        reviewService.insertOrUpdateReview(checkdReview);
+        reviewService.insertOrUpdateReview(review);
 
         return SuccessReturn();
     }
