@@ -30,7 +30,7 @@ public class API {
         public static final int COUPON_DUPLICATE_ERROR = 312;
 
         //REVIEW ERROR
-        public static final int REVIEW_NOT_EXIST = 313;
+        public static final int REVIEW_DUPLICATE_ERROR = 313;
 
         //BOOKING ERROR
         public static final int BOOKING_NOT_EXIST = 314;

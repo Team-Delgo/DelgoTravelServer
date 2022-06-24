@@ -29,12 +29,14 @@ public class ReviewService {
         return reviewRepository.findByPlaceId(placeId);
     }
 
-    public Optional<Review> getReviewDataByReview(int reviewId) {
-        return reviewRepository.findByReviewId(reviewId);
+    public Review getReviewDataByReview(int reviewId) {
+        return reviewRepository.findByReviewId(reviewId)
+                .orElseThrow(() -> new NullPointerException("NOT FOUND REVIEW"));
     }
 
-    public Optional<Review> checkDuplicateReview(int userId, int placeId, int roomId) {
-        return reviewRepository.findByUserIdAndPlaceIdAndRoomId(userId, placeId, roomId);
+    public Boolean checkDuplicateReview(int userId, int placeId, int roomId) {
+        Optional<Review> option  = reviewRepository.findByUserIdAndPlaceIdAndRoomId(userId, placeId, roomId);
+        return option.isPresent();
     }
 
     @Transactional
