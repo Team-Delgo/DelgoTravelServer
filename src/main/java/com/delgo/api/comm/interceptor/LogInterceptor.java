@@ -18,21 +18,25 @@ public class LogInterceptor implements HandlerInterceptor {
 
     public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView mv) throws Exception {
         ContentCachingResponseWrapper responseWrapper = getResponseWrapper(response);
-        ResponseDTO responseDTO = getResponseBody(responseWrapper);
+        if (responseWrapper != null) {
+            ResponseDTO responseDTO = getResponseBody(responseWrapper);
 
-        if (responseDTO.getCode() == 200)
-            APILog.info(request, responseDTO.getCode(), responseDTO.getCodeMsg());
-        else // Controller 단 Error Log 처리
-            ERRLog.info(request, responseDTO.getCode(), responseDTO.getCodeMsg());
+            if (responseDTO.getCode() == 200)
+                APILog.info(request, responseDTO.getCode(), responseDTO.getCodeMsg());
+            else // Controller 단 Error Log 처리
+                ERRLog.info(request, responseDTO.getCode(), responseDTO.getCodeMsg());
+        }
     }
 
     public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
         ContentCachingResponseWrapper responseWrapper = getResponseWrapper(response);
-        ResponseDTO responseDTO = getResponseBody(responseWrapper);
+        if (responseWrapper != null) {
+            ResponseDTO responseDTO = getResponseBody(responseWrapper);
 
-        // Exception이 발생하면 postHandle을 타지 않는다.
-        if (responseDTO.getCode() != 200) // Service 단 Error Log 처리
-            ERRLog.info(request, responseDTO.getCode(), responseDTO.getCodeMsg());
+            // Exception이 발생하면 postHandle을 타지 않는다.
+            if (responseDTO.getCode() != 200) // Service 단 Error Log 처리
+                ERRLog.info(request, responseDTO.getCode(), responseDTO.getCodeMsg());
+        }
     }
 
 

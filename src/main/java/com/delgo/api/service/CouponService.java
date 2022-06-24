@@ -1,5 +1,6 @@
 package com.delgo.api.service;
 
+import com.delgo.api.comm.CommService;
 import com.delgo.api.domain.coupon.Coupon;
 import com.delgo.api.domain.coupon.CouponManager;
 import com.delgo.api.repository.CouponManagerRepository;
@@ -16,7 +17,7 @@ import java.util.Optional;
 @Service
 @Transactional
 @RequiredArgsConstructor
-public class CouponService {
+public class CouponService extends CommService {
 
     private final CouponRepository couponRepository;
     private final CouponManagerRepository couponManagerRepository;
@@ -44,6 +45,22 @@ public class CouponService {
         coupon.setIsUsed(1);
 
         return insertOrUpdateCoupon(coupon);
+    }
+
+    public Coupon couponRollback(int couponId) {
+        Coupon coupon = getCouponByCouponId(couponId);
+        coupon.setIsUsed(0);
+
+        return insertOrUpdateCoupon(coupon);
+    }
+
+    public int getCouponPrice(int couponId, int originalPrice) {
+        Coupon coupon = getCouponByCouponId(couponId);
+        if (coupon.getCouponType() == "P") //  % 할인
+            return originalPrice / 100 * coupon.getDiscountNum();
+
+        //coupon.getCouponType() == "N"  Number 할
+        return coupon.getDiscountNum();
     }
 
     // ------------------------------------- Coupon Manager -------------------------------------

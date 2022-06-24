@@ -1,10 +1,16 @@
 package com.delgo.api.repository;
 
 import com.delgo.api.domain.booking.Booking;
+import com.delgo.api.domain.booking.BookingState;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface BookingRepository extends JpaRepository<Booking, Integer> {
-    Optional<Booking> findByBookingId(int bookingId);
+    Optional<Booking> findByBookingId(String bookingId);
+
+    List<Booking> findByBookingIdAndBookingState(String bookingId, BookingState bookingState);
+
+    List<Booking> findByUserIdAndBookingState(int userId, BookingState state);
 }

@@ -15,11 +15,12 @@ import java.time.LocalDate;
 @AllArgsConstructor
 public class Booking {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer bookingId;
+    private String bookingId;
     private Integer userId;
     private Integer roomId;
     private Integer placeId;
+    private Integer couponId;
+    private Integer point;
     private Integer peopleNum;
     private Integer petNum;
     private LocalDate startDt;
