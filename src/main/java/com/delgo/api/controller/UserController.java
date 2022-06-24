@@ -109,7 +109,7 @@ public class UserController extends CommController {
             if(userService.isEmailExisting(email)){
                 return SuccessReturn(userService.getUserByEmail(email).getPhoneNo());
             } else {
-                return ErrorReturn(ApiCode.EMAIL_IS_NOT_EXISTING_ERROR);
+                return ErrorReturn(ApiCode.EMAIL_NOT_EXIST);
             }
         } catch (NullPointerException e){
             return ErrorReturn(ApiCode.PARAM_ERROR);
@@ -128,7 +128,7 @@ public class UserController extends CommController {
             if(!userService.isEmailExisting(email)){
                 return SuccessReturn();
             } else {
-                return ErrorReturn(ApiCode.EMAIL_IS_EXISTING_ERROR);
+                return ErrorReturn(ApiCode.EMAIL_DUPLICATE_ERROR);
             }
         } catch (NullPointerException e){
             return ErrorReturn(ApiCode.PARAM_ERROR);
@@ -137,29 +137,8 @@ public class UserController extends CommController {
         }
     }
 
-    // 전화번호 존재 유무 확인
+    // 회원가입 시 인증번호 전송
     @GetMapping("/phoneNoAuth")
-    public ResponseEntity<?> phoneNoAuth(@RequestParam String phoneNo) {
-        try {
-            if(phoneNo.isBlank()){
-                return ErrorReturn(ApiCode.PARAM_ERROR);
-            }
-            phoneNo = phoneNo.replaceAll("[^0-9]", "");
-            if(userService.isPhoneNoExisting(phoneNo)){
-                return ErrorReturn(ApiCode.PHONE_NO_IS_EXISTING_ERROR);
-            }
-
-            int smsId = userService.sendSMS(phoneNo);
-            return SuccessReturn(smsId);
-        } catch (NullPointerException e){
-            return ErrorReturn(ApiCode.PARAM_ERROR);
-        } catch (Exception e){
-            return ErrorReturn(ApiCode.UNKNOWN_ERROR);
-        }
-    }
-
-    // 전화번호 중복 확인
-    @GetMapping("/phoneNoCheck")
     public ResponseEntity<?> phoneNoCheck(@RequestParam String phoneNo) {
         try {
             if(phoneNo.isBlank()){
@@ -167,12 +146,33 @@ public class UserController extends CommController {
             }
             phoneNo = phoneNo.replaceAll("[^0-9]", "");
 
-            if(!userService.isPhoneNoExisting(phoneNo)){
-                return ErrorReturn(ApiCode.PHONE_NO_IS_NOT_EXISTING_ERROR);
+            if(userService.isPhoneNoExisting(phoneNo)){
+                return ErrorReturn(ApiCode.PHONE_NO_DUPLICATE_ERROR);
+            } else {
+                int smsId = userService.sendSMS(phoneNo);
+                return SuccessReturn(smsId);
             }
+        } catch (NullPointerException e){
+            return ErrorReturn(ApiCode.PARAM_ERROR);
+        } catch (Exception e){
+            return ErrorReturn(ApiCode.UNKNOWN_ERROR);
+        }
+    }
 
-            int smsId = userService.sendSMS(phoneNo);
-            return SuccessReturn(smsId);
+    // 회원가입 후 인증번호 전송
+    @GetMapping("/phoneNoCheck")
+    public ResponseEntity<?> phoneNoAuth(@RequestParam String phoneNo) {
+        try {
+            if(phoneNo.isBlank()){
+                return ErrorReturn(ApiCode.PARAM_ERROR);
+            }
+            phoneNo = phoneNo.replaceAll("[^0-9]", "");
+            if(!userService.isPhoneNoExisting(phoneNo)){
+                return ErrorReturn(ApiCode.PHONE_NO_NOT_EXIST);
+            } else {
+                int smsId = userService.sendSMS(phoneNo);
+                return SuccessReturn(smsId);
+            }
         } catch (NullPointerException e){
             return ErrorReturn(ApiCode.PARAM_ERROR);
         } catch (Exception e){
@@ -191,7 +191,7 @@ public class UserController extends CommController {
             userService.checkSMS(smsId, enterNum);
             return SuccessReturn();
         } catch (IllegalStateException e){
-            return ErrorReturn(ApiCode.AUTH_NO_IS_NOT_MATCHING);
+            return ErrorReturn(ApiCode.AUTH_NO_NOT_MATCHING);
         } catch (NullPointerException e){
             return ErrorReturn(ApiCode.PARAM_ERROR);
         } catch (Exception e){

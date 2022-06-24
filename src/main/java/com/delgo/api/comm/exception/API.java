@@ -36,15 +36,15 @@ public class API {
         public static final int BOOKING_NOT_EXIST = 314;
 
         //EMAIL ERROR
-        public static final int EMAIL_IS_NOT_EXISTING_ERROR = 315;
-        public static final int EMAIL_IS_EXISTING_ERROR = 316;
+        public static final int EMAIL_NOT_EXIST = 315;
+        public static final int EMAIL_DUPLICATE_ERROR = 316;
 
         //SMS AUTH ERROR
-        public static final int AUTH_NO_IS_NOT_MATCHING_ERROR = 317;
+        public static final int AUTH_NO_NOT_MATCHING = 317;
 
         //PHONE NO ERROR
-        public static final int PHONE_NO_IS_NOT_EXISTING_ERROR = 318;
-        public static final int PHONE_NO_IS_EXISTING_ERROR = 319;
+        public static final int PHONE_NO_NOT_EXIST = 318;
+        public static final int PHONE_NO_DUPLICATE_ERROR = 319;
 
 
         public static final int UNKNOWN_ERROR = 1000;
