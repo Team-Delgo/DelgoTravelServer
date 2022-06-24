@@ -25,7 +25,6 @@ import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 @Slf4j
 @RestController
@@ -88,16 +87,14 @@ public class PlaceController extends CommController {
             return ErrorReturn(ApiCode.PARAM_DATE_ERROR);
 
         // Detail Place 조회
-        Optional<Place> place = placeService.getPlaceByPlaceId(placeId); // place 조회
-        if (place.isEmpty()) // Validate
-            return ErrorReturn(ApiCode.NOT_FOUND_DATA);
+        Place place = placeService.getPlaceByPlaceId(placeId); // place 조회
 
-        placeService.setMainPhoto(place.get()); // set MainPhoto
-        place.get().setLowestPrice("0원"); //Detail Page에서 사용 x.
+        placeService.setMainPhoto(place); // set MainPhoto
+        place.setLowestPrice("0원"); //Detail Page에서 사용 x.
         // wish 설정
         if (userId != 0) {
             List<Wish> wishList = wishService.getWishListByUserId(userId);
-            if (wishList.size() > 0) placeService.setWishId(place.get(), wishList);
+            if (wishList.size() > 0) placeService.setWishId(place, wishList);
         }
 
         // PlaceId로 Place에 속한 Room 조회
@@ -108,7 +105,7 @@ public class PlaceController extends CommController {
         // PlaceId로 Detail 상단에서 보여줄 Photo List 조회
         List<DetailPhoto> detailPhotos = photoService.getDetailPhotoList(placeId);
 
-        return SuccessReturn(new DetailDTO(place.get(), roomList, detailPhotos));
+        return SuccessReturn(new DetailDTO(place, roomList, detailPhotos));
     }
 
     /*

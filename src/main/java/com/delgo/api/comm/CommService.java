@@ -3,6 +3,7 @@ package com.delgo.api.comm;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.text.DecimalFormat;
 import java.time.LocalDate;
 
 @Slf4j
@@ -25,4 +26,15 @@ public class CommService {
         return startDate.isBefore(endDate) && !endDate.isAfter(maxDate) && !now.isAfter(startDate) && !endDate.isAfter(expireDate);
     }
 
+    public String formatIntToPrice(int price) {
+        DecimalFormat df = new DecimalFormat("###,###원"); //포맷팅
+        return df.format(price);
+    }
+
+    public int formatPriceToInt(String price) {
+        price = price.replace(",", "");
+        price = price.replace("원", "");
+
+        return Integer.parseInt(price);
+    }
 }

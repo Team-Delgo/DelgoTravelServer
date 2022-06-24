@@ -51,4 +51,10 @@ public class RoomService {
     public List<Room> selectAll() {
         return roomRepository.findAll();
     }
+
+    // RoomId로 Room 조회
+    public Room getRoomByRoomId(int roomId) {
+        return roomRepository.findByRoomId(roomId)
+                .orElseThrow(() -> new NullPointerException("NOT FOUND ROOM"));
+    }
 }

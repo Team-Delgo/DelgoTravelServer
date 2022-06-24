@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 
 @Slf4j
 @RestController
@@ -34,27 +33,11 @@ public class CouponController extends CommController {
         return SuccessReturn(couponList);
     }
 
-    // Coupon 사용시 사용여부 업데이트
-    @PostMapping("/use")
-    public ResponseEntity useCoupon(@RequestParam Integer couponId) {
-        Optional<Coupon> coupon = couponService.getCouponByCouponId(couponId);
-        if (coupon.isEmpty()) return ErrorReturn(ApiCode.COUPON_SELECT_ERROR);
-
-        coupon.get().setIsUsed(1);
-        couponService.insertOrUpdateCoupon(coupon.get());
-
-        return SuccessReturn();
-    }
-
     // 쿠폰 등록 API [ 사용자 ]
     @PostMapping("/regist")
     public ResponseEntity registCoupon(@Validated @RequestBody CouponDTO dto) {
 
-        Optional<CouponManager> option = couponService.getCouponManagerByCode(dto.getCouponCode());
-        // ERROR: Coupon Code 잘못된 입력
-        if (option.isEmpty()) return ErrorReturn(ApiCode.COUPON_SELECT_ERROR);
-
-        CouponManager cm = option.get();
+        CouponManager cm = couponService.getCouponManagerByCode(dto.getCouponCode());
         // ERROR: 이미 발행된 쿠폰
         if (couponService.checkCouponExisting(dto.getUserId(), cm.getCouponManagerId()))
             return ErrorReturn(ApiCode.COUPON_DUPLICATE_ERROR);
@@ -73,7 +56,6 @@ public class CouponController extends CommController {
                         .userId(dto.getUserId())
                         .build()
         );
-
         return SuccessReturn();
     }
 

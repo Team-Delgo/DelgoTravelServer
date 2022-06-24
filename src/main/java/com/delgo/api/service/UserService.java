@@ -1,35 +1,23 @@
 package com.delgo.api.service;
 
-import com.delgo.api.domain.Review;
+import com.delgo.api.comm.ncp.service.SmsService;
 import com.delgo.api.domain.SmsAuth;
-import com.delgo.api.domain.coupon.Coupon;
 import com.delgo.api.domain.pet.Pet;
 import com.delgo.api.domain.user.User;
 import com.delgo.api.dto.InfoDTO;
 import com.delgo.api.repository.*;
-import com.delgo.api.comm.ncp.service.SmsService;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.json.JSONArray;
-import org.json.JSONObject;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.net.MalformedURLException;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 
@@ -76,7 +64,7 @@ public class UserService {
     }
 
     // 회원탈퇴
-    public void deleteUser(String email){
+    public void deleteUser(String email) {
         User user = userRepository.findByEmail(email).orElseThrow(() -> new IllegalArgumentException("The email does not exist"));
         Pet pet = petRepository.findByUserId(user.getUserId()).orElseThrow(() -> new IllegalArgumentException("Something wrong"));
         petRepository.delete(pet);
@@ -84,7 +72,7 @@ public class UserService {
     }
 
     // 비밀번호 변경
-    public void changePassword(String checkedEmail, String newPassword){
+    public void changePassword(String checkedEmail, String newPassword) {
         User user = userRepository.findByEmail(checkedEmail).orElseThrow(() -> new IllegalArgumentException("The email does not exist"));
         String encodedPassword = passwordEncoder.encode(newPassword);
         user.setPassword(encodedPassword);
@@ -101,7 +89,7 @@ public class UserService {
         }
         String message = "[Delgo] 인증번호 " + randNum;
         SmsAuth smsAuth = new SmsAuth();
-        try{
+        try {
             smsService.sendSMS(phoneNo, message);
             smsAuth.setRandNum(randNum);
             smsAuthRepository.save(smsAuth);
@@ -123,7 +111,7 @@ public class UserService {
     }
 
     // 전화번호 존재 유무 확인
-    public boolean isPhoneNoExisting(String phoneNo){
+    public boolean isPhoneNoExisting(String phoneNo) {
         Optional<User> findUser = userRepository.findByPhoneNo(phoneNo);
         return findUser.isPresent();
     }
@@ -153,15 +141,15 @@ public class UserService {
 
     public User getUserByEmail(String email) {
         return userRepository.findByEmail(email)
-                .orElseThrow(() -> new IllegalStateException("Not Found UserData"));
+                .orElseThrow(() -> new NullPointerException("NOT FOUND USER"));
     }
 
     public User getUserByUserId(int userId) {
         return userRepository.findByUserId(userId)
-                .orElseThrow(() -> new IllegalStateException("Not Found UserData"));
+                .orElseThrow(() -> new NullPointerException("NOT FOUND USER"));
     }
 
-    public User updateUserData(User user){
+    public User updateUserData(User user) {
         return userRepository.save(user);
     }
 

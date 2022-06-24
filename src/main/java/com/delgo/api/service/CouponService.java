@@ -25,8 +25,9 @@ public class CouponService {
         return couponRepository.findByUserId(userId);
     }
 
-    public Optional<Coupon> getCouponByCouponId(int couponId) {
-        return couponRepository.findByCouponId(couponId);
+    public Coupon getCouponByCouponId(int couponId) {
+        return couponRepository.findByCouponId(couponId)
+                .orElseThrow(() -> new NullPointerException("NOT FOUND COUPON"));
     }
 
     public boolean checkCouponExisting(int couponId, int couponManagerId) {
@@ -38,14 +39,21 @@ public class CouponService {
         return couponRepository.save(coupon);
     }
 
+    public Coupon couponUse(int couponId) {
+        Coupon coupon = getCouponByCouponId(couponId);
+        coupon.setIsUsed(1);
+
+        return insertOrUpdateCoupon(coupon);
+    }
 
     // ------------------------------------- Coupon Manager -------------------------------------
     public CouponManager insertOrUpdateCouponManager(CouponManager couponManager) {
         return couponManagerRepository.save(couponManager);
     }
 
-    public Optional<CouponManager> getCouponManagerByCode(String couponCode) {
-        return couponManagerRepository.findByCouponCode(couponCode);
+    public CouponManager getCouponManagerByCode(String couponCode) {
+        return couponManagerRepository.findByCouponCode(couponCode)
+                .orElseThrow(() -> new NullPointerException("WRONG COUPON CODE")); // ERROR: Coupon Code 잘못된 입력
     }
 
 }
