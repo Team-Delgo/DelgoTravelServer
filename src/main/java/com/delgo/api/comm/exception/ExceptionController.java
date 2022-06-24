@@ -45,4 +45,12 @@ public class ExceptionController {
                 ResponseDTO.builder().code(ApiCode.PARAM_ERROR.getCode()).codeMsg(ApiCode.PARAM_ERROR.getMsg()).build());
     }
 
+    // Optional Select Error Check
+    @ExceptionHandler({NullPointerException.class})
+    public ResponseEntity methodArgumentNotValidException(NullPointerException e) {
+        log.info("Optional ERROR : {}", e.getMessage());
+        return ResponseEntity.ok().body(
+                ResponseDTO.builder().code(ApiCode.NOT_FOUND_DATA.getCode()).codeMsg(ApiCode.NOT_FOUND_DATA.getMsg()).build());
+    }
+
 }
