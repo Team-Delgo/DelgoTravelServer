@@ -53,11 +53,11 @@ public class GetPlaceByPlaceIdTest {
             @Test
             @DisplayName("placeId로 Place Data 조회")
             void success() {
-                Optional<Place> place = placeService.getPlaceByPlaceId(placeId);
+                Place place = placeService.getPlaceByPlaceId(placeId);
                 System.out.println(place.toString());
 
                 // then
-                assertEquals(place.get().getPlaceId(), placeId);
+                assertEquals(place.getPlaceId(), placeId);
             }
         }
 
@@ -74,10 +74,11 @@ public class GetPlaceByPlaceIdTest {
                 when(placeRepository.findByPlaceId(any(Integer.class))).thenReturn(emptyOptional);
 
                 PlaceService placeService = new PlaceService(placeRepository, roomRepository, priceRepository, detailPhotoRepository);
-                Optional<Place> result = placeService.getPlaceByPlaceId(placeId);
+                Place result = placeService.getPlaceByPlaceId(placeId);
+                Optional<Place> option = Optional.of(result);
 
                 // then
-                assertEquals(result.isPresent(), false);
+                assertEquals(option.isPresent(), false);
             }
         }
     }

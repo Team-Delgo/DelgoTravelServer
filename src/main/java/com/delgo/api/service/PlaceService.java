@@ -37,8 +37,9 @@ public class PlaceService {
     }
 
     // PlaceId로 Place 조회
-    public Optional<Place> getPlaceByPlaceId(int placeId) {
-        return placeRepository.findByPlaceId(placeId);
+    public Place getPlaceByPlaceId(int placeId) {
+        return placeRepository.findByPlaceId(placeId)
+                .orElseThrow(() -> new NullPointerException("NOT FOUND PLACE"));
     }
 
     // 검색조건에 맞는 Place 조회
