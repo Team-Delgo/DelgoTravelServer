@@ -17,6 +17,8 @@ public interface PriceRepository extends JpaRepository<Price, PriceId> {
 
     List<Price> findByRoomIdAndIsBookingAndPriceDateBetween(int roomId, int isBooking, String startDate, String endDate);
 
+    List<Price> findByRoomIdAndPriceDateBetween(int roomId, String startDate, String endDate);
+
     Price findByPriceDateAndRoomId(String priceDate, int roomId);
 
 //    int deleteByPriceDate(String date);

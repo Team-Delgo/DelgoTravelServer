@@ -1,5 +1,6 @@
 package com.delgo.api.service;
 
+import com.delgo.api.comm.CommService;
 import com.delgo.api.domain.Room;
 import com.delgo.api.domain.price.Price;
 import com.delgo.api.repository.PriceRepository;
@@ -22,7 +23,7 @@ import java.util.List;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class PriceService {
+public class PriceService extends CommService {
 
     private final PriceRepository priceRepository;
 
@@ -157,5 +158,16 @@ public class PriceService {
     public void deleteYesterdayPrice(String yesterday) {
         List<Price> deleteList = priceRepository.findByPriceDate(yesterday);
         priceRepository.deleteAll(deleteList);
+    }
+
+    // Booking getData에서 사용
+    public int getOriginalPrice(int roomId, LocalDate startDt, LocalDate endDt) {
+        List<Price> priceList = priceRepository.findByRoomIdAndPriceDateBetween(roomId, startDt.toString(), endDt.toString());
+        int originalPrice = 0;
+        for (Price price : priceList) {
+            originalPrice += formatPriceToInt(price.getPrice());
+        }
+
+        return originalPrice;
     }
 }
