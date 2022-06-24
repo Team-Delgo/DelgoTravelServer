@@ -1,6 +1,5 @@
 package com.delgo.api.service;
 
-import com.delgo.api.comm.exception.ApiCode;
 import com.delgo.api.domain.coupon.Coupon;
 import com.delgo.api.domain.coupon.CouponManager;
 import com.delgo.api.repository.CouponManagerRepository;
@@ -28,7 +27,7 @@ public class CouponService {
 
     public Coupon getCouponByCouponId(int couponId) {
         return couponRepository.findByCouponId(couponId)
-                .orElseThrow(() -> new NullPointerException(ApiCode.NOT_FOUND_DATA.getMsg()));
+                .orElseThrow(() -> new NullPointerException("NOT FOUND COUPON"));
     }
 
     public boolean checkCouponExisting(int couponId, int couponManagerId) {
