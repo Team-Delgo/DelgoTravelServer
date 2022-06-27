@@ -51,7 +51,7 @@ public class ReviewController extends CommController {
     }
 
     // Update
-    @PostMapping("/insertReview")
+    @PostMapping("/updateReview")
     public ResponseEntity updateReview(@Validated @RequestBody ReviewDTO reviewDTO) {
         try{
             int reviewId = reviewDTO.getReviewId();
@@ -59,8 +59,6 @@ public class ReviewController extends CommController {
                 return ErrorReturn(ApiCode.REVIEW_NOT_EXIST);
             }
             Review originReview = reviewService.getReviewDataByReview(reviewId);
-
-            reviewDTO.setReviewId(originReview.getReviewId());
 
             if(reviewDTO.getRating() != 0){
                 originReview.setRating(reviewDTO.getRating());
@@ -84,9 +82,7 @@ public class ReviewController extends CommController {
             reviewService.deleteReviewData(reviewDTO.getReviewId());
 
             return SuccessReturn();
-        } catch (NullPointerException e){
-            return ErrorReturn(ApiCode.PARAM_ERROR);
-        } catch (Exception e){
+        }  catch (Exception e){
             return ErrorReturn(ApiCode.UNKNOWN_ERROR);
         }
     }
