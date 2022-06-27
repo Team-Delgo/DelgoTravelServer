@@ -16,6 +16,7 @@ import java.io.IOException;
 @Slf4j
 public class LogInterceptor implements HandlerInterceptor {
 
+    // Success Return은 postHandle에서 Log 처리
     public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView mv) throws Exception {
         ContentCachingResponseWrapper responseWrapper = getResponseWrapper(response);
         if (responseWrapper != null) {
@@ -23,11 +24,10 @@ public class LogInterceptor implements HandlerInterceptor {
 
             if (responseDTO.getCode() == 200)
                 APILog.info(request, responseDTO.getCode(), responseDTO.getCodeMsg());
-            else // Controller 단 Error Log 처리
-                ERRLog.info(request, responseDTO.getCode(), responseDTO.getCodeMsg());
         }
     }
 
+    // Error Return은 afterCompletion Log 처리
     public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
         ContentCachingResponseWrapper responseWrapper = getResponseWrapper(response);
         if (responseWrapper != null) {
