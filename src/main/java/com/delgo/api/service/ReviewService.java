@@ -1,6 +1,7 @@
 package com.delgo.api.service;
 
 import com.delgo.api.domain.Review;
+import com.delgo.api.domain.user.User;
 import com.delgo.api.repository.ReviewRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,7 +18,13 @@ public class ReviewService {
 
     private final ReviewRepository reviewRepository;
 
-    public Review insertOrUpdateReview(Review review) {
+    // 리뷰 존재 유무 확인
+    public boolean isReviewExisting(int reviewId) {
+        Optional<Review> findReview = reviewRepository.findByReviewId(reviewId);
+        return findReview.isPresent();
+    }
+
+    public Review insertReview(Review review) {
         return reviewRepository.save(review);
     }
 

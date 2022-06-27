@@ -3,7 +3,9 @@ package com.delgo.api.controller;
 import com.delgo.api.comm.CommController;
 import com.delgo.api.comm.exception.ApiCode;
 import com.delgo.api.domain.Review;
+import com.delgo.api.domain.pet.Pet;
 import com.delgo.api.dto.ReviewDTO;
+import com.delgo.api.dto.SignUpDTO;
 import com.delgo.api.service.ReviewService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,7 +36,7 @@ public class ReviewController extends CommController {
                 .text(dto.getText())
                 .build();
 
-        Review writtenReview = reviewService.insertOrUpdateReview(review);
+        Review writtenReview = reviewService.insertReview(review);
         return SuccessReturn(writtenReview);
     }
 
@@ -48,34 +50,44 @@ public class ReviewController extends CommController {
         return SuccessReturn(reviewService.getReviewDataByPlace(placeId));
     }
 
-    // TODO: Update 생각해봐야 함.
-//    @PostMapping("/update")
-//    public ResponseEntity updateReview(@RequestBody UpdateReviewDTO dto) {
-//        Optional<Review> review = reviewService.getReviewDataByReview(dto.getReviewId());
-//        if(!review.isPresent())
-//            return ResponseEntity.ok().body(
-//                    ResponseDTO.builder().code(303).codeMsg("Review is not exist").build());
-//
-//
-//        Review writtenReview = reviewService.insertOrUpdateReview(review);
-//
-//        return ResponseEntity.ok().body(
-//                ResponseDTO.builder().code(200).codeMsg("Success").build());
-//    }
+    // Update
+    @PostMapping("/insertReview")
+    public ResponseEntity updateReview(@Validated @RequestBody ReviewDTO reviewDTO) {
+        try{
+            int reviewId = reviewDTO.getReviewId();
+            if(!reviewService.isReviewExisting(reviewId)){
+                return ErrorReturn(ApiCode.REVIEW_NOT_EXIST);
+            }
+            Review originReview = reviewService.getReviewDataByReview(reviewId);
 
-//    // TODO: Delete
-//    @PostMapping("/delete")
-//    public ResponseEntity deleteReview(@RequestParam Integer reviewId) {
-//        if (!reviewId.isPresent())
-//            return ResponseEntity.ok().body(
-//                    ResponseDTO.builder().code(303).codeMsg("Param Error").build());
-//
-//        int result = reviewService.deleteReviewData(reviewId.get());
-//        if (result == 0)
-//            return ResponseEntity.ok().body(
-//                    ResponseDTO.builder().code(303).codeMsg("fail").build());
-//
-//        return ResponseEntity.ok().body(
-//                ResponseDTO.builder().code(200).codeMsg("Success").build());
-//    }
+            reviewDTO.setReviewId(originReview.getReviewId());
+
+            if(reviewDTO.getRating() != 0){
+                originReview.setRating(reviewDTO.getRating());
+            }
+            if(reviewDTO.getText() != null)
+                originReview.setText(reviewDTO.getText());
+
+            reviewService.insertReview(originReview);
+
+            return SuccessReturn();
+
+        } catch(Exception e){
+            return ErrorReturn(ApiCode.UNKNOWN_ERROR);
+        }
+    }
+
+    // Delete
+    @PostMapping("/deleteReview")
+    public ResponseEntity deleteReview(@Validated @RequestBody ReviewDTO reviewDTO) {
+        try{
+            reviewService.deleteReviewData(reviewDTO.getReviewId());
+
+            return SuccessReturn();
+        } catch (NullPointerException e){
+            return ErrorReturn(ApiCode.PARAM_ERROR);
+        } catch (Exception e){
+            return ErrorReturn(ApiCode.UNKNOWN_ERROR);
+        }
+    }
 }

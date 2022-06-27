@@ -105,7 +105,7 @@ public class PhotoController extends CommController {
                 case 4: review.setReviewPhoto5(reviewUrl); break;
             }
         }
-        reviewService.insertOrUpdateReview(review);
+        reviewService.insertReview(review);
 
         return SuccessReturn();
     }
