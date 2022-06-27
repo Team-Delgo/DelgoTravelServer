@@ -34,6 +34,7 @@ public class LoginController extends CommController {
 
     final String ACCESS = "Access";
     final String REFRESH = "Refresh";
+    final String EMAIL = "email";
 
     /*
      * Login 성공
@@ -43,9 +44,10 @@ public class LoginController extends CommController {
      */
     @PostMapping("/loginSuccess")
     public ResponseEntity<?> loginSuccess(HttpServletRequest request, HttpServletResponse response) {
-        String email = request.getAttribute("email").toString();
+        String email = request.getAttribute(EMAIL).toString();
 
         User user = userService.getUserByEmail(email);
+        user.setPassword("");
         Pet pet = petService.getPetByUserId(user.getUserId());
 
         String Access_jwtToken = tokenService.createToken(ACCESS, email); // Access Token 생성
@@ -55,6 +57,22 @@ public class LoginController extends CommController {
         response.addHeader(Refresh_JwtProperties.HEADER_STRING, Refresh_JwtProperties.TOKEN_PREFIX + Refresh_jwtToken);
 
         return SuccessReturn(new SignUpDTO(user, pet));
+    }
+
+    @PostMapping("/loginSuccess/admin")
+    public ResponseEntity<?> loginSuccessAdmin(HttpServletRequest request, HttpServletResponse response) {
+        String email = request.getAttribute(EMAIL).toString();
+
+        User user = userService.getUserByEmail(email);
+        user.setPassword("");
+
+        String Access_jwtToken = tokenService.createToken(ACCESS, email); // Access Token 생성
+        String Refresh_jwtToken = tokenService.createToken(REFRESH, email); // Refresh Token 생성
+
+        response.addHeader(Access_JwtProperties.HEADER_STRING, Access_JwtProperties.TOKEN_PREFIX + Access_jwtToken);
+        response.addHeader(Refresh_JwtProperties.HEADER_STRING, Refresh_JwtProperties.TOKEN_PREFIX + Refresh_jwtToken);
+
+        return SuccessReturn(user);
     }
 
     /*
@@ -78,7 +96,7 @@ public class LoginController extends CommController {
             String token = request.getHeader(Refresh_JwtProperties.HEADER_STRING)
                     .replace(Refresh_JwtProperties.TOKEN_PREFIX, "");
             String email = JWT.require(Algorithm.HMAC512(Refresh_JwtProperties.SECRET)).build().verify(token)
-                    .getClaim("email").asString();
+                    .getClaim(EMAIL).asString();
 
             String Access_jwtToken = tokenService.createToken(ACCESS, email); // Access Token 생성
             String Refresh_jwtToken = tokenService.createToken(REFRESH, email); // Refresh Token 생성

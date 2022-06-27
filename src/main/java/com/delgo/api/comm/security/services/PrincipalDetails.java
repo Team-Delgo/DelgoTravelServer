@@ -4,6 +4,7 @@ import com.delgo.api.domain.user.User;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 public class PrincipalDetails implements UserDetails{
@@ -50,11 +51,10 @@ public class PrincipalDetails implements UserDetails{
     
 	@Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-//		Collection<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
-//        user.getRoleList().forEach(r -> {
-//        	authorities.add(()->{ return r;});
-//        });
-//        return authorities;
-        return null;
+		Collection<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
+        user.getRoleList().forEach(r -> {
+        	authorities.add(()->{ return r;});
+        });
+        return authorities;
     }
 }
