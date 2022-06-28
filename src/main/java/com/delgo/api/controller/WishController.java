@@ -40,11 +40,6 @@ public class WishController extends CommController {
         return SuccessReturn(wish);
     }
 
-//    @PostMapping("/delete")
-//    public ResponseEntity deleteWishData(@Validated @RequestBody DeleteWishDTO dto) {
-//        return (wishService.deleteWishData(dto.getWishId()) == 1) ? SuccessReturn() : ErrorReturn(ApiCode.DB_DELETE_ERROR);
-//    }
-
     @PostMapping(value={"/delete/{wishId}","/delete"})
     public ResponseEntity deleteWishData(@PathVariable Integer wishId) {
         return (wishService.deleteWishData(wishId) == 1) ? SuccessReturn() : ErrorReturn(ApiCode.DB_DELETE_ERROR);
