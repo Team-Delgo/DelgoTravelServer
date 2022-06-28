@@ -50,38 +50,28 @@ public class ReviewController extends CommController {
     }
 
     // Update
-    @PostMapping("/updateReview")
+    @PostMapping("/update")
     public ResponseEntity updateReview(@Validated @RequestBody UpdateReviewDTO updateReviewDTO) {
-        try{
-            int reviewId = updateReviewDTO.getReviewId();
-            if(!reviewService.isReviewExisting(reviewId)){
-                return ErrorReturn(ApiCode.REVIEW_NOT_EXIST);
-            }
-            Review originReview = reviewService.getReviewDataByReview(reviewId);
-
-            if(updateReviewDTO.getRating() != 0){
-                originReview.setRating(updateReviewDTO.getRating());
-            }
-            if(updateReviewDTO.getText() != null)
-                originReview.setText(updateReviewDTO.getText());
-
-            reviewService.insertReview(originReview);
-
-            return SuccessReturn();
-
-        } catch(Exception e){
-            return ErrorReturn(ApiCode.UNKNOWN_ERROR);
+        int reviewId = updateReviewDTO.getReviewId();
+        if(!reviewService.isReviewExisting(reviewId)){
+            return ErrorReturn(ApiCode.REVIEW_NOT_EXIST);
         }
+        Review originReview = reviewService.getReviewDataByReview(reviewId);
+
+        if(updateReviewDTO.getRating() != 0){
+            originReview.setRating(updateReviewDTO.getRating());
+        }
+        if(updateReviewDTO.getText() != null)
+            originReview.setText(updateReviewDTO.getText());
+
+        reviewService.insertReview(originReview);
+
+        return SuccessReturn();
     }
     // Delete
-    @GetMapping(value = {"/deleteReview/{reviewId}", "/deleteReview"})
-    public ResponseEntity deleteReview(@PathVariable(value = "reviewId") int reviewId) {
-        try{
-            reviewService.deleteReviewData(reviewId);
-
-            return SuccessReturn();
-        }  catch (Exception e){
-            return ErrorReturn(ApiCode.UNKNOWN_ERROR);
-        }
+    @GetMapping(value = {"/delete/{reviewId}", "/delete"})
+    public ResponseEntity deleteReview(@PathVariable(value = "reviewId") Integer reviewId) {
+        reviewService.deleteReviewData(reviewId);
+        return SuccessReturn();
     }
 }
