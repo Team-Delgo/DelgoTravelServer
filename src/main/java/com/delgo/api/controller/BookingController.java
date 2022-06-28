@@ -79,7 +79,7 @@ public class BookingController extends CommController {
             return ErrorReturn(ApiCode.SMS_ERROR);
         }
 
-        return SuccessReturn(savedBooking);
+        return SuccessReturn(savedBooking.getBookingId());
     }
 
     //TODO: 예약 확정 API

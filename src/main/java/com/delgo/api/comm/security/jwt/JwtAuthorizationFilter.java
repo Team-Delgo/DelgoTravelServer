@@ -2,9 +2,10 @@ package com.delgo.api.comm.security.jwt;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
+import com.delgo.api.comm.security.services.PrincipalDetails;
 import com.delgo.api.domain.user.User;
 import com.delgo.api.repository.UserRepository;
-import com.delgo.api.comm.security.services.PrincipalDetails;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -20,6 +21,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 // 인가
+@Slf4j
 public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 
     private final UserRepository userRepository;
@@ -51,12 +53,12 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
             String email = JWT.require(Algorithm.HMAC512(Access_JwtProperties.SECRET)).build().verify(token)
                     .getClaim("email").asString();
 
-            System.out.println("JwtAuthorizationFilter email : " + email);
+            log.info("JwtAuthorizationFilter email : " + email);
             if (email != null) {
                 User user = userRepository.findByEmail(email)
-                        .orElseThrow(() -> new NullPointerException("Not Found UserData"));
+                        .orElseThrow(() -> new NullPointerException("NOT FOUND USER"));
 
-                System.out.println("JwtAuthorizationFilter findByEmail : " + user.toString());
+                log.info("JwtAuthorizationFilter findByEmail : " + user.toString());
 
                 // 인증은 토큰 검증시 끝. 인증을 하기 위해서가 아닌 스프링 시큐리티가 수행해주는 권한 처리를 위해
                 // 아래와 같이 토큰을 만들어서 Authentication 객체를 강제로 만들고 그걸 세션에 저장!
@@ -71,7 +73,7 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
         } catch (Exception e) { // Token 시간 만료 및 토큰 인증 에러
-            System.out.print("Access Token Expired : " + e.getLocalizedMessage());
+            log.info("Access Token Expired : " + e.getLocalizedMessage());
 
             RequestDispatcher dispatcher = request.getRequestDispatcher("/tokenError");
             dispatcher.forward(request, response);

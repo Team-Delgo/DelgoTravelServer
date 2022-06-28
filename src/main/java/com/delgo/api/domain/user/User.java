@@ -20,7 +20,7 @@ public class User {
     @Column(name = "user_id")
     private int userId;
 
-    @Column(nullable = false, name="name")
+    @Column(nullable = false, name = "name")
     private String name;
 
     @Column(nullable = false, unique = true, name = "email")
@@ -29,17 +29,29 @@ public class User {
     @Column(nullable = false, name = "password")
     private String password;
 
-    @Column(nullable = false, name="phone_no")
+    @Column(nullable = false, name = "phone_no")
     private String phoneNo;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = true, name="social")
+    @Column(nullable = true, name = "social")
     private UserSocial userSocial;
 
     @CreationTimestamp
-    @Column(name="regist_dt")
+    @Column(name = "regist_dt")
     private LocalDate registDt;
 
     private String profile;
 
+//    // 권한
+//    @JsonIgnore
+//    private String roles;
+//
+//    // ENUM으로 안하고 ,로 해서 구분해서 ROLE을 입력된 -> 그걸 파싱!!
+//    @JsonIgnore
+//    public List<String> getRoleList() {
+//        if (this.roles.length() > 0) {
+//            return Arrays.asList(this.roles.split(","));
+//        }
+//        return new ArrayList<>();
+//    }
 }

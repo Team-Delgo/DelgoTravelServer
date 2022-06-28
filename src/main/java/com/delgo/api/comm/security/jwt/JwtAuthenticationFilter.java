@@ -1,9 +1,10 @@
 package com.delgo.api.comm.security.jwt;
 
-import com.delgo.api.dto.LoginDTO;
 import com.delgo.api.comm.security.services.PrincipalDetails;
+import com.delgo.api.dto.LoginDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -17,6 +18,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
+@Slf4j
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
@@ -28,7 +30,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
             throws AuthenticationException {
 
-        System.out.println("JwtAuthenticationFilter : 진입");
+        log.info("JwtAuthenticationFilter : 진입");
 
         ObjectMapper om = new ObjectMapper();
         LoginDTO loginDTO = null;
@@ -38,13 +40,13 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
             e.printStackTrace();
         }
 
-        System.out.println("JwtAuthenticationFilter : " + loginDTO);
+        log.info("JwtAuthenticationFilter : " + loginDTO);
 
         // 유저네임패스워드 토큰 생성
         UsernamePasswordAuthenticationToken authenticationToken =
                 new UsernamePasswordAuthenticationToken(loginDTO.getEmail(), loginDTO.getPassword());
 
-        System.out.println("JwtAuthenticationFilter : 토큰생성완료");
+        log.info("JwtAuthenticationFilter : 토큰생성완료");
 
         // authenticate() 함수가 호출 되면 인증 프로바이더가 유저 디테일 서비스의
         // loadUserByUsername(토큰의 첫번째 파라메터) 를 호출하고
@@ -59,7 +61,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
                 authenticationManager.authenticate(authenticationToken);
 
         PrincipalDetails principalDetailis = (PrincipalDetails) authentication.getPrincipal();
-        System.out.println("Authentication : " + principalDetailis.getUser().getEmail());
+        log.info("Authentication : " + principalDetailis.getUser().getEmail());
         return authentication;
     }
 
@@ -67,21 +69,16 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain,
                                             Authentication authResult) throws IOException, ServletException {
-
-        System.out.println("로그인 성공");
-
         PrincipalDetails principalDetailis = (PrincipalDetails) authResult.getPrincipal();
 
         RequestDispatcher dispatcher = request.getRequestDispatcher("/loginSuccess");
-        request.setAttribute("email",principalDetailis.getUser().getEmail());
+        request.setAttribute("email", principalDetailis.getUser().getEmail());
 
         dispatcher.forward(request, response);
     }
 
     @Override
     protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) throws IOException, ServletException {
-        System.out.println("로그인 실패");
-
         RequestDispatcher dispatcher = request.getRequestDispatcher("/loginFail");
         dispatcher.forward(request, response);
     }
