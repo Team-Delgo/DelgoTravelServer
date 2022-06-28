@@ -8,9 +8,7 @@ import javax.validation.constraints.NotNull;
 
 @Data
 @Builder
-public class ReviewDTO {
-    @NotNull
-    private int reviewId;
+public class CreateReviewDTO {
     @NotNull
     private int userId;
     @NotNull
