@@ -48,6 +48,7 @@ public class LoginController extends CommController {
 
         User user = userService.getUserByEmail(email);
         Pet pet = petService.getPetByUserId(user.getUserId());
+        user.setPassword("");
 
         String Access_jwtToken = tokenService.createToken(ACCESS, email); // Access Token 생성
         String Refresh_jwtToken = tokenService.createToken(REFRESH, email); // Refresh Token 생성

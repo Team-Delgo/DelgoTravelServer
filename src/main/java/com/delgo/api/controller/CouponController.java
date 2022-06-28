@@ -52,6 +52,7 @@ public class CouponController extends CommController {
                         .discountNum(cm.getDiscountNum())
                         .expireDt(expireDt)
                         .isUsed(0)
+                        .isValid(0)
                         .couponManagerId(cm.getCouponManagerId())
                         .userId(dto.getUserId())
                         .build()

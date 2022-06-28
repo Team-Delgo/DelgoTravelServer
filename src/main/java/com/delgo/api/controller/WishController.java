@@ -4,7 +4,6 @@ import com.delgo.api.comm.CommController;
 import com.delgo.api.comm.exception.ApiCode;
 import com.delgo.api.domain.Place;
 import com.delgo.api.domain.Wish;
-import com.delgo.api.dto.wish.DeleteWishDTO;
 import com.delgo.api.dto.wish.WishDTO;
 import com.delgo.api.service.PlaceService;
 import com.delgo.api.service.UserService;
@@ -28,7 +27,6 @@ public class WishController extends CommController {
     private final UserService userService;
     private final PlaceService placeService;
 
-    // wishlist 등록하는 api
     @PostMapping("/insert")
     public ResponseEntity<?> insertWishData(@Validated @RequestBody WishDTO wishDTO) {
         // Validate UserId ( Service 단에서 Check )
@@ -42,10 +40,9 @@ public class WishController extends CommController {
         return SuccessReturn(wish);
     }
 
-    // wishlist 삭제하는 api
-    @PostMapping("/delete")
-    public ResponseEntity deleteWishData(@Validated @RequestBody DeleteWishDTO dto) {
-        return (wishService.deleteWishData(dto.getWishId()) == 1) ? SuccessReturn() : ErrorReturn(ApiCode.DB_DELETE_ERROR);
+    @PostMapping(value={"/delete/{wishId}","/delete"})
+    public ResponseEntity deleteWishData(@PathVariable Integer wishId) {
+        return (wishService.deleteWishData(wishId) == 1) ? SuccessReturn() : ErrorReturn(ApiCode.DB_DELETE_ERROR);
     }
 
     // wishlist 조회 및 반환하는 api
