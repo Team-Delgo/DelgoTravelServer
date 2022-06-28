@@ -71,12 +71,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
                                             Authentication authResult) throws IOException, ServletException {
         PrincipalDetails principalDetailis = (PrincipalDetails) authResult.getPrincipal();
 
-        RequestDispatcher dispatcher = null;
-        if (principalDetailis.getUser().getRoles() == "ROLE_USER")
-            dispatcher = request.getRequestDispatcher("/loginSuccess");
-        else
-            dispatcher = request.getRequestDispatcher("/loginSuccess/admin");
-
+        RequestDispatcher dispatcher = request.getRequestDispatcher("/loginSuccess");
         request.setAttribute("email", principalDetailis.getUser().getEmail());
 
         dispatcher.forward(request, response);

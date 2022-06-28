@@ -1,6 +1,5 @@
 package com.delgo.api.domain.user;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -9,9 +8,6 @@ import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.*;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -46,16 +42,16 @@ public class User {
 
     private String profile;
 
-    // 권한
-    @JsonIgnore
-    private String roles;
-
-    // ENUM으로 안하고 ,로 해서 구분해서 ROLE을 입력된 -> 그걸 파싱!!
-    @JsonIgnore
-    public List<String> getRoleList() {
-        if (this.roles.length() > 0) {
-            return Arrays.asList(this.roles.split(","));
-        }
-        return new ArrayList<>();
-    }
+//    // 권한
+//    @JsonIgnore
+//    private String roles;
+//
+//    // ENUM으로 안하고 ,로 해서 구분해서 ROLE을 입력된 -> 그걸 파싱!!
+//    @JsonIgnore
+//    public List<String> getRoleList() {
+//        if (this.roles.length() > 0) {
+//            return Arrays.asList(this.roles.split(","));
+//        }
+//        return new ArrayList<>();
+//    }
 }

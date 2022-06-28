@@ -47,7 +47,6 @@ public class LoginController extends CommController {
         String email = request.getAttribute(EMAIL).toString();
 
         User user = userService.getUserByEmail(email);
-        user.setPassword("");
         Pet pet = petService.getPetByUserId(user.getUserId());
 
         String Access_jwtToken = tokenService.createToken(ACCESS, email); // Access Token 생성
@@ -57,22 +56,6 @@ public class LoginController extends CommController {
         response.addHeader(Refresh_JwtProperties.HEADER_STRING, Refresh_JwtProperties.TOKEN_PREFIX + Refresh_jwtToken);
 
         return SuccessReturn(new SignUpDTO(user, pet));
-    }
-
-    @PostMapping("/loginSuccess/admin")
-    public ResponseEntity<?> loginSuccessAdmin(HttpServletRequest request, HttpServletResponse response) {
-        String email = request.getAttribute(EMAIL).toString();
-
-        User user = userService.getUserByEmail(email);
-        user.setPassword("");
-
-        String Access_jwtToken = tokenService.createToken(ACCESS, email); // Access Token 생성
-        String Refresh_jwtToken = tokenService.createToken(REFRESH, email); // Refresh Token 생성
-
-        response.addHeader(Access_JwtProperties.HEADER_STRING, Access_JwtProperties.TOKEN_PREFIX + Access_jwtToken);
-        response.addHeader(Refresh_JwtProperties.HEADER_STRING, Refresh_JwtProperties.TOKEN_PREFIX + Refresh_jwtToken);
-
-        return SuccessReturn(user);
     }
 
     /*
