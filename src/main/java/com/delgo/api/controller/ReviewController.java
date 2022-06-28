@@ -3,9 +3,8 @@ package com.delgo.api.controller;
 import com.delgo.api.comm.CommController;
 import com.delgo.api.comm.exception.ApiCode;
 import com.delgo.api.domain.Review;
-import com.delgo.api.domain.pet.Pet;
-import com.delgo.api.dto.ReviewDTO;
-import com.delgo.api.dto.SignUpDTO;
+import com.delgo.api.dto.CreateReviewDTO;
+import com.delgo.api.dto.UpdateReviewDTO;
 import com.delgo.api.service.ReviewService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,17 +22,17 @@ public class ReviewController extends CommController {
 
     // Create
     @PostMapping("/write")
-    public ResponseEntity writeReview(@Validated @RequestBody ReviewDTO dto) {
+    public ResponseEntity writeReview(@Validated @RequestBody CreateReviewDTO createReviewDTO) {
         //중복 확인
-        Boolean isDuplicated = reviewService.checkDuplicateReview(dto.getUserId(), dto.getPlaceId(), dto.getRoomId());
+        Boolean isDuplicated = reviewService.checkDuplicateReview(createReviewDTO.getUserId(), createReviewDTO.getPlaceId(), createReviewDTO.getRoomId());
         if (isDuplicated) return ErrorReturn(ApiCode.REVIEW_DUPLICATE_ERROR);
 
         Review review = Review.builder()
-                .userId(dto.getUserId())
-                .placeId(dto.getPlaceId())
-                .roomId(dto.getRoomId())
-                .rating(dto.getRating())
-                .text(dto.getText())
+                .userId(createReviewDTO.getUserId())
+                .placeId(createReviewDTO.getPlaceId())
+                .roomId(createReviewDTO.getRoomId())
+                .rating(createReviewDTO.getRating())
+                .text(createReviewDTO.getText())
                 .build();
 
         Review writtenReview = reviewService.insertReview(review);
@@ -52,19 +51,19 @@ public class ReviewController extends CommController {
 
     // Update
     @PostMapping("/updateReview")
-    public ResponseEntity updateReview(@Validated @RequestBody ReviewDTO reviewDTO) {
+    public ResponseEntity updateReview(@Validated @RequestBody UpdateReviewDTO updateReviewDTO) {
         try{
-            int reviewId = reviewDTO.getReviewId();
+            int reviewId = updateReviewDTO.getReviewId();
             if(!reviewService.isReviewExisting(reviewId)){
                 return ErrorReturn(ApiCode.REVIEW_NOT_EXIST);
             }
             Review originReview = reviewService.getReviewDataByReview(reviewId);
 
-            if(reviewDTO.getRating() != 0){
-                originReview.setRating(reviewDTO.getRating());
+            if(updateReviewDTO.getRating() != 0){
+                originReview.setRating(updateReviewDTO.getRating());
             }
-            if(reviewDTO.getText() != null)
-                originReview.setText(reviewDTO.getText());
+            if(updateReviewDTO.getText() != null)
+                originReview.setText(updateReviewDTO.getText());
 
             reviewService.insertReview(originReview);
 
@@ -74,12 +73,11 @@ public class ReviewController extends CommController {
             return ErrorReturn(ApiCode.UNKNOWN_ERROR);
         }
     }
-
     // Delete
-    @PostMapping("/deleteReview")
-    public ResponseEntity deleteReview(@Validated @RequestBody ReviewDTO reviewDTO) {
+    @GetMapping(value = {"/deleteReview/{reviewId}", "/deleteReview"})
+    public ResponseEntity deleteReview(@PathVariable(value = "reviewId") int reviewId) {
         try{
-            reviewService.deleteReviewData(reviewDTO.getReviewId());
+            reviewService.deleteReviewData(reviewId);
 
             return SuccessReturn();
         }  catch (Exception e){
