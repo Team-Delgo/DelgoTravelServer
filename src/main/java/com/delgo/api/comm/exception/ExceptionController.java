@@ -5,9 +5,11 @@ import com.delgo.api.dto.common.ResponseDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingPathVariableException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.multipart.support.MissingServletRequestPartException;
 
 @Slf4j
@@ -44,6 +46,18 @@ public class ExceptionController extends CommController {
     public ResponseEntity methodArgumentNotValidException(NullPointerException e) {
         return ResponseEntity.ok().body(
                 ResponseDTO.builder().code(ApiCode.NOT_FOUND_DATA.getCode()).codeMsg(e.getMessage()).build());
+    }
+
+    // @PathVariable ERROR - 1
+    @ExceptionHandler({MissingPathVariableException.class})
+    public ResponseEntity missingPathVariableException(MissingPathVariableException e) {
+        return ErrorReturn(ApiCode.PARAM_ERROR);
+    }
+
+    // @PathVariable ERROR - 2
+    @ExceptionHandler({MethodArgumentTypeMismatchException.class})
+    public ResponseEntity methodArgumentTypeMismatchException(MethodArgumentTypeMismatchException e) {
+        return ErrorReturn(ApiCode.PARAM_ERROR);
     }
 
 }
