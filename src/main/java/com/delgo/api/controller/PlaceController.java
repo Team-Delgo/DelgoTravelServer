@@ -38,20 +38,30 @@ public class PlaceController extends CommController {
     private final PhotoService photoService;
     private final WishService wishService;
 
-    /*
+    /**
      * WhereToGO Page 조회
-     * Request Data : userId
+     * Request Data : userId , startDt, endDt
      * - wish 여부 판단
      * Response Data : ALL Place List
      */
     @GetMapping("/selectWheretogo")
-    public ResponseEntity selectWhereTogo(@RequestParam Integer userId) {
+    public ResponseEntity selectWhereTogo(
+            @RequestParam Integer userId,
+            @RequestParam String startDt,
+            @RequestParam String endDt) {
+        // Validate - Blank Check; [ String 만 해주면 됨 ]
+        if (startDt.isBlank() || endDt.isBlank())
+            return ErrorReturn(ApiCode.PARAM_ERROR);
+        // Validate - 날짜 차이가 2주 이내인가? 시작날짜가 오늘보다 같거나 큰가? 종료날짜는 만료날짜랑 같거나 작은가?
+        if (!commService.checkDate(startDt, endDt))
+            return ErrorReturn(ApiCode.PARAM_DATE_ERROR);
+
         // 전체 Place 조회 ( List )
         List<Place> placeList = placeService.getPlaceAll();
         if (placeList.size() > 0) {
             placeService.setMainPhoto(placeList); // place MainPhoto 설정
-            placeService.setCanBooking(placeList, LocalDate.now(), LocalDate.now().plusDays(1)); // 예약가능한 Place Check
-            placeService.setLowestPrice(placeList, LocalDate.now(), LocalDate.now().plusDays(1)); // 최저가격 계산
+            placeService.setCanBooking(placeList, LocalDate.parse(startDt), LocalDate.parse(endDt)); // 예약가능한 Place Check
+            placeService.setLowestPrice(placeList, LocalDate.parse(startDt), LocalDate.parse(endDt)); // 최저가격 계산
         }
 
         // userId == 0일 경우 로그인 안했다고 판단.
@@ -65,7 +75,7 @@ public class PlaceController extends CommController {
         return SuccessReturn(placeList);
     }
 
-    /*
+    /**
      * Detail Page 조회
      * Request Data : userId, placeId, startDt,endDt
      * - userId : wish 여부 check
@@ -109,7 +119,7 @@ public class PlaceController extends CommController {
     }
 
     /*
-     * WhereToGo 검색 결과 반환
+     * WhereToGo 검색 결과 반환 (UnUsed)
      * Request Data : userId, name, address, startDt, endDt
      * - userId : wish 여부 check
      * - name, address : DB에서 일치 여부 조회 (정확히 일치 X 해당 단어 포함 0) [ 빈 값 허용 ]
