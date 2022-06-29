@@ -5,8 +5,6 @@ import com.delgo.api.comm.CommController;
 import com.delgo.api.comm.CommService;
 import com.delgo.api.comm.exception.ApiCode;
 import com.delgo.api.comm.ncp.service.SmsService;
-import com.delgo.api.domain.Place;
-import com.delgo.api.domain.Room;
 import com.delgo.api.domain.booking.Booking;
 import com.delgo.api.domain.booking.BookingState;
 import com.delgo.api.domain.user.User;
@@ -19,9 +17,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Slf4j
 @RestController
@@ -31,11 +30,8 @@ public class BookingController extends CommController {
 
     private final CommService commService;
     private final UserService userService;
-    private final PlaceService placeService;
-    private final RoomService roomService;
     private final CouponService couponService;
     private final BookingService bookingService;
-    private final PriceService priceService;
     private final SmsService smsService;
 
     /**
@@ -80,6 +76,38 @@ public class BookingController extends CommController {
         }
 
         return SuccessReturn(savedBooking.getBookingId());
+    }
+
+    /**
+     *  예약 내용 조회 : 메인페이지
+     */
+    @GetMapping("/getData/main")
+    public ResponseEntity getBookingListByMain(@RequestParam Integer userId) {
+        if (userId == 0)
+            return ErrorReturn(ApiCode.NOT_FOUND_DATA);
+
+        List<Booking> waitList = bookingService.getBookingByUserIdAndBookingState(userId, BookingState.W);
+        List<Booking> fixList = bookingService.getBookingByUserIdAndBookingState(userId, BookingState.F);
+        if (waitList.isEmpty() && fixList.isEmpty()) // 조회되는 BOOKING DATA 없음
+            return ErrorReturn(ApiCode.NOT_FOUND_DATA);
+        //정렬 기준 1. 시작 날짜, 2. 종료 날짜
+        Comparator<Booking> compare = Comparator
+                .comparing(Booking::getStartDt)
+                .thenComparing(Booking::getEndDt);
+
+        List<ReturnBookingDTO> returnWaitList = waitList.stream().sorted(compare).map(b -> bookingService.getReturnBookingData(b.getBookingId())).collect(Collectors.toList());
+        List<ReturnBookingDTO> returnFixList = fixList.stream().sorted(compare).map(b -> bookingService.getReturnBookingData(b.getBookingId())).collect(Collectors.toList());
+
+        return SuccessReturn(Stream.concat(returnFixList.stream(), returnWaitList.stream()).collect(Collectors.toList()));
+    }
+
+
+    /**
+     *  예약 내용 조회 : 예약확인 페이지
+     */
+    @GetMapping("/getData")
+    public ResponseEntity getBookingList(@RequestParam String bookingId) {
+        return SuccessReturn(bookingService.getReturnBookingData(bookingId));
     }
 
     //TODO: 예약 확정 API
@@ -147,56 +175,4 @@ public class BookingController extends CommController {
 //        );
 //    }
 
-    // TODO: 예약 내용 조회 : 메인페이지
-    @GetMapping("/getData/main")
-    public ResponseEntity getBookingListByMain(@RequestParam Integer userId) {
-        if (userId == 0)
-            return ErrorReturn(ApiCode.PARAM_ERROR);
-
-        List<Booking> booking = bookingService.getBookingByUserId(userId, BookingState.F);
-        if (booking.isEmpty()) // 조회되는 BOOKING DATA 없음
-            return ErrorReturn(ApiCode.DB_DELETE_ERROR);
-        else if (booking.size() == 1)
-            return SuccessReturn(booking);
-
-        // TODO: 정렬 기준 1. 시작 날짜, 2. 종료 날짜 3. 예약 순서
-        booking.stream().sorted(Comparator.comparing(Booking::getStartDt));
-        return SuccessReturn(booking);
-    }
-
-    /***
-     *  예약 내용 조회 : 메인페이지
-     */
-    @GetMapping("/getData")
-    public ResponseEntity getBookingList(@RequestParam String bookingId) {
-        Booking booking = bookingService.getBookingByBookingId(bookingId);
-        Place place = placeService.getPlaceByPlaceId(booking.getPlaceId());
-        Room room = roomService.getRoomByRoomId(booking.getRoomId());
-        User user = userService.getUserByUserId(booking.getUserId());
-
-        int originalPrice = priceService.getOriginalPrice(booking.getRoomId(), booking.getStartDt(), booking.getEndDt());
-        int point = booking.getPoint();
-        int couponPrice = (booking.getCouponId() == 0) ? 0 : couponService.getCouponPrice(booking.getCouponId(), originalPrice);
-        int finalPrice = originalPrice - point - couponPrice;
-
-        // TODO: 취소 마감일 (?) 결제일기준이아니라 예약날짜 기준 전날 전전날 - 숙소마다 다르다라.. 흐음....(?)
-        String canCancelDate = LocalDate.now().plusDays(5).toString();
-
-        return SuccessReturn(ReturnBookingDTO.builder()
-                .bookingId(bookingId)
-                .userName(user.getName())
-                .userPhoneNo(user.getPhoneNo())
-                .placeName(place.getName())
-                .placeAddress(place.getAddress())
-                .roomName(room.getName())
-                .originalPrice(commService.formatIntToPrice(originalPrice))
-                .point(point)
-                .couponId(booking.getCouponId())
-                .couponPrice(commService.formatIntToPrice(couponPrice))
-                .finalPrice(commService.formatIntToPrice(finalPrice))
-                .startDt(booking.getStartDt())
-                .endDt(booking.getEndDt())
-                .canCancelDate(canCancelDate)
-                .build());
-    }
 }

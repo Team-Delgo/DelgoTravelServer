@@ -28,6 +28,10 @@ public class BookingDTO {
     private String startDt;
     @NotBlank
     private String endDt;
+    @NotBlank
+    private String orderId;
+    @NotBlank
+    private String paymentKey;
 
 
     public Booking build(String bookingId, BookingState bookingState) {
@@ -43,6 +47,8 @@ public class BookingDTO {
                 .startDt(LocalDate.parse(this.startDt))
                 .endDt(LocalDate.parse(this.endDt))
                 .bookingState(bookingState)
+                .orderId(this.orderId)
+                .paymentKey(this.paymentKey)
                 .build();
     }
 }

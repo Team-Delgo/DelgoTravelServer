@@ -5,7 +5,10 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.Id;
 import java.time.LocalDate;
 
 @Data
@@ -27,4 +30,6 @@ public class Booking {
     private LocalDate endDt;
     @Enumerated(EnumType.STRING)
     private BookingState bookingState;
+    private String orderId; // toss OrderId
+    private String paymentKey; // toss 취소할 때 사용.
 }

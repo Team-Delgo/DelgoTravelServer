@@ -1,5 +1,6 @@
 package com.delgo.api.dto.booking;
 
+import com.delgo.api.domain.booking.BookingState;
 import lombok.Builder;
 import lombok.Data;
 
@@ -22,4 +23,5 @@ public class ReturnBookingDTO {
     private LocalDate startDt; // 체크인 날짜
     private LocalDate endDt; // 체크아웃 날짜
     private String canCancelDate; //  취소 가능한 날짜
+    private BookingState bookingState; // 현재 예약 상태 코드
 }
