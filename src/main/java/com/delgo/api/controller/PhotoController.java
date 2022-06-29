@@ -57,7 +57,7 @@ public class PhotoController extends CommController {
 
         userService.updateUserData(user);
 
-        return SuccessReturn();
+        return SuccessReturn(profileUrl);
     }
 
     /*
