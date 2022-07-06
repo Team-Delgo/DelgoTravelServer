@@ -21,7 +21,7 @@ public class BookingDTO {
     @NotNull
     private Integer point;
     @NotNull
-    private Integer peopleExtraNum;
+    private Integer personExtraNum;
     @NotNull
     private Integer petExtraNum;
     @NotBlank
@@ -42,7 +42,7 @@ public class BookingDTO {
                 .placeId(this.placeId)
                 .couponId(this.couponId)
                 .point(this.point)
-                .peopleExtraNum(this.peopleExtraNum)
+                .personExtraNum(this.personExtraNum)
                 .petExtraNum(this.petExtraNum)
                 .startDt(LocalDate.parse(this.startDt))
                 .endDt(LocalDate.parse(this.endDt))

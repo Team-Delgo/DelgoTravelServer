@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -24,10 +25,12 @@ public class Booking {
     private Integer placeId;
     private Integer couponId;
     private Integer point;
-    private Integer peopleNum;
-    private Integer petNum;
+    private Integer personExtraNum;
+    private Integer petExtraNum;
     private LocalDate startDt;
     private LocalDate endDt;
+    @CreationTimestamp
+    private LocalDate registDt;
     @Enumerated(EnumType.STRING)
     private BookingState bookingState;
     private String orderId; // toss OrderId

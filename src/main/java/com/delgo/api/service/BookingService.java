@@ -60,6 +60,7 @@ public class BookingService extends CommService {
     public ReturnBookingDTO getReturnBookingData(String bookingId) {
         Booking booking = getBookingByBookingId(bookingId);
         Place place = placeService.getPlaceByPlaceId(booking.getPlaceId());
+        placeService.setMainPhoto(place); // 사진 설정
         Room room = roomService.getRoomByRoomId(booking.getRoomId());
         User user = userService.getUserByUserId(booking.getUserId());
 
@@ -75,8 +76,6 @@ public class BookingService extends CommService {
                 .bookingId(bookingId)
                 .userName(user.getName())
                 .userPhoneNo(user.getPhoneNo())
-                .placeName(place.getName())
-                .placeAddress(place.getAddress())
                 .roomName(room.getName())
                 .originalPrice(formatIntToPrice(originalPrice))
                 .point(point)
@@ -87,6 +86,8 @@ public class BookingService extends CommService {
                 .endDt(booking.getEndDt())
                 .canCancelDate(canCancelDate)
                 .bookingState(booking.getBookingState())
+                .registDt(booking.getRegistDt())
+                .place(place)
                 .build();
     }
 }
