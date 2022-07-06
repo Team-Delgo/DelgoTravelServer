@@ -6,9 +6,10 @@ import com.delgo.api.comm.CommController;
 import com.delgo.api.comm.exception.ApiCode;
 import com.delgo.api.comm.security.jwt.Access_JwtProperties;
 import com.delgo.api.comm.security.jwt.Refresh_JwtProperties;
+import com.delgo.api.domain.coupon.Coupon;
 import com.delgo.api.domain.pet.Pet;
 import com.delgo.api.domain.user.User;
-import com.delgo.api.dto.SignUpDTO;
+import com.delgo.api.service.CouponService;
 import com.delgo.api.service.PetService;
 import com.delgo.api.service.TokenService;
 import com.delgo.api.service.UserService;
@@ -22,6 +23,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.HashMap;
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -30,6 +33,7 @@ public class LoginController extends CommController {
 
     private final UserService userService;
     private final PetService petService;
+    private final CouponService couponService;
     private final TokenService tokenService;
 
     final String ACCESS = "Access";
@@ -46,9 +50,16 @@ public class LoginController extends CommController {
     public ResponseEntity<?> loginSuccess(HttpServletRequest request, HttpServletResponse response) {
         String email = request.getAttribute(EMAIL).toString();
 
+
         User user = userService.getUserByEmail(email);
-        Pet pet = petService.getPetByUserId(user.getUserId());
         user.setPassword("");
+        Pet pet = petService.getPetByUserId(user.getUserId());
+        List<Coupon> couponList = couponService.getCouponListByUserId(user.getUserId());
+
+        HashMap<String, Object> map = new HashMap<String, Object>();
+        map.put("pet", pet);
+        map.put("couponList", couponList);
+        map.put("user", user);
 
         String Access_jwtToken = tokenService.createToken(ACCESS, email); // Access Token 생성
         String Refresh_jwtToken = tokenService.createToken(REFRESH, email); // Refresh Token 생성
@@ -56,7 +67,7 @@ public class LoginController extends CommController {
         response.addHeader(Access_JwtProperties.HEADER_STRING, Access_JwtProperties.TOKEN_PREFIX + Access_jwtToken);
         response.addHeader(Refresh_JwtProperties.HEADER_STRING, Refresh_JwtProperties.TOKEN_PREFIX + Refresh_jwtToken);
 
-        return SuccessReturn(new SignUpDTO(user, pet));
+        return SuccessReturn(map);
     }
 
     /*
