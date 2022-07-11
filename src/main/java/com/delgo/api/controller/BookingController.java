@@ -8,15 +8,19 @@ import com.delgo.api.comm.ncp.service.SmsService;
 import com.delgo.api.domain.booking.Booking;
 import com.delgo.api.domain.booking.BookingState;
 import com.delgo.api.domain.user.User;
+import com.delgo.api.dto.HistoryDTO;
 import com.delgo.api.dto.booking.BookingDTO;
 import com.delgo.api.dto.booking.ReturnBookingDTO;
-import com.delgo.api.service.*;
+import com.delgo.api.service.BookingService;
+import com.delgo.api.service.CouponService;
+import com.delgo.api.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -101,6 +105,26 @@ public class BookingController extends CommController {
         return SuccessReturn(Stream.concat(returnFixList.stream(), returnWaitList.stream()).collect(Collectors.toList()));
     }
 
+    /**
+     * Histroy 조회 : 여행 완료 Booking Data
+     */
+    @GetMapping("/getHistory")
+    public ResponseEntity getHistoryList(@RequestParam Integer userId) {
+        if (userId == 0)
+            return ErrorReturn(ApiCode.NOT_FOUND_DATA);
+
+        List<Booking> bookingList = bookingService.getBookingByUserIdAndBookingState(userId, BookingState.T);
+        if (bookingList.isEmpty()) // 조회되는 BOOKING DATA 없음
+            return ErrorReturn(ApiCode.NOT_FOUND_DATA);
+
+        List<HistoryDTO> historyList = new ArrayList<>();
+        bookingList.forEach(booking -> {
+            historyList.add(bookingService.getHistoryData(booking.getBookingId()));
+        });
+
+        return SuccessReturn(historyList.stream().sorted(Comparator.comparing(HistoryDTO::getStartDt).reversed()));
+    }
+
 
     /**
      * 예약 내용 조회 : 예약확인 페이지
@@ -113,16 +137,18 @@ public class BookingController extends CommController {
     // TODO: 취소 요청 API
     @PostMapping(value = {"/cancel/{bookingID}", "/cancel"})
     public ResponseEntity cancelRequest(@PathVariable String bookingId) {
-        // TODO: 취소 정책 생각 ( Defalutd : 숙소의 취소정책 따라감 )
-
         Booking booking = bookingService.getBookingByBookingId(bookingId);
-        // TODO: 취소가 가능한 경우 : CF로 넣고
-        booking.setBookingState(BookingState.CF);
-        bookingService.insertOrUpdateBooking(booking);
+        // TODO: 현재 날짜 vs 여행 날짜 비교 ( 남은 날짜 비교 취소 퍼센트 비교를 위해 )
 
+        // TODO: 취소율 계산 ( Cancel TBL 연동 )
+
+        // TODO: 환불률 0%면 취쇼요청 Cancel
+
+        // TODO: Booking State CW로 변경
         booking.setBookingState(BookingState.CW);
         bookingService.insertOrUpdateBooking(booking);
-        // TODO: 사용자에게 취소 실패 OR 성공 문자 발송
+
+        // TODO: 사용자 OR 운영진 카톡 발송
 
         // User 조회
         User user = userService.getUserByUserId(booking.getUserId());
@@ -141,20 +167,4 @@ public class BookingController extends CommController {
 
         return SuccessReturn();
     }
-
-    // TODO: 취소 확정 API
-//    @PostMapping("/cancel/confirm")
-//    public ResponseEntity cancelConfirm(@RequestParam int bookingId) {
-//        // TODO: booking_status - C[cancel] 로 변경
-//        Booking booking = bookingService.getBookingData(bookingId);
-//        booking.setBookingState(BookingState.C);
-//        bookingService.insertOrUpdateBooking(booking);
-//
-//        // TODO: User에게 취소문자 발송
-//
-//        return ResponseEntity.ok().body(
-//                ResponseDTO.builder().code(200).codeMsg("Success").data("").build()
-//        );
-//    }
-
 }

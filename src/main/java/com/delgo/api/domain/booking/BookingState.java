@@ -5,5 +5,5 @@ public enum BookingState {
     F, // fix
     CW, // cancel Wait
     CF,
-    E// 여행 완료 코드 하나 생각해야 하는데
+    T// 여행 완료 코드 하나 생각해야 하는데
 }
