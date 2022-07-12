@@ -42,6 +42,10 @@ public class ReviewService {
 
     public ReadReviewDTO getReviewDataByPlace(int placeId) {
         List<Review> reviewList = reviewRepository.findByPlaceId(placeId);
+
+        if(reviewList.size() <= 0)
+            return null;
+
         User user = userRepository.findByUserId(reviewList.get(0).getUserId()).orElseThrow(() -> new NullPointerException());
         Room room = roomRepository.findByRoomId(reviewList.get(0).getRoomId()).orElseThrow(() -> new NullPointerException());
 
