@@ -5,6 +5,7 @@ import com.delgo.api.comm.CommController;
 import com.delgo.api.comm.CommService;
 import com.delgo.api.comm.exception.ApiCode;
 import com.delgo.api.comm.ncp.service.SmsService;
+import com.delgo.api.domain.Cancel;
 import com.delgo.api.domain.booking.Booking;
 import com.delgo.api.domain.booking.BookingState;
 import com.delgo.api.domain.user.User;
@@ -12,6 +13,7 @@ import com.delgo.api.dto.HistoryDTO;
 import com.delgo.api.dto.booking.BookingDTO;
 import com.delgo.api.dto.booking.ReturnBookingDTO;
 import com.delgo.api.service.BookingService;
+import com.delgo.api.service.CancelService;
 import com.delgo.api.service.CouponService;
 import com.delgo.api.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +22,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+import java.time.Period;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -33,6 +37,7 @@ import java.util.stream.Stream;
 public class BookingController extends CommController {
 
     private final CommService commService;
+    private final CancelService cancelService;
     private final UserService userService;
     private final CouponService couponService;
     private final BookingService bookingService;
@@ -139,31 +144,35 @@ public class BookingController extends CommController {
     public ResponseEntity cancelRequest(@PathVariable String bookingId) {
         Booking booking = bookingService.getBookingByBookingId(bookingId);
         // TODO: 현재 날짜 vs 여행 날짜 비교 ( 남은 날짜 비교 취소 퍼센트 비교를 위해 )
+        LocalDate tripDay = booking.getStartDt();
+        if(tripDay.isBefore(LocalDate.now()))
+            ErrorReturn(ApiCode.PARAM_DATE_ERROR);
 
-        // TODO: 취소율 계산 ( Cancel TBL 연동 )
+        Period period = Period.between(LocalDate.now(), tripDay);
+        Cancel cancel = cancelService.getCancelByPlaceIdAndRemainDay(booking.getPlaceId(), period.getDays());
+        int returnRate = cancel.getReturnRate();
 
-        // TODO: 환불률 0%면 취쇼요청 Cancel
+        if(returnRate == 0)
+            // TODO: 환불률 0%면 취쇼요청 Cancel
 
         // TODO: Booking State CW로 변경
         booking.setBookingState(BookingState.CW);
         bookingService.insertOrUpdateBooking(booking);
 
         // TODO: 사용자 OR 운영진 카톡 발송
-
         // User 조회
         User user = userService.getUserByUserId(booking.getUserId());
         log.info(user.toString());
         try {
-            // TODO: 사용자에게 예약대기문자 발송 [ 내용 어떤 거 들어갈지 생각 필요 ]
+            // TODO: 사용자에게 취소대기문자 발송 [ 내용 어떤 거 들어갈지 생각 필요 ]
 //            smsService.sendSMS(user.getPhoneNo(), "예약완료 될 때까지 기다려주세요.");
 
-            // TODO: 운영진에게 취소소문자 발송  내용 어떤 거 들어갈지 생각 필요 ]
+            // TODO: 운영진에게 취소문자 발송  내용 어떤 거 들어갈지 생각 필요 ]
 //            smsService.sendSMS(user.getPhoneNo(), "예약요청이 들어왔습니다.");
         } catch (Exception e) {
             e.printStackTrace();
             return ErrorReturn(ApiCode.SMS_ERROR);
         }
-
 
         return SuccessReturn();
     }
