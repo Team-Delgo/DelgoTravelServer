@@ -7,6 +7,7 @@ import com.delgo.api.domain.Room;
 import com.delgo.api.domain.booking.Booking;
 import com.delgo.api.domain.booking.BookingState;
 import com.delgo.api.domain.user.User;
+import com.delgo.api.dto.HistoryDTO;
 import com.delgo.api.dto.booking.ReturnBookingDTO;
 import com.delgo.api.repository.BookingRepository;
 import lombok.RequiredArgsConstructor;
@@ -87,6 +88,21 @@ public class BookingService extends CommService {
                 .canCancelDate(canCancelDate)
                 .bookingState(booking.getBookingState())
                 .registDt(booking.getRegistDt())
+                .place(place)
+                .build();
+    }
+
+    public HistoryDTO getHistoryData(String bookingId) {
+        Booking booking = getBookingByBookingId(bookingId);
+        Place place = placeService.getPlaceByPlaceId(booking.getPlaceId());
+        placeService.setMainPhoto(place); // 사진 설정
+        Room room = roomService.getRoomByRoomId(booking.getRoomId());
+
+        return HistoryDTO.builder()
+                .bookingId(bookingId)
+                .roomName(room.getName())
+                .startDt(booking.getStartDt())
+                .endDt(booking.getEndDt())
                 .place(place)
                 .build();
     }
