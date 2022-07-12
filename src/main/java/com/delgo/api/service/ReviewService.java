@@ -1,8 +1,14 @@
 package com.delgo.api.service;
 
 import com.delgo.api.domain.Review;
+import com.delgo.api.domain.Room;
+import com.delgo.api.domain.pet.Pet;
 import com.delgo.api.domain.user.User;
+import com.delgo.api.dto.ReadReviewDTO;
+import com.delgo.api.repository.PetRepository;
 import com.delgo.api.repository.ReviewRepository;
+import com.delgo.api.repository.RoomRepository;
+import com.delgo.api.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -17,6 +23,8 @@ import java.util.Optional;
 public class ReviewService {
 
     private final ReviewRepository reviewRepository;
+    private final UserRepository userRepository;
+    private final RoomRepository roomRepository;
 
     // 리뷰 존재 유무 확인
     public boolean isReviewExisting(int reviewId) {
@@ -32,8 +40,18 @@ public class ReviewService {
         return reviewRepository.findByUserId(userId);
     }
 
-    public List<Review> getReviewDataByPlace(int placeId) {
-        return reviewRepository.findByPlaceId(placeId);
+    public ReadReviewDTO getReviewDataByPlace(int placeId) {
+        List<Review> reviewList = reviewRepository.findByPlaceId(placeId);
+
+        if(reviewList.size() <= 0)
+            return null;
+
+        User user = userRepository.findByUserId(reviewList.get(0).getUserId()).orElseThrow(() -> new NullPointerException());
+        Room room = roomRepository.findByRoomId(reviewList.get(0).getRoomId()).orElseThrow(() -> new NullPointerException());
+
+        ReadReviewDTO readReviewDTO = new ReadReviewDTO(reviewList, user.getName(), user.getProfile(), room.getName());
+
+        return readReviewDTO;
     }
 
     public Review getReviewDataByReview(int reviewId) {
