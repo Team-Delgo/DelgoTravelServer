@@ -2,10 +2,9 @@ package com.delgo.api.service;
 
 import com.delgo.api.domain.Review;
 import com.delgo.api.domain.Room;
-import com.delgo.api.domain.pet.Pet;
 import com.delgo.api.domain.user.User;
-import com.delgo.api.dto.ReadReviewDTO;
-import com.delgo.api.repository.PetRepository;
+import com.delgo.api.dto.review.ReadReviewDTO;
+import com.delgo.api.dto.review.ReturnReviewDTO;
 import com.delgo.api.repository.ReviewRepository;
 import com.delgo.api.repository.RoomRepository;
 import com.delgo.api.repository.UserRepository;
@@ -14,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -40,18 +40,28 @@ public class ReviewService {
         return reviewRepository.findByUserId(userId);
     }
 
-    public ReadReviewDTO getReviewDataByPlace(int placeId) {
+    public ReturnReviewDTO getReviewDataByPlace(int placeId) {
         List<Review> reviewList = reviewRepository.findByPlaceId(placeId);
 
         if(reviewList.size() <= 0)
             return null;
 
-        User user = userRepository.findByUserId(reviewList.get(0).getUserId()).orElseThrow(() -> new NullPointerException());
-        Room room = roomRepository.findByRoomId(reviewList.get(0).getRoomId()).orElseThrow(() -> new NullPointerException());
+        float ratingAvg = 0;
+        List<ReadReviewDTO> readReviewDTOList = new ArrayList<>();
 
-        ReadReviewDTO readReviewDTO = new ReadReviewDTO(reviewList, user.getName(), user.getProfile(), room.getName());
+        for(Review review: reviewList){
+            ratingAvg += review.getRating();
+            User user = userRepository.findByUserId(review.getUserId()).orElseThrow(() -> new NullPointerException());
+            Room room = roomRepository.findByRoomId(review.getRoomId()).orElseThrow(() -> new NullPointerException());
+            ReadReviewDTO readReviewDTO = new ReadReviewDTO(review, user.getName(), room.getName(), user.getProfile());
+            readReviewDTOList.add(readReviewDTO);
+        }
 
-        return readReviewDTO;
+        ratingAvg /= reviewList.size();
+
+        ReturnReviewDTO returnReviewDTO = new ReturnReviewDTO(readReviewDTOList, ratingAvg);
+
+        return returnReviewDTO;
     }
 
     public Review getReviewDataByReview(int reviewId) {
