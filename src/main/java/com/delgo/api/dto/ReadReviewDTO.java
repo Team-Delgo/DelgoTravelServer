@@ -1,6 +1,8 @@
 package com.delgo.api.dto;
 
 import com.delgo.api.domain.Review;
+import com.delgo.api.domain.Room;
+import com.delgo.api.domain.user.User;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -15,9 +17,9 @@ public class ReadReviewDTO {
     @NotNull
     private List<Review> reviewList;
     @NotNull
-    private String userName;
+    private List<User> userList;
     @NotNull
-    private String petPhotoUrl;
+    private List<Room> roomList;
     @NotNull
-    private String roomName;
+    private float ratingAvg;
 }

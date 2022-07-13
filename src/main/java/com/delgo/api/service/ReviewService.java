@@ -14,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -45,11 +46,19 @@ public class ReviewService {
 
         if(reviewList.size() <= 0)
             return null;
+        float ratingAvg = 0;
+        List<User> userList = new ArrayList<>();
+        List<Room> roomList = new ArrayList<>();
 
-        User user = userRepository.findByUserId(reviewList.get(0).getUserId()).orElseThrow(() -> new NullPointerException());
-        Room room = roomRepository.findByRoomId(reviewList.get(0).getRoomId()).orElseThrow(() -> new NullPointerException());
+        int i = 0;
+        for(i=0;i<reviewList.size();i++){
+            ratingAvg += reviewList.get(i).getRating();
+            userList.add(userRepository.findByUserId(reviewList.get(i).getUserId()).orElseThrow(() -> new NullPointerException()));
+            roomList.add(roomRepository.findByRoomId(reviewList.get(0).getRoomId()).orElseThrow(() -> new NullPointerException()));
+        }
+        ratingAvg /= reviewList.size();
 
-        ReadReviewDTO readReviewDTO = new ReadReviewDTO(reviewList, user.getName(), user.getProfile(), room.getName());
+        ReadReviewDTO readReviewDTO = new ReadReviewDTO(reviewList, userList, roomList, ratingAvg);
 
         return readReviewDTO;
     }
