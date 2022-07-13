@@ -54,7 +54,7 @@ public class ReviewService {
         for(i=0;i<reviewList.size();i++){
             ratingAvg += reviewList.get(i).getRating();
             userList.add(userRepository.findByUserId(reviewList.get(i).getUserId()).orElseThrow(() -> new NullPointerException()));
-            roomList.add(roomRepository.findByRoomId(reviewList.get(0).getRoomId()).orElseThrow(() -> new NullPointerException()));
+            roomList.add(roomRepository.findByRoomId(reviewList.get(i).getRoomId()).orElseThrow(() -> new NullPointerException()));
         }
         ratingAvg /= reviewList.size();
 
