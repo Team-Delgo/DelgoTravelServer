@@ -48,14 +48,15 @@ public class ReviewService {
 
         float ratingAvg = 0;
         List<ReadReviewDTO> readReviewDTOList = new ArrayList<>();
-        int i = 0;
-        for(i=0;i<reviewList.size();i++){
-            ratingAvg += reviewList.get(i).getRating();
-            User user = userRepository.findByUserId(reviewList.get(i).getUserId()).orElseThrow(() -> new NullPointerException());
-            Room room = roomRepository.findByRoomId(reviewList.get(i).getRoomId()).orElseThrow(() -> new NullPointerException());
-            ReadReviewDTO readReviewDTO = new ReadReviewDTO(reviewList.get(i), user.getName(), room.getName(), user.getProfile());
+
+        for(Review review: reviewList){
+            ratingAvg += review.getRating();
+            User user = userRepository.findByUserId(review.getUserId()).orElseThrow(() -> new NullPointerException());
+            Room room = roomRepository.findByRoomId(review.getRoomId()).orElseThrow(() -> new NullPointerException());
+            ReadReviewDTO readReviewDTO = new ReadReviewDTO(review, user.getName(), room.getName(), user.getProfile());
             readReviewDTOList.add(readReviewDTO);
         }
+
         ratingAvg /= reviewList.size();
 
         ReturnReviewDTO returnReviewDTO = new ReturnReviewDTO(readReviewDTOList, ratingAvg);
