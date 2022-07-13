@@ -2,10 +2,9 @@ package com.delgo.api.service;
 
 import com.delgo.api.domain.Review;
 import com.delgo.api.domain.Room;
-import com.delgo.api.domain.pet.Pet;
 import com.delgo.api.domain.user.User;
-import com.delgo.api.dto.ReadReviewDTO;
-import com.delgo.api.repository.PetRepository;
+import com.delgo.api.dto.review.ReadReviewDTO;
+import com.delgo.api.dto.review.ReturnReviewDTO;
 import com.delgo.api.repository.ReviewRepository;
 import com.delgo.api.repository.RoomRepository;
 import com.delgo.api.repository.UserRepository;
@@ -41,26 +40,27 @@ public class ReviewService {
         return reviewRepository.findByUserId(userId);
     }
 
-    public ReadReviewDTO getReviewDataByPlace(int placeId) {
+    public ReturnReviewDTO getReviewDataByPlace(int placeId) {
         List<Review> reviewList = reviewRepository.findByPlaceId(placeId);
 
         if(reviewList.size() <= 0)
             return null;
-        float ratingAvg = 0;
-        List<User> userList = new ArrayList<>();
-        List<Room> roomList = new ArrayList<>();
 
+        float ratingAvg = 0;
+        List<ReadReviewDTO> readReviewDTOList = new ArrayList<>();
         int i = 0;
         for(i=0;i<reviewList.size();i++){
             ratingAvg += reviewList.get(i).getRating();
-            userList.add(userRepository.findByUserId(reviewList.get(i).getUserId()).orElseThrow(() -> new NullPointerException()));
-            roomList.add(roomRepository.findByRoomId(reviewList.get(i).getRoomId()).orElseThrow(() -> new NullPointerException()));
+            User user = userRepository.findByUserId(reviewList.get(i).getUserId()).orElseThrow(() -> new NullPointerException());
+            Room room = roomRepository.findByRoomId(reviewList.get(i).getRoomId()).orElseThrow(() -> new NullPointerException());
+            ReadReviewDTO readReviewDTO = new ReadReviewDTO(reviewList.get(i), user.getName(), room.getName(), user.getProfile());
+            readReviewDTOList.add(readReviewDTO);
         }
         ratingAvg /= reviewList.size();
 
-        ReadReviewDTO readReviewDTO = new ReadReviewDTO(reviewList, userList, roomList, ratingAvg);
+        ReturnReviewDTO returnReviewDTO = new ReturnReviewDTO(readReviewDTOList, ratingAvg);
 
-        return readReviewDTO;
+        return returnReviewDTO;
     }
 
     public Review getReviewDataByReview(int reviewId) {

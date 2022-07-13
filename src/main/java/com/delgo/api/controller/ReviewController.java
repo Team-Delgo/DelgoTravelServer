@@ -3,9 +3,10 @@ package com.delgo.api.controller;
 import com.delgo.api.comm.CommController;
 import com.delgo.api.comm.exception.ApiCode;
 import com.delgo.api.domain.Review;
-import com.delgo.api.dto.CreateReviewDTO;
-import com.delgo.api.dto.ReadReviewDTO;
-import com.delgo.api.dto.UpdateReviewDTO;
+import com.delgo.api.dto.review.CreateReviewDTO;
+import com.delgo.api.dto.review.ReadReviewDTO;
+import com.delgo.api.dto.review.ReturnReviewDTO;
+import com.delgo.api.dto.review.UpdateReviewDTO;
 import com.delgo.api.service.ReviewService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -47,10 +48,10 @@ public class ReviewController extends CommController {
 
     @GetMapping("/getReview/place")
     public ResponseEntity getReviewByPlace(@RequestParam Integer placeId) {
-        ReadReviewDTO readReviewDTO = reviewService.getReviewDataByPlace(placeId);
-        if(readReviewDTO == null)
+        ReturnReviewDTO returnReviewDTO = reviewService.getReviewDataByPlace(placeId);
+        if(returnReviewDTO == null)
             return ErrorReturn(ApiCode.REVIEW_NOT_EXIST);
-        return SuccessReturn(readReviewDTO);
+        return SuccessReturn(returnReviewDTO);
     }
 
     // Update

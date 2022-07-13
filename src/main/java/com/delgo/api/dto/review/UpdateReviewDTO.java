@@ -1,4 +1,4 @@
-package com.delgo.api.dto;
+package com.delgo.api.dto.review;
 
 import lombok.Builder;
 import lombok.Data;
