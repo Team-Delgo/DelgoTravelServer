@@ -11,8 +11,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.time.Period;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -37,7 +39,20 @@ public class RoomService {
                 // 가격 조회 및 적용
                 List<Price> pList = priceRepository.findByRoomIdAndIsBookingAndPriceDateBetween(room.getRoomId(), 0, startDt.toString(), endDt.toString());
                 if (pList.size() == period.getDays() + 1) {
-                    room.setPrice(pList.get(0).getPrice());
+                    // 4박5일일 경우 총 여행경비는 앞 4일 가격의 합이다. 따라서 마지막 삭제
+                    pList.remove(pList.size() - 1);
+                    // 예약가능한 각 방의 가격중 가장 저렴한 가격 조회
+                    List<Integer> pricelist = new ArrayList<Integer>();
+                    pList.forEach(p -> {
+                        String price = p.getPrice();
+                        price = price.replace(",", "");
+                        price = price.replace("원", "");
+                        if (!price.equals("0"))
+                            pricelist.add(Integer.parseInt(price));
+                    });
+                    int sum = pricelist.stream().mapToInt(Integer::intValue).sum();
+                    DecimalFormat df = new DecimalFormat("###,###원"); //포맷팅
+                    room.setPrice(df.format(sum));
                     room.setIsBooking(0);
                 } else {
                     room.setPrice("0원");

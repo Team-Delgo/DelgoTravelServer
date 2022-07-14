@@ -179,4 +179,32 @@ public class PlaceController extends CommController {
 
         return SuccessReturn(returnList);
     }
+
+    /*
+     * TODO Main 숙소 추천 API ( 보완해야 함 )
+     * Request Data : userId, name, address, startDt, endDt
+     * - userId : wish 여부 check
+     * - name, address : DB에서 일치 여부 조회 (정확히 일치 X 해당 단어 포함 0) [ 빈 값 허용 ]
+     * - startDt, endDt : 예약 가능 여부 및 최저가격 조회에 사용
+     * Response Data : 검색조건에 부합하는 PlaceList 반환
+     */
+    @GetMapping("/recommend")
+    public ResponseEntity recommendPlace(@RequestParam Integer userId) {
+        List<Place> placeList = placeService.getPlaceAll();
+        placeService.setMainPhoto(placeList);
+
+        // userId == 0 이면 로그인 없이 조회 // userId 있을 경우 wish 여부 Check
+        if (userId != 0 && placeList.size() > 0) {
+            List<Wish> wishList = wishService.getWishListByUserId(userId);
+            placeService.setWishId(placeList, wishList);
+        }
+
+//        Collections.shuffle(placeList);
+
+        List<Place> returnList = new ArrayList<>();
+        for (int i = 0; i < 5; i++)
+            returnList.add(placeList.get(i));
+
+        return SuccessReturn(returnList);
+    }
 }

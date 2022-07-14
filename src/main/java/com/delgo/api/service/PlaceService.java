@@ -112,7 +112,8 @@ public class PlaceService {
                     if (!price.equals("0"))
                         pricelist.add(Integer.parseInt(price));
                 });
-                minPricelist.add(Collections.min(pricelist));
+                int sum = pricelist.stream().mapToInt(Integer::intValue).sum();
+                minPricelist.add(sum);
             }
         });
 
