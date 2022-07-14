@@ -1,6 +1,7 @@
 package com.delgo.api.domain;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -8,6 +9,7 @@ import javax.persistence.*;
 
 @Data
 @Entity
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class SmsAuth {
@@ -18,4 +20,7 @@ public class SmsAuth {
 
     @Column(name = "rand_num")
     private String randNum;
+
+    @Column(name = "auth_time")
+    private String authTime;
 }

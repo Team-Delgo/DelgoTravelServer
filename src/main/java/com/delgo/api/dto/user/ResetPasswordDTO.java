@@ -1,19 +1,17 @@
-package com.delgo.api.dto;
+package com.delgo.api.dto.user;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotNull;
 
 @Data
-@Builder
-@NoArgsConstructor
 @AllArgsConstructor
-public class SmsAuthDTO {
+@Builder
+public class ResetPasswordDTO {
     @NotNull
-    private String randNum;
+    private String email;
     @NotNull
-    private String auth_time;
+    private String newPassword;
 }

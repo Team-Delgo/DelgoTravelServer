@@ -6,6 +6,7 @@ import com.delgo.api.domain.pet.Pet;
 import com.delgo.api.domain.user.User;
 import com.delgo.api.dto.user.InfoDTO;
 import com.delgo.api.dto.user.ModifyPetDTO;
+import com.delgo.api.dto.user.ResetPasswordDTO;
 import com.delgo.api.dto.user.SignUpDTO;
 import com.delgo.api.comm.security.jwt.Access_JwtProperties;
 import com.delgo.api.comm.security.jwt.Refresh_JwtProperties;
@@ -59,17 +60,10 @@ public class UserController extends CommController {
         return SuccessReturn();
     }
 
-    // 비밀번호 수정
-    @PostMapping("/changePassword")
-    public ResponseEntity<?> changePassword(@Validated @RequestBody SignUpDTO signUpDTO){
-        String checkedEmail = signUpDTO.getUser().getEmail();
-        String newPassword = signUpDTO.getUser().getPassword();
-
-        if(checkedEmail == null || newPassword == null)
-            return ErrorReturn(ApiCode.PARAM_ERROR);
-
-        userService.changePassword(checkedEmail, newPassword);
-
+    // 비밀번호 재설정
+    @PostMapping("/resetPassword")
+    public ResponseEntity<?> resetPassword(@Validated @RequestBody ResetPasswordDTO resetPassword){
+        userService.changePassword(resetPassword.getEmail(), resetPassword.getNewPassword());
         return SuccessReturn();
     }
 
@@ -99,7 +93,7 @@ public class UserController extends CommController {
         }
     }
 
-    // 회원가입 시 인증번호 전송 -> sms 인증은 try catch로
+    // 회원가입 시 인증번호 전송
     @GetMapping("/phoneNoAuth")
     public ResponseEntity<?> phoneNoCheck(@RequestParam String phoneNo) {
         try {
@@ -114,8 +108,6 @@ public class UserController extends CommController {
                 int smsId = userService.sendSMS(phoneNo);
                 return SuccessReturn(smsId);
             }
-        } catch (NullPointerException e){
-            return ErrorReturn(ApiCode.PARAM_ERROR);
         } catch (Exception e){
             return ErrorReturn(ApiCode.UNKNOWN_ERROR);
         }
@@ -135,8 +127,6 @@ public class UserController extends CommController {
                 int smsId = userService.sendSMS(phoneNo);
                 return SuccessReturn(smsId);
             }
-        } catch (NullPointerException e){
-            return ErrorReturn(ApiCode.PARAM_ERROR);
         } catch (Exception e){
             return ErrorReturn(ApiCode.UNKNOWN_ERROR);
         }
@@ -148,7 +138,6 @@ public class UserController extends CommController {
         if(enterNum.isBlank()){
             return ErrorReturn(ApiCode.PARAM_ERROR);
         }
-
         userService.checkSMS(smsId, enterNum);
         return SuccessReturn();
     }
