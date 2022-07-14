@@ -13,6 +13,8 @@ import java.io.IOException;
 
 @Component
 public class LogFilter extends OncePerRequestFilter {
+    private final String POST = "POST";
+    private final String TYPE_JSON = "application/json";
 
     /*
      * Response의 Body는 기본적으로 체크할 수 없음
@@ -21,10 +23,19 @@ public class LogFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws ServletException, IOException {
-        ContentCachingRequestWrapper wrappingRequest = new ContentCachingRequestWrapper(request);
         ContentCachingResponseWrapper wrappingResponse = new ContentCachingResponseWrapper(response);
 
-        chain.doFilter(wrappingRequest, wrappingResponse);
+        // form-data로 받을 때는 Wrapper 사용하면 ERROR 발생
+        if (request.getMethod().equals(POST) && request.getContentType().equals(TYPE_JSON)
+                && !request.getRequestURI().equals("/loginSuccess") && !request.getRequestURI().equals("/loginFail")) {
+            RequestBodyWrapper wrappingRequest = new RequestBodyWrapper((HttpServletRequest) request);
+            wrappingRequest.setAttribute("requestBody", wrappingRequest.getRequestBody());
+            chain.doFilter(wrappingRequest, wrappingResponse);
+        } else {
+            System.out.println("들어옴 : " + request.getRequestURI());
+            ContentCachingRequestWrapper wrappingRequest = new ContentCachingRequestWrapper(request);
+            chain.doFilter(wrappingRequest, wrappingResponse);
+        }
         // 해당 내용 없으면 Client에서 Response 값 못 받음. *중요*
         wrappingResponse.copyBodyToResponse();
     }
