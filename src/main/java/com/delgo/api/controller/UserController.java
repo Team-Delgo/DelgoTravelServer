@@ -41,10 +41,6 @@ public class UserController extends CommController {
     public ResponseEntity<?> changePetInfo(@Validated @RequestBody ModifyPetDTO modifyPetDTO){
         String checkedEmail = modifyPetDTO.getEmail();
 
-        if(checkedEmail == null){
-            return ErrorReturn(ApiCode.PARAM_ERROR);
-        }
-
         User user = userService.getUserByEmail(checkedEmail);
         int userId = user.getUserId();
         Pet originPet = petService.getPetByUserId(userId);
