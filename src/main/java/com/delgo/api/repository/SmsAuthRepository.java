@@ -7,4 +7,6 @@ import java.util.Optional;
 
 public interface SmsAuthRepository extends JpaRepository<SmsAuth, Integer> {
     Optional<SmsAuth> findBySmsId(int smsId);
+
+    Optional<SmsAuth> findByPhoneNo(String phoneNo);
 }
