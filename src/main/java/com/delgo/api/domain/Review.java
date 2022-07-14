@@ -8,9 +8,10 @@ import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.*;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
-@Entity
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -26,18 +27,15 @@ public class Review {
     @Column(name = "room_id")
     private int roomId;
 
+    private int rating;
+    private String text;
+
+    private List<String> reviewPhotoList;
+
     @CreationTimestamp
     @Column(name = "regist_dt")
     private LocalDate registDt;
     @Column(name = "update_dt")
     private LocalDate updateDt;
 
-    private int rating;
-    private String text;
-
-    private String reviewPhoto1;
-    private String reviewPhoto2;
-    private String reviewPhoto3;
-    private String reviewPhoto4;
-    private String reviewPhoto5;
 }
