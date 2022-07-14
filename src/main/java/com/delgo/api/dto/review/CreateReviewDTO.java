@@ -4,7 +4,6 @@ import lombok.Builder;
 import lombok.Data;
 
 import javax.validation.constraints.NotNull;
-import java.util.List;
 
 
 @Data
@@ -20,5 +19,4 @@ public class CreateReviewDTO {
     private int rating;
     @NotNull
     private String text;
-    private List<String> reviewPhotoList;
 }

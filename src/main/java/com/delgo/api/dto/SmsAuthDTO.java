@@ -15,5 +15,5 @@ public class SmsAuthDTO {
     @NotNull
     private String randNum;
     @NotNull
-    private String auth_time;
+    private String authTime;
 }

@@ -35,7 +35,6 @@ public class ReviewController extends CommController {
                 .roomId(createReviewDTO.getRoomId())
                 .rating(createReviewDTO.getRating())
                 .text(createReviewDTO.getText())
-                .reviewPhotoList(createReviewDTO.getReviewPhotoList())
                 .build();
 
         Review writtenReview = reviewService.insertReview(review);
