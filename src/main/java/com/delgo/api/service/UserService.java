@@ -4,7 +4,7 @@ import com.delgo.api.comm.ncp.service.SmsService;
 import com.delgo.api.domain.SmsAuth;
 import com.delgo.api.domain.pet.Pet;
 import com.delgo.api.domain.user.User;
-import com.delgo.api.dto.InfoDTO;
+import com.delgo.api.dto.user.InfoDTO;
 import com.delgo.api.repository.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.RequiredArgsConstructor;
@@ -123,7 +123,7 @@ public class UserService {
     }
 
     // myAccount
-    public InfoDTO getInfoByUserId(int userId) throws IOException {
+    public InfoDTO getInfoByUserId(int userId) {
         User user = userRepository.findByUserId(userId).orElseThrow(() -> new IllegalStateException("Not Found UserData"));
         String profileUrl = user.getProfile();
 
