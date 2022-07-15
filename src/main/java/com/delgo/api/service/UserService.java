@@ -1,5 +1,6 @@
 package com.delgo.api.service;
 
+import com.delgo.api.comm.exception.ApiCode;
 import com.delgo.api.comm.ncp.service.SmsService;
 import com.delgo.api.domain.SmsAuth;
 import com.delgo.api.domain.pet.Pet;
@@ -12,6 +13,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
@@ -28,9 +30,7 @@ public class UserService {
     private final PetRepository petRepository;
     private final CouponRepository couponRepository;
     private final ReviewRepository reviewRepository;
-    private final SmsAuthRepository smsAuthRepository;
     private final PasswordEncoder passwordEncoder;
-    private final SmsService smsService;
 
     // 회원가입
     public User signup(User user, Pet pet) {
@@ -76,45 +76,6 @@ public class UserService {
         userRepository.save(user);
     }
 
-    // 인증번호 발송
-    public int sendSMS(String phoneNo) {
-        Random rand = new Random();
-        String randNum = "";
-        for (int i = 0; i < 4; i++) {
-            String ran = Integer.toString(rand.nextInt(10));
-            randNum += ran;
-        }
-        String message = "[Delgo] 인증번호 " + randNum;
-
-        try {
-            smsService.sendSMS(phoneNo, message);
-            String authTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-            SmsAuth smsAuth = SmsAuth.builder()
-                    .randNum(randNum)
-                    .authTime(authTime)
-                    .phoneNo(phoneNo)
-                    .build();
-            smsAuthRepository.save(smsAuth);
-            int smsId = smsAuth.getSmsId();
-            return smsId;
-        } catch (Exception e) {
-            throw new IllegalStateException();
-        }
-    }
-
-    // 인증번호 확인
-    public void checkSMS(int smsId, String enterNum) {
-        Optional<SmsAuth> findSmsAuth = smsAuthRepository.findBySmsId(smsId);
-        if (!findSmsAuth.get().getRandNum().equals(enterNum)) {
-            log.warn("The authentication numbers do not match");
-            throw new IllegalStateException();
-        }
-        LocalDateTime sendTime = LocalDateTime.parse(findSmsAuth.get().getAuthTime(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-        LocalDateTime authTime = LocalDateTime.now();
-        Long effectTime = ChronoUnit.MINUTES.between(sendTime, authTime);
-        if (effectTime > 3)
-            throw new IllegalStateException();
-    }
 
     // 전화번호 존재 유무 확인
     public boolean isPhoneNoExisting(String phoneNo) {
@@ -157,10 +118,5 @@ public class UserService {
 
     public User updateUserData(User user) {
         return userRepository.save(user);
-    }
-
-    public SmsAuth getSmsAuthByPhoneNo(String phoneNO) {
-        return smsAuthRepository.findByPhoneNo(phoneNO)
-                .orElseThrow(() -> new NullPointerException("NOT FOUND SMS AUTH DATA"));
     }
 }
