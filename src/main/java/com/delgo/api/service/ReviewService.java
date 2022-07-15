@@ -1,14 +1,12 @@
 package com.delgo.api.service;
 
+import com.delgo.api.domain.Place;
 import com.delgo.api.domain.Review;
 import com.delgo.api.domain.Room;
 import com.delgo.api.domain.user.User;
 import com.delgo.api.dto.review.ReadReviewDTO;
 import com.delgo.api.dto.review.ReturnReviewDTO;
-import com.delgo.api.repository.ReviewPhotoRepository;
-import com.delgo.api.repository.ReviewRepository;
-import com.delgo.api.repository.RoomRepository;
-import com.delgo.api.repository.UserRepository;
+import com.delgo.api.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -27,6 +25,7 @@ public class ReviewService {
     private final ReviewPhotoRepository reviewPhotoRepository;
     private final UserRepository userRepository;
     private final RoomRepository roomRepository;
+    private final PlaceRepository placeRepository;
 
     // 리뷰 존재 확인 - reviewId
     public boolean isReviewExisting(int reviewId) {
@@ -46,37 +45,44 @@ public class ReviewService {
     }
 
     // SET PHOTO LIST
-    public void setReviewPhoto(List<Review> reviewList) {
+    private void setReviewPhoto(List<Review> reviewList) {
         reviewList.forEach(review -> review.setReviewPhotoList(reviewPhotoRepository.findByReviewId(review.getReviewId())));
     }
 
-    public List<Review> getReviewDataByUser(int userId) {
+    // SET ReadReviewDTO List
+    private List<ReadReviewDTO> setReadReviewDTO(List<Review> reviewList) {
+        List<ReadReviewDTO> readReviewDTOList = new ArrayList<ReadReviewDTO>();
+        for (Review review : reviewList) {
+            User user = userRepository.findByUserId(review.getUserId()).orElseThrow(() -> new NullPointerException("NOT FOUND USER"));
+            Place place = placeRepository.findByPlaceId(review.getPlaceId()).orElseThrow(() -> new NullPointerException("NOT FOUND PLACE"));
+            Room room = roomRepository.findByRoomId(review.getRoomId()).orElseThrow(() -> new NullPointerException("NOT FOUND ROOM"));
+            ReadReviewDTO readReviewDTO = new ReadReviewDTO(review, user.getName(), place.getName(), room.getName(), user.getProfile());
+            readReviewDTOList.add(readReviewDTO);
+        }
+
+        return readReviewDTOList;
+    }
+
+    public List<ReadReviewDTO> getReviewDataByUser(int userId) {
         List<Review> reviewList = reviewRepository.findByUserId(userId);
         setReviewPhoto(reviewList);
-        return reviewList;
+
+        return setReadReviewDTO(reviewList);
     }
 
     public ReturnReviewDTO getReviewDataByPlace(int placeId) {
         List<Review> reviewList = reviewRepository.findByPlaceId(placeId);
         setReviewPhoto(reviewList);
-
         if (reviewList.size() <= 0)
             return null;
 
         float ratingAvg = 0;
-        List<ReadReviewDTO> readReviewDTOList = new ArrayList<>();
-
-        for (Review review : reviewList) {
+        for (Review review : reviewList)
             ratingAvg += review.getRating();
-            User user = userRepository.findByUserId(review.getUserId()).orElseThrow(() -> new NullPointerException());
-            Room room = roomRepository.findByRoomId(review.getRoomId()).orElseThrow(() -> new NullPointerException());
-            ReadReviewDTO readReviewDTO = new ReadReviewDTO(review, user.getName(), room.getName(), user.getProfile());
-            readReviewDTOList.add(readReviewDTO);
-        }
 
         ratingAvg /= reviewList.size();
 
-        ReturnReviewDTO returnReviewDTO = new ReturnReviewDTO(readReviewDTOList, ratingAvg);
+        ReturnReviewDTO returnReviewDTO = new ReturnReviewDTO(setReadReviewDTO(reviewList), ratingAvg);
 
         return returnReviewDTO;
     }
