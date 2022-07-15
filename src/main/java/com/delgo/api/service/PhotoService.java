@@ -3,8 +3,10 @@ package com.delgo.api.service;
 import com.delgo.api.comm.ncp.service.ObjectStorageService;
 import com.delgo.api.domain.photo.DetailPhoto;
 import com.delgo.api.domain.photo.DetailRoomPhoto;
+import com.delgo.api.domain.photo.ReviewPhoto;
 import com.delgo.api.repository.DetailPhotoRepository;
 import com.delgo.api.repository.DetailRoomPhotoRepository;
+import com.delgo.api.repository.ReviewPhotoRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -24,6 +26,7 @@ public class PhotoService {
     private final ObjectStorageService objectStorageService;
     private final DetailPhotoRepository detailPhotoRepository;
     private final DetailRoomPhotoRepository detailRoomPhotoRepository;
+    private final ReviewPhotoRepository reviewPhotoRepository;
 
     // NCP에 petProfile Upload 후 접근 URL 반환
     public String uploadPetProfile(int userId, MultipartFile photo) {
@@ -60,7 +63,7 @@ public class PhotoService {
 
         String fileName = reviewId + "_review" + order + "." + type[type.length - 1];
         String dir = "/var/www/delgo-api/";
-        String link = "https://kr.object.ncloudstorage.com/delgo-review/" + fileName;
+        String link = "https://kr.object.ncloudstorage.com/delgo-review/" + fileName; //NCP Link
 
         try {
             // 서버에 저장
@@ -74,7 +77,7 @@ public class PhotoService {
                 f.delete();
             }
 
-            // NCP Link
+            reviewPhotoRepository.save(ReviewPhoto.builder().reviewId(reviewId).url(link).build());
             return link;
         } catch (Exception e) {
             return "error:" + e.getMessage();

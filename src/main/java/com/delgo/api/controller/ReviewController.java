@@ -76,8 +76,11 @@ public class ReviewController extends CommController {
     }
 
     // Delete
-    @GetMapping(value = {"/delete/{reviewId}", "/delete"})
+    @PostMapping(value = {"/delete/{reviewId}", "/delete"})
     public ResponseEntity deleteReview(@PathVariable(value = "reviewId") Integer reviewId) {
+        if (!reviewService.isReviewExisting(reviewId)) {
+            return ErrorReturn(ApiCode.REVIEW_NOT_EXIST);
+        }
         reviewService.deleteReviewData(reviewId);
         return SuccessReturn();
     }
