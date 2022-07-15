@@ -29,6 +29,7 @@ public class BookingService extends CommService {
     private final RoomService roomService;
     private final CouponService couponService;
     private final PriceService priceService;
+    private final ReviewService reviewService;
 
     private final BookingRepository bookingRepository;
 
@@ -100,10 +101,12 @@ public class BookingService extends CommService {
 
         return HistoryDTO.builder()
                 .bookingId(bookingId)
+                .roomId(room.getRoomId())
                 .roomName(room.getName())
                 .startDt(booking.getStartDt())
                 .endDt(booking.getEndDt())
                 .place(place)
+                .isReviewExisting(reviewService.isReviewExisting(bookingId))
                 .build();
     }
 }

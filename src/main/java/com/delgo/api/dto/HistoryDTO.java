@@ -11,7 +11,9 @@ import java.time.LocalDate;
 public class HistoryDTO {
     private String bookingId;
     private Place place;
+    private int roomId;
     private String roomName;
     private LocalDate startDt;
     private LocalDate endDt;
+    private boolean isReviewExisting; // true = 1, false = 0;
 }

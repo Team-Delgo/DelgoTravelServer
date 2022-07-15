@@ -26,10 +26,16 @@ public class ReviewService {
     private final UserRepository userRepository;
     private final RoomRepository roomRepository;
 
-    // 리뷰 존재 유무 확인
+    // 리뷰 존재 확인 - reviewId
     public boolean isReviewExisting(int reviewId) {
-        Optional<Review> findReview = reviewRepository.findByReviewId(reviewId);
-        return findReview.isPresent();
+        Optional<Review> review = reviewRepository.findByReviewId(reviewId);
+        return review.isPresent();
+    }
+    // 리뷰 존재 확인 - bookingId
+    public Boolean isReviewExisting(String bookingId) {
+//        Optional<Review> option  = reviewRepository.findByUserIdAndPlaceIdAndRoomId(userId, placeId, roomId);
+        Optional<Review> review  = reviewRepository.findByBookingId(bookingId);
+        return review.isPresent();
     }
 
     public Review insertReview(Review review) {
@@ -67,11 +73,6 @@ public class ReviewService {
     public Review getReviewDataByReview(int reviewId) {
         return reviewRepository.findByReviewId(reviewId)
                 .orElseThrow(() -> new NullPointerException("NOT FOUND REVIEW"));
-    }
-
-    public Boolean checkDuplicateReview(int userId, int placeId, int roomId) {
-        Optional<Review> option  = reviewRepository.findByUserIdAndPlaceIdAndRoomId(userId, placeId, roomId);
-        return option.isPresent();
     }
 
     @Transactional
