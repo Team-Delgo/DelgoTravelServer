@@ -18,5 +18,5 @@ public class ReadReviewDTO {
     @NotNull
     private String roomName;
     @NotNull
-    private String photoUrl;
+    private String profileUrl;
 }

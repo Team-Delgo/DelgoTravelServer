@@ -1,37 +1,30 @@
-package com.delgo.api.domain;
+package com.delgo.api.domain.photo;
 
-import com.delgo.api.domain.photo.ReviewPhoto;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 import java.time.LocalDate;
-import java.util.List;
 
 @Data
 @Entity
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Review {
+public class ReviewPhoto {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private int reviewPhotoId;
+    @JsonIgnore
     private int reviewId;
-    private int userId;
-    private int placeId;
-    private int roomId;
-    private String bookingId;
-
     @CreationTimestamp
     private LocalDate registDt;
-    private LocalDate updateDt;
-
-    private int rating;
-    private String text;
-
-    @Transient
-    private List<ReviewPhoto> reviewPhotoList;
+    private String url;
 }
