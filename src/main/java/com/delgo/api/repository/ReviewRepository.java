@@ -13,7 +13,9 @@ public interface ReviewRepository extends JpaRepository<Review, Integer> {
 
     Optional<Review> findByReviewId(int reviewId);
 
-    Optional<Review> findByUserIdAndPlaceIdAndRoomId(int userId, int placeId, int roomId);
+    Optional<Review> findByBookingId(String bookingId);
+
+//    Optional<Review> findByUserIdAndPlaceIdAndRoomId(int userId, int placeId, int roomId);
 
     int deleteByReviewId(int reviewId);
 }

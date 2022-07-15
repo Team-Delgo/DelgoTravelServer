@@ -3,6 +3,7 @@ package com.delgo.api.dto.review;
 import lombok.Builder;
 import lombok.Data;
 
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 
@@ -15,6 +16,8 @@ public class CreateReviewDTO {
     private int placeId;
     @NotNull
     private int roomId;
+    @NotBlank
+    private String bookingId;
     @NotNull
     private int rating;
     @NotNull

@@ -17,19 +17,14 @@ import java.time.LocalDate;
 public class Review {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "review_id")
     private int reviewId;
-    @Column(name = "user_id")
     private int userId;
-    @Column(name = "place_id")
     private int placeId;
-    @Column(name = "room_id")
     private int roomId;
+    private String bookingId;
 
     @CreationTimestamp
-    @Column(name = "regist_dt")
     private LocalDate registDt;
-    @Column(name = "update_dt")
     private LocalDate updateDt;
 
     private int rating;
