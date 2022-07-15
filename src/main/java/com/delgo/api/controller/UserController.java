@@ -2,13 +2,15 @@ package com.delgo.api.controller;
 
 import com.delgo.api.comm.CommController;
 import com.delgo.api.comm.exception.ApiCode;
+import com.delgo.api.comm.security.jwt.Access_JwtProperties;
+import com.delgo.api.comm.security.jwt.Refresh_JwtProperties;
+import com.delgo.api.domain.SmsAuth;
 import com.delgo.api.domain.pet.Pet;
 import com.delgo.api.domain.user.User;
 import com.delgo.api.dto.user.InfoDTO;
 import com.delgo.api.dto.user.ModifyPetDTO;
+import com.delgo.api.dto.user.ResetPasswordDTO;
 import com.delgo.api.dto.user.SignUpDTO;
-import com.delgo.api.comm.security.jwt.Access_JwtProperties;
-import com.delgo.api.comm.security.jwt.Refresh_JwtProperties;
 import com.delgo.api.service.PetService;
 import com.delgo.api.service.TokenService;
 import com.delgo.api.service.UserService;
@@ -19,6 +21,8 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 
 @Slf4j
 @RestController
@@ -59,17 +63,29 @@ public class UserController extends CommController {
         return SuccessReturn();
     }
 
-    // 비밀번호 수정
+    // 비밀번호 변경 - Account Page
     @PostMapping("/changePassword")
-    public ResponseEntity<?> changePassword(@Validated @RequestBody SignUpDTO signUpDTO){
-        String checkedEmail = signUpDTO.getUser().getEmail();
-        String newPassword = signUpDTO.getUser().getPassword();
+    public ResponseEntity<?> changePassword(@Validated @RequestBody ResetPasswordDTO resetPassword){
+        // 사용자 확인 - 토큰 사용
+        userService.changePassword(resetPassword.getEmail(), resetPassword.getNewPassword());
+        return SuccessReturn();
+    }
 
-        if(checkedEmail == null || newPassword == null)
-            return ErrorReturn(ApiCode.PARAM_ERROR);
+    /** 동재 - 추가
+    // 비밀번호 재설정 - 로그인 화면( 비밀번호 찾기 )
+     */
+    @PostMapping("/resetPassword")
+    public ResponseEntity<?> resetPassword(@Validated @RequestBody ResetPasswordDTO resetPassword){
+        // TODO: Validation 휴대폰 인증 시간 계산
+        User user = userService.getUserByEmail(resetPassword.getEmail()); // 유저 조회
+        SmsAuth smsAuth = userService.getSmsAuthByPhoneNo(user.getPhoneNo()); // SMS DATA 조회
+        LocalDate now = LocalDate.now(); // 현재시간
+        LocalDate authTime = LocalDate.parse(smsAuth.getAuthTime()); // 최근 인증시간
+        Long effectTime = ChronoUnit.MINUTES.between(now, authTime); // 사이 값
+        if (effectTime > 10) // TODO: ERROR CODE 만들어야함. (사용자 인증에 실패 하였습니다.)
+            return ErrorReturn(ApiCode.LOGIN_ERROR); // 임시 Error CODE
 
-        userService.changePassword(checkedEmail, newPassword);
-
+        userService.changePassword(resetPassword.getEmail(), resetPassword.getNewPassword());
         return SuccessReturn();
     }
 
@@ -99,7 +115,7 @@ public class UserController extends CommController {
         }
     }
 
-    // 회원가입 시 인증번호 전송 -> sms 인증은 try catch로
+    // 회원가입 전 인증번호 전송
     @GetMapping("/phoneNoAuth")
     public ResponseEntity<?> phoneNoCheck(@RequestParam String phoneNo) {
         try {
@@ -114,8 +130,6 @@ public class UserController extends CommController {
                 int smsId = userService.sendSMS(phoneNo);
                 return SuccessReturn(smsId);
             }
-        } catch (NullPointerException e){
-            return ErrorReturn(ApiCode.PARAM_ERROR);
         } catch (Exception e){
             return ErrorReturn(ApiCode.UNKNOWN_ERROR);
         }
@@ -135,8 +149,6 @@ public class UserController extends CommController {
                 int smsId = userService.sendSMS(phoneNo);
                 return SuccessReturn(smsId);
             }
-        } catch (NullPointerException e){
-            return ErrorReturn(ApiCode.PARAM_ERROR);
         } catch (Exception e){
             return ErrorReturn(ApiCode.UNKNOWN_ERROR);
         }
@@ -148,7 +160,6 @@ public class UserController extends CommController {
         if(enterNum.isBlank()){
             return ErrorReturn(ApiCode.PARAM_ERROR);
         }
-
         userService.checkSMS(smsId, enterNum);
         return SuccessReturn();
     }

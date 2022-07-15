@@ -9,7 +9,8 @@ import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.*;
 import java.time.LocalDate;
-import java.util.List;
+import java.util.ArrayList;
+
 
 @Data
 @Entity
