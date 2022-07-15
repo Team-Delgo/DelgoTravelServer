@@ -12,25 +12,21 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Data
+@Entity
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class Review {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "review_id")
     private int reviewId;
-    @Column(name = "user_id")
     private int userId;
-    @Column(name = "place_id")
     private int placeId;
-    @Column(name = "room_id")
     private int roomId;
+    private String bookingId;
 
     @CreationTimestamp
-    @Column(name = "regist_dt")
     private LocalDate registDt;
-    @Column(name = "update_dt")
     private LocalDate updateDt;
 
     private int rating;
@@ -41,5 +37,4 @@ public class Review {
     private String reviewPhoto3;
     private String reviewPhoto4;
     private String reviewPhoto5;
-
 }
