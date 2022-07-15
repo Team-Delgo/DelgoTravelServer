@@ -10,13 +10,9 @@ import com.delgo.api.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -37,16 +33,12 @@ public class PhotoController extends CommController {
      * Response Data : ApiCode
      */
     @PostMapping("/upload/petProfile")
-    public ResponseEntity<?> uploadPetProfile(
-            @RequestParam Integer userId,
-            @RequestParam MultipartFile photo) {
-        // Validate - Empty Check;
-        if (photo.isEmpty())
+    public ResponseEntity<?> uploadPetProfile(@RequestParam Integer userId, @RequestPart MultipartFile photo) {
+        if (photo.isEmpty()) // Validate - Empty Check;
             return ErrorReturn(ApiCode.PARAM_ERROR);
 
         String profileUrl = photoService.uploadPetProfile(userId, photo);
-        //NCP ERROR
-        if (profileUrl.split(":")[0].equals("error")) {
+        if (profileUrl.split(":")[0].equals("error")) { //NCP ERROR
             log.info("NCP ERROR : {}", profileUrl.split(":")[1]);
             return ErrorReturn(ApiCode.PHOTO_UPLOAD_ERROR);
         }
@@ -69,44 +61,21 @@ public class PhotoController extends CommController {
      * Response Data : ApiCode
      */
     @PostMapping("/upload/reviewPhoto")
-    public ResponseEntity<?> uploadReviewPhoto(
-            @RequestParam Integer reviewId,
-            @RequestParam(value = "photo1", required = false) MultipartFile photo1,
-            @RequestParam(value = "photo2", required = false) MultipartFile photo2,
-            @RequestParam(value = "photo3", required = false) MultipartFile photo3,
-            @RequestParam(value = "photo4", required = false) MultipartFile photo4,
-            @RequestParam(value = "photo5", required = false) MultipartFile photo5) {
-        // Review 존재 여부 확인
+    public ResponseEntity<?> uploadReviewPhoto(@RequestParam int reviewId, @RequestPart List<MultipartFile> photos) {
+        if (!reviewService.isReviewExisting(reviewId))
+            return ErrorReturn(ApiCode.REVIEW_NOT_EXIST);
+        if (photos.size() > 4) // TODO: ERROR CODE 만들어야 함. ( 사진 개수 제한 )
+            return ErrorReturn(ApiCode.REVIEW_NOT_EXIST);
+
         Review review = reviewService.getReviewDataByReview(reviewId);
 
-        // data 초기화
-        review.setReviewPhoto1(null);
-        review.setReviewPhoto2(null);
-        review.setReviewPhoto3(null);
-        review.setReviewPhoto4(null);
-        review.setReviewPhoto5(null);
-
-        List<MultipartFile> multiList = new ArrayList<MultipartFile>();
-        if (!photo1.isEmpty()) multiList.add(photo1);
-        if (!photo2.isEmpty()) multiList.add(photo2);
-        if (!photo3.isEmpty()) multiList.add(photo3);
-        if (!photo4.isEmpty()) multiList.add(photo4);
-        if (!photo5.isEmpty()) multiList.add(photo5);
-
-
-        for (int i = 0; i < multiList.size(); i++) {
-            String reviewUrl = photoService.uploadReviewPhoto(reviewId, i + 1, multiList.get(i));
-            if (reviewUrl.split(":")[0].equals("error")) return ErrorReturn(ApiCode.PHOTO_UPLOAD_ERROR); //NCP ERROR
-            switch (i) {
-                case 0: review.setReviewPhoto1(reviewUrl); break;
-                case 1: review.setReviewPhoto2(reviewUrl); break;
-                case 2: review.setReviewPhoto3(reviewUrl); break;
-                case 3: review.setReviewPhoto4(reviewUrl); break;
-                case 4: review.setReviewPhoto5(reviewUrl); break;
-            }
+        int i = 1;
+        for (MultipartFile photo : photos) {
+            String reviewUrl = photoService.uploadReviewPhoto(reviewId, i++, photo);
+            if (reviewUrl.split(":")[0].equals("error"))
+                return ErrorReturn(ApiCode.PHOTO_UPLOAD_ERROR); //NCP ERROR
         }
-        reviewService.insertReview(review);
 
-        return SuccessReturn();
+        return SuccessReturn(review);
     }
 }
