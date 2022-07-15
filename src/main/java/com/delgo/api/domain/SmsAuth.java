@@ -23,4 +23,7 @@ public class SmsAuth {
 
     @Column(name = "auth_time")
     private String authTime;
+
+    @Column(name = "phone_no")
+    private String phoneNo;
 }
