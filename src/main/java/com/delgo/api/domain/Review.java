@@ -1,5 +1,6 @@
 package com.delgo.api.domain;
 
+import com.delgo.api.domain.photo.ReviewPhoto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -9,7 +10,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import javax.persistence.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.List;
+
 
 @Data
 @Entity
@@ -32,9 +33,6 @@ public class Review {
     private int rating;
     private String text;
 
-    private String reviewPhoto1;
-    private String reviewPhoto2;
-    private String reviewPhoto3;
-    private String reviewPhoto4;
-    private String reviewPhoto5;
+    @Transient
+    private List<ReviewPhoto> reviewPhotoList;
 }

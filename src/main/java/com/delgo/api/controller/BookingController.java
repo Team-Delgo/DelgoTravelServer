@@ -119,10 +119,10 @@ public class BookingController extends CommController {
             return ErrorReturn(ApiCode.NOT_FOUND_DATA);
 
         List<Booking> bookingList = bookingService.getBookingByUserIdAndBookingState(userId, BookingState.T);
-        if (bookingList.isEmpty()) // 조회되는 BOOKING DATA 없음
-            return ErrorReturn(ApiCode.NOT_FOUND_DATA);
-
         List<HistoryDTO> historyList = new ArrayList<>();
+        if (bookingList.isEmpty()) // 조회되는 BOOKING DATA 없음
+            return SuccessReturn(historyList);
+
         bookingList.forEach(booking -> {
             historyList.add(bookingService.getHistoryData(booking.getBookingId()));
         });
