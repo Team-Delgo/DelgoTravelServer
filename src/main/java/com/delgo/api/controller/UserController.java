@@ -12,6 +12,7 @@ import com.delgo.api.dto.user.ModifyPetDTO;
 import com.delgo.api.dto.user.ResetPasswordDTO;
 import com.delgo.api.dto.user.SignUpDTO;
 import com.delgo.api.service.PetService;
+import com.delgo.api.service.SmsAuthService;
 import com.delgo.api.service.TokenService;
 import com.delgo.api.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -32,6 +33,7 @@ public class UserController extends CommController {
     private final UserService userService;
     private final PetService petService;
     private final TokenService tokenService;
+    private final SmsAuthService smsAuthService;
 
     @GetMapping("/myAccount")
     public ResponseEntity<?> myAccount(@RequestParam Integer userId){
@@ -71,21 +73,14 @@ public class UserController extends CommController {
         return SuccessReturn();
     }
 
-    /** 동재 - 추가
-    // 비밀번호 재설정 - 로그인 화면( 비밀번호 찾기 )
-     */
     @PostMapping("/resetPassword")
-    public ResponseEntity<?> resetPassword(@Validated @RequestBody ResetPasswordDTO resetPassword){
-        // TODO: Validation 휴대폰 인증 시간 계산
-        User user = userService.getUserByEmail(resetPassword.getEmail()); // 유저 조회
-        SmsAuth smsAuth = userService.getSmsAuthByPhoneNo(user.getPhoneNo()); // SMS DATA 조회
-        LocalDate now = LocalDate.now(); // 현재시간
-        LocalDate authTime = LocalDate.parse(smsAuth.getAuthTime()); // 최근 인증시간
-        Long effectTime = ChronoUnit.MINUTES.between(now, authTime); // 사이 값
-        if (effectTime > 10) // TODO: ERROR CODE 만들어야함. (사용자 인증에 실패 하였습니다.)
-            return ErrorReturn(ApiCode.LOGIN_ERROR); // 임시 Error CODE
+    public ResponseEntity<?> resetPassword(@Validated @RequestBody ResetPasswordDTO resetPasswordDTO){
+        User user = userService.getUserByEmail(resetPasswordDTO.getEmail()); // 유저 조회
+        SmsAuth smsAuth = smsAuthService.getSmsAuthByPhoneNo(user.getPhoneNo()); // SMS DATA 조회
+        if(!smsAuthService.isAuth(smsAuth))
+            ErrorReturn(ApiCode.SMS_ERROR);
 
-        userService.changePassword(resetPassword.getEmail(), resetPassword.getNewPassword());
+        userService.changePassword(resetPasswordDTO.getEmail(), resetPasswordDTO.getNewPassword());
         return SuccessReturn();
     }
 
@@ -113,55 +108,6 @@ public class UserController extends CommController {
         } else {
             return ErrorReturn(ApiCode.EMAIL_DUPLICATE_ERROR);
         }
-    }
-
-    // 회원가입 전 인증번호 전송
-    @GetMapping("/phoneNoAuth")
-    public ResponseEntity<?> phoneNoCheck(@RequestParam String phoneNo) {
-        try {
-            if(phoneNo.isBlank()){
-                return ErrorReturn(ApiCode.PARAM_ERROR);
-            }
-            phoneNo = phoneNo.replaceAll("[^0-9]", "");
-
-            if(userService.isPhoneNoExisting(phoneNo)){
-                return ErrorReturn(ApiCode.PHONE_NO_DUPLICATE_ERROR);
-            } else {
-                int smsId = userService.sendSMS(phoneNo);
-                return SuccessReturn(smsId);
-            }
-        } catch (Exception e){
-            return ErrorReturn(ApiCode.UNKNOWN_ERROR);
-        }
-    }
-
-    // 회원가입 후 인증번호 전송
-    @GetMapping("/phoneNoCheck")
-    public ResponseEntity<?> phoneNoAuth(@RequestParam String phoneNo) {
-        try {
-            if(phoneNo.isBlank()){
-                return ErrorReturn(ApiCode.PARAM_ERROR);
-            }
-            phoneNo = phoneNo.replaceAll("[^0-9]", "");
-            if(!userService.isPhoneNoExisting(phoneNo)){
-                return ErrorReturn(ApiCode.PHONE_NO_NOT_EXIST);
-            } else {
-                int smsId = userService.sendSMS(phoneNo);
-                return SuccessReturn(smsId);
-            }
-        } catch (Exception e){
-            return ErrorReturn(ApiCode.UNKNOWN_ERROR);
-        }
-    }
-
-    // 인증번호 확인
-    @GetMapping("/authRandNum")
-    public ResponseEntity<?> randNumCheck(@RequestParam Integer smsId, @RequestParam String enterNum) {
-        if(enterNum.isBlank()){
-            return ErrorReturn(ApiCode.PARAM_ERROR);
-        }
-        userService.checkSMS(smsId, enterNum);
-        return SuccessReturn();
     }
 
     // 소셜 회원가입
