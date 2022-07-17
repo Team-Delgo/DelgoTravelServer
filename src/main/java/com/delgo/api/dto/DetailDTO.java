@@ -16,7 +16,8 @@ import java.util.List;
 public class DetailDTO {
     private Place place;
     // private List<PlaceNotice> policyNoticeList;
-    private List<String[]> placeNoticeString;
+    // private String placeNoticeTitle;
+    private List<PlaceNotice> placeNoticeList;
     private List<Room> roomList;
     private List<DetailPhoto> detailPhotoList;
 }

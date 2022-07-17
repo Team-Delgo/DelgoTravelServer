@@ -113,18 +113,22 @@ public class PlaceController extends CommController {
         if (roomList.size() == 0) // Validate
             return ErrorReturn(ApiCode.NOT_FOUND_DATA);
 
-        List<PlaceNotice> placeNoticeList = placeService.getPlaceNotice(placeId);
-        List<String[]> placeNoticeString = new ArrayList<String[]>();
-        for(PlaceNotice placeNotice: placeNoticeList){
-            String content = placeNotice.getContent();
-            String contentArr[] = content.split("\r\n");
-            placeNoticeString.add(contentArr);
-        }
+
 
         // PlaceId로 Detail 상단에서 보여줄 Photo List 조회
         List<DetailPhoto> detailPhotos = photoService.getDetailPhotoList(placeId);
 
-        return SuccessReturn(new DetailDTO(place, placeNoticeString, roomList, detailPhotos));
+        List<PlaceNotice> placeNoticeList = placeService.getPlaceNotice(placeId);
+        List<String[]> placeNoticeContents = new ArrayList<String[]>();
+
+        for(PlaceNotice placeNotice: placeNoticeList){
+            // String placeNoticeTitle = placeNotice.getTitle();
+            String content = placeNotice.getContent();
+            String contentArr[] = content.split("\r\n");
+            placeNoticeContents.add(contentArr);
+        }
+
+        return SuccessReturn(new DetailDTO(place, placeNoticeList, roomList, detailPhotos));
     }
 
     /*

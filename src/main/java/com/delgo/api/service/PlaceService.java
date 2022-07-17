@@ -32,6 +32,12 @@ public class PlaceService {
 
     public List<PlaceNotice> getPlaceNotice(int placeId){
         List<PlaceNotice> placeNoticeList = placeNoticeRepository.findByPlaceId(placeId);
+        placeNoticeList.forEach(notice -> {
+            String content = notice.getContent();
+            String contents[] = content.split("\r\n");
+            // TODO: 배열을 리스트로 변경
+            notice.setContents(Arrays.asList(contents));
+        });
         return placeNoticeList;
     }
 
