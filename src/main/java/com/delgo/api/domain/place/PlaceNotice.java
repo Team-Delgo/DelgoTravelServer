@@ -20,8 +20,6 @@ public class PlaceNotice {
     private String title;
     @JsonIgnore
     private String content;
-
-
     @Transient
     private List<String> contents;
 }
