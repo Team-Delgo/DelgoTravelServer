@@ -35,7 +35,6 @@ public class PlaceService {
         placeNoticeList.forEach(notice -> {
             String content = notice.getContent();
             String contents[] = content.split("\r\n");
-            // TODO: 배열을 리스트로 변경
             notice.setContents(Arrays.asList(contents));
         });
         return placeNoticeList;

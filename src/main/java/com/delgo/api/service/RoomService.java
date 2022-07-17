@@ -1,10 +1,13 @@
 package com.delgo.api.service;
 
+import com.delgo.api.domain.place.PlaceNotice;
 import com.delgo.api.domain.room.Room;
 import com.delgo.api.domain.photo.DetailRoomPhoto;
 import com.delgo.api.domain.price.Price;
+import com.delgo.api.domain.room.RoomNotice;
 import com.delgo.api.repository.DetailRoomPhotoRepository;
 import com.delgo.api.repository.PriceRepository;
+import com.delgo.api.repository.RoomNoticeRepository;
 import com.delgo.api.repository.RoomRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,6 +18,7 @@ import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -25,8 +29,19 @@ import java.util.Optional;
 public class RoomService {
 
     private final RoomRepository roomRepository;
+    private final RoomNoticeRepository roomNoticeRepository;
     private final PriceRepository priceRepository;
     private final DetailRoomPhotoRepository detailRoomPhotoRepository;
+
+    public List<RoomNotice> getRoomNotice(int roomId){
+        List<RoomNotice> roomNoticeList = roomNoticeRepository.findByRoomId(roomId);
+        roomNoticeList.forEach(notice -> {
+            String content = notice.getContent();
+            String contents[] = content.split("\r\n");
+            notice.setContents(Arrays.asList(contents));
+        });
+        return roomNoticeList;
+    }
 
     public List<Room> selectRoomList(int placeId, LocalDate startDt, LocalDate endDt) {
         Period period = Period.between(startDt, endDt); // 시작, 끝 간격
