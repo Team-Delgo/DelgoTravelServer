@@ -1,6 +1,6 @@
 package com.delgo.api.comm.quartz.job;
 
-import com.delgo.api.domain.Room;
+import com.delgo.api.domain.room.Room;
 import com.delgo.api.service.PriceService;
 import com.delgo.api.service.RoomService;
 import lombok.RequiredArgsConstructor;

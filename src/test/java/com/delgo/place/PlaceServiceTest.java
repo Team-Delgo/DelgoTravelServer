@@ -1,6 +1,6 @@
 package com.delgo.place;
 
-import com.delgo.api.domain.Place;
+import com.delgo.api.domain.place.Place;
 import com.delgo.api.repository.PlaceRepository;
 import com.delgo.api.service.PlaceService;
 import lombok.extern.slf4j.Slf4j;

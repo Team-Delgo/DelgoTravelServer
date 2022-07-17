@@ -1,6 +1,6 @@
 package com.delgo.place.service;
 
-import com.delgo.api.domain.Place;
+import com.delgo.api.domain.place.Place;
 import com.delgo.api.repository.DetailPhotoRepository;
 import com.delgo.api.repository.PlaceRepository;
 import com.delgo.api.repository.PriceRepository;

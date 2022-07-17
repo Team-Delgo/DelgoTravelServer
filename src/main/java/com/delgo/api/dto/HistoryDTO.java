@@ -1,6 +1,6 @@
 package com.delgo.api.dto;
 
-import com.delgo.api.domain.Place;
+import com.delgo.api.domain.place.Place;
 import lombok.Builder;
 import lombok.Data;
 

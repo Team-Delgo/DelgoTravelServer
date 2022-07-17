@@ -1,6 +1,6 @@
 package com.delgo.api.repository;
 
-import com.delgo.api.domain.Place;
+import com.delgo.api.domain.place.Place;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 

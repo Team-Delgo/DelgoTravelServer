@@ -2,7 +2,7 @@ package com.delgo.api.controller;
 
 import com.delgo.api.comm.CommController;
 import com.delgo.api.comm.exception.ApiCode;
-import com.delgo.api.domain.Place;
+import com.delgo.api.domain.place.Place;
 import com.delgo.api.domain.Wish;
 import com.delgo.api.dto.wish.WishDTO;
 import com.delgo.api.service.PlaceService;

@@ -1,6 +1,6 @@
 package com.delgo.api.dto.booking;
 
-import com.delgo.api.domain.Place;
+import com.delgo.api.domain.place.Place;
 import com.delgo.api.domain.booking.BookingState;
 import lombok.Builder;
 import lombok.Data;

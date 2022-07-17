@@ -2,8 +2,8 @@ package com.delgo.api.service;
 
 import com.delgo.api.comm.CommService;
 import com.delgo.api.comm.exception.ApiCode;
-import com.delgo.api.domain.Place;
-import com.delgo.api.domain.Room;
+import com.delgo.api.domain.place.Place;
+import com.delgo.api.domain.room.Room;
 import com.delgo.api.domain.booking.Booking;
 import com.delgo.api.domain.booking.BookingState;
 import com.delgo.api.domain.user.User;
