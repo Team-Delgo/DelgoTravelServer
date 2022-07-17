@@ -1,6 +1,6 @@
 package com.delgo.api.repository.specification;
 
-import com.delgo.api.domain.Place;
+import com.delgo.api.domain.place.Place;
 import org.springframework.data.jpa.domain.Specification;
 
 import javax.persistence.criteria.Predicate;

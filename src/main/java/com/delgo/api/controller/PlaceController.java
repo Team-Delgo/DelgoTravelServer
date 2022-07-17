@@ -4,11 +4,13 @@ package com.delgo.api.controller;
 import com.delgo.api.comm.CommController;
 import com.delgo.api.comm.CommService;
 import com.delgo.api.comm.exception.ApiCode;
-import com.delgo.api.domain.Place;
-import com.delgo.api.domain.Room;
+import com.delgo.api.domain.place.Place;
+import com.delgo.api.domain.place.PlaceNotice;
+import com.delgo.api.domain.room.Room;
 import com.delgo.api.domain.Wish;
 import com.delgo.api.domain.photo.DetailPhoto;
 import com.delgo.api.dto.DetailDTO;
+import com.delgo.api.repository.PlaceNoticeRepository;
 import com.delgo.api.service.PhotoService;
 import com.delgo.api.service.PlaceService;
 import com.delgo.api.service.RoomService;
@@ -21,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.security.Policy;
 import java.time.LocalDate;
 import java.util.*;
 
@@ -110,10 +113,22 @@ public class PlaceController extends CommController {
         if (roomList.size() == 0) // Validate
             return ErrorReturn(ApiCode.NOT_FOUND_DATA);
 
+
+
         // PlaceId로 Detail 상단에서 보여줄 Photo List 조회
         List<DetailPhoto> detailPhotos = photoService.getDetailPhotoList(placeId);
 
-        return SuccessReturn(new DetailDTO(place, roomList, detailPhotos));
+        List<PlaceNotice> placeNoticeList = placeService.getPlaceNotice(placeId);
+        List<String[]> placeNoticeContents = new ArrayList<String[]>();
+
+        for(PlaceNotice placeNotice: placeNoticeList){
+            // String placeNoticeTitle = placeNotice.getTitle();
+            String content = placeNotice.getContent();
+            String contents[] = content.split("\r\n");
+            placeNoticeContents.add(contents);
+        }
+
+        return SuccessReturn(new DetailDTO(place, placeNoticeList, roomList, detailPhotos));
     }
 
     /*

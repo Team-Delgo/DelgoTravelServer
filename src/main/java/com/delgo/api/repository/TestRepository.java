@@ -1,6 +1,6 @@
 package com.delgo.api.repository;
 
-import com.delgo.api.domain.Place;
+import com.delgo.api.domain.place.Place;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 

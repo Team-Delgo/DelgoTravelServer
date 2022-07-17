@@ -2,13 +2,11 @@ package com.delgo.api.service;
 
 import com.delgo.api.domain.Wish;
 import com.delgo.api.domain.photo.DetailPhoto;
-import com.delgo.api.domain.Place;
-import com.delgo.api.domain.Room;
+import com.delgo.api.domain.place.Place;
+import com.delgo.api.domain.place.PlaceNotice;
+import com.delgo.api.domain.room.Room;
 import com.delgo.api.domain.price.Price;
-import com.delgo.api.repository.DetailPhotoRepository;
-import com.delgo.api.repository.PlaceRepository;
-import com.delgo.api.repository.PriceRepository;
-import com.delgo.api.repository.RoomRepository;
+import com.delgo.api.repository.*;
 import com.delgo.api.repository.specification.PlaceSpecification;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,7 +27,19 @@ public class PlaceService {
     private final PlaceRepository placeRepository;
     private final RoomRepository roomRepository;
     private final PriceRepository priceRepository;
+    private final PlaceNoticeRepository placeNoticeRepository;
     private final DetailPhotoRepository detailPhotoRepository;
+
+    public List<PlaceNotice> getPlaceNotice(int placeId){
+        List<PlaceNotice> placeNoticeList = placeNoticeRepository.findByPlaceId(placeId);
+        placeNoticeList.forEach(notice -> {
+            String content = notice.getContent();
+            String contents[] = content.split("\r\n");
+            // TODO: 배열을 리스트로 변경
+            notice.setContents(Arrays.asList(contents));
+        });
+        return placeNoticeList;
+    }
 
     // 전체 Place 리스트 조회
     public List<Place> getPlaceAll() {

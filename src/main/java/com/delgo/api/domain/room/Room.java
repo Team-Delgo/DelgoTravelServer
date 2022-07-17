@@ -1,4 +1,4 @@
-package com.delgo.api.domain;
+package com.delgo.api.domain.room;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
@@ -13,24 +13,29 @@ import java.time.LocalDate;
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
-public class Place {
+public class Room {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private int roomId;
     private int placeId;
     private String name;
-    private String address;
+    private int personMaxNum;
+    private int personStandardNum;
+    private int petMaxNum;
+    private int petStandardNum;
+    private String petSizeLimit;
     @CreationTimestamp
     @JsonIgnore
     private LocalDate registDt;
-    private String checkin;
-    private String checkout;
+    @JsonIgnore
+    private String crawlingUrl;
 
     @Transient
+    private String price;
+    @Transient
+    private int isBooking;
+    @Transient
     private String mainPhotoUrl;
-    @Transient
-    private int wishId = 0;
-    @Transient
-    private int isBooking = 0;
-    @Transient
-    private String lowestPrice;
+//    @Transient
+//    private List<DetailPhoto> detailPhotos;
 }

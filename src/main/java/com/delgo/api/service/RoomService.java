@@ -1,6 +1,6 @@
 package com.delgo.api.service;
 
-import com.delgo.api.domain.Room;
+import com.delgo.api.domain.room.Room;
 import com.delgo.api.domain.photo.DetailRoomPhoto;
 import com.delgo.api.domain.price.Price;
 import com.delgo.api.repository.DetailRoomPhotoRepository;
