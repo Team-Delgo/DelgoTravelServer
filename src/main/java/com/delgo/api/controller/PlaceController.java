@@ -124,8 +124,8 @@ public class PlaceController extends CommController {
         for(PlaceNotice placeNotice: placeNoticeList){
             // String placeNoticeTitle = placeNotice.getTitle();
             String content = placeNotice.getContent();
-            String contentArr[] = content.split("\r\n");
-            placeNoticeContents.add(contentArr);
+            String contents[] = content.split("\r\n");
+            placeNoticeContents.add(contents);
         }
 
         return SuccessReturn(new DetailDTO(place, placeNoticeList, roomList, detailPhotos));
