@@ -1,5 +1,6 @@
 package com.delgo.api.service;
 
+import com.delgo.api.comm.CommService;
 import com.delgo.api.comm.ncp.service.ObjectStorageService;
 import com.delgo.api.domain.photo.DetailPhoto;
 import com.delgo.api.domain.photo.DetailRoomPhoto;
@@ -14,6 +15,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Objects;
 
@@ -21,7 +24,7 @@ import java.util.Objects;
 @Service
 @Transactional
 @RequiredArgsConstructor
-public class PhotoService {
+public class PhotoService extends CommService {
 
     private final ObjectStorageService objectStorageService;
     private final DetailPhotoRepository detailPhotoRepository;
@@ -35,6 +38,7 @@ public class PhotoService {
 
         String fileName = userId + "_pet_profile." + type[type.length - 1];
         String dir = "/var/www/delgo-api/";
+        // NCP Link
         String link = "https://kr.object.ncloudstorage.com/delgo-pet-profile/" + fileName;
 
         try {
@@ -49,7 +53,9 @@ public class PhotoService {
                 // 서버에 저장된 사진 삭제
                 f.delete();
             }
-            // NCP Link
+
+            // Cache 무효화
+            link += "?" +LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyMMddhhmmss")) + numberGen(4, 1);
             return link;
         } catch (Exception e) {
             return "error:" + e.getMessage();
@@ -78,6 +84,8 @@ public class PhotoService {
             }
 
             reviewPhotoRepository.save(ReviewPhoto.builder().reviewId(reviewId).url(link).build());
+            // Cache 무효화
+            link += "?" +LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyMMddhhmmss")) + numberGen(4, 1);
             return link;
         } catch (Exception e) {
             return "error:" + e.getMessage();
