@@ -119,14 +119,6 @@ public class PlaceController extends CommController {
         List<DetailPhoto> detailPhotos = photoService.getDetailPhotoList(placeId);
 
         List<PlaceNotice> placeNoticeList = placeService.getPlaceNotice(placeId);
-        List<String[]> placeNoticeContents = new ArrayList<String[]>();
-
-        for(PlaceNotice placeNotice: placeNoticeList){
-            // String placeNoticeTitle = placeNotice.getTitle();
-            String content = placeNotice.getContent();
-            String contents[] = content.split("\r\n");
-            placeNoticeContents.add(contents);
-        }
 
         return SuccessReturn(new DetailDTO(place, placeNoticeList, roomList, detailPhotos));
     }
