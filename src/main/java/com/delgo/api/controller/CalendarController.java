@@ -36,14 +36,6 @@ public class CalendarController extends CommController {
         List<DateDTO> dateList = calendarService.getDetailRoomCalendarData(roomId);
 
         List<RoomNotice> roomNoticeList = roomService.getRoomNotice(roomId);
-        List<String[]> roomNoticeContents = new ArrayList<String[]>();
-
-        for(RoomNotice roomNotice: roomNoticeList){
-            // String placeNoticeTitle = placeNotice.getTitle();
-            String content = roomNotice.getContent();
-            String contents[] = content.split("\r\n");
-            roomNoticeContents.add(contents);
-        }
 
         return SuccessReturn(new CalendarDTO(detailPhotos, dateList, roomNoticeList));
     }
