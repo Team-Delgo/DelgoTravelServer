@@ -13,5 +13,5 @@ public interface CouponRepository extends JpaRepository<Coupon, Integer> {
 
     Optional<Coupon> findByUserIdAndCouponManagerId(int userId, int couponManagerId);
 
-    List<Coupon> findByExpiredDt(String date);
+    List<Coupon> findByExpireDt(String date);
 }

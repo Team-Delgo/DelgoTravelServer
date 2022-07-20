@@ -1,8 +1,5 @@
 package com.delgo.api.service;
 
-import com.delgo.api.comm.exception.ApiCode;
-import com.delgo.api.comm.ncp.service.SmsService;
-import com.delgo.api.domain.SmsAuth;
 import com.delgo.api.domain.pet.Pet;
 import com.delgo.api.domain.user.User;
 import com.delgo.api.dto.user.InfoDTO;
@@ -13,12 +10,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoUnit;
 import java.util.Optional;
-import java.util.Random;
+
 
 @Slf4j
 @Service

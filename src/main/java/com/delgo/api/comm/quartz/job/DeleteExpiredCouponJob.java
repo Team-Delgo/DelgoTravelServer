@@ -15,7 +15,6 @@ import java.time.LocalTime;
 @RequiredArgsConstructor
 public class DeleteExpiredCouponJob extends QuartzJobBean {
 
-    private final CouponRepository couponRepository;
     private final CouponService couponService;
 
     @Override
