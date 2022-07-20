@@ -26,6 +26,11 @@ public class CouponService extends CommService {
         return couponRepository.findByUserId(userId);
     }
 
+    public void deleteExpiredCoupon(String yesterday){
+        List<Coupon> deleteList = couponRepository.findByExpiredDt(yesterday);
+        couponRepository.deleteAll(deleteList);
+    }
+
     public Coupon getCouponByCouponId(int couponId) {
         return couponRepository.findByCouponId(couponId)
                 .orElseThrow(() -> new NullPointerException("NOT FOUND COUPON"));

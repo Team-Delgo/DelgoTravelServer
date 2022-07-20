@@ -1,5 +1,6 @@
 package com.delgo.api.comm.quartz;
 
+import com.delgo.api.comm.quartz.job.DeleteExpiredCouponJob;
 import com.delgo.api.comm.quartz.job.DeleteYesterdayDataJob;
 import com.delgo.api.comm.quartz.job.RefreshPriceJob;
 import lombok.extern.slf4j.Slf4j;
@@ -32,6 +33,16 @@ public class JobSetting {
     @PostConstruct
     public void start_deleteYesterdayDataJob(){
         JobDetail jobDetail = buildJobDetail(DeleteYesterdayDataJob.class, new HashMap());
+        try{
+            scheduler.scheduleJob(jobDetail, buildJobTrigger("0 0 0 * * ?"));
+        } catch(SchedulerException e){
+            e.printStackTrace();
+        }
+    }
+
+    @PostConstruct
+    public void start_deleteExpiredCouponJob(){
+        JobDetail jobDetail = buildJobDetail(DeleteExpiredCouponJob.class, new HashMap());
         try{
             scheduler.scheduleJob(jobDetail, buildJobTrigger("0 0 0 * * ?"));
         } catch(SchedulerException e){
