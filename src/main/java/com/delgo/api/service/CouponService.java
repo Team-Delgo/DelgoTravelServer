@@ -28,7 +28,10 @@ public class CouponService extends CommService {
 
     public void deleteExpiredCoupon(String yesterday){
         List<Coupon> deleteList = couponRepository.findByExpiredDt(yesterday);
-        couponRepository.deleteAll(deleteList);
+        for(Coupon coupon : deleteList){
+            coupon.setIsValid(0);
+            couponRepository.save(coupon);
+        }
     }
 
     public Coupon getCouponByCouponId(int couponId) {
