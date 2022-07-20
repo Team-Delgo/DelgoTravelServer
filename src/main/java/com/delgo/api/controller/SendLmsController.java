@@ -25,8 +25,9 @@ public class SendLmsController extends CommController {
                 return ErrorReturn(ApiCode.PARAM_ERROR);
             }
             phoneNo = phoneNo.replaceAll("[^0-9]", "");
-
-            sendLmsService.sendComplete(phoneNo);
+            String subject = "[Delgo] 예약 완료 안내";
+            String message = "내용";
+            sendLmsService.sendLms(phoneNo, subject, message);
 
             return SuccessReturn();
 
@@ -43,7 +44,9 @@ public class SendLmsController extends CommController {
             }
             phoneNo = phoneNo.replaceAll("[^0-9]", "");
 
-            sendLmsService.sendConfirm(phoneNo);
+            String subject = "[Delgo] 예약 확정 안내";
+            String message = "내용";
+            sendLmsService.sendLms(phoneNo, subject, message);
 
             return SuccessReturn();
 
@@ -60,7 +63,9 @@ public class SendLmsController extends CommController {
             }
             phoneNo = phoneNo.replaceAll("[^0-9]", "");
 
-            sendLmsService.sendCancel(phoneNo);
+            String subject = "[Delgo] 예약 취소 안내";
+            String message = "내용";
+            sendLmsService.sendLms(phoneNo, subject, message);
 
             return SuccessReturn();
 

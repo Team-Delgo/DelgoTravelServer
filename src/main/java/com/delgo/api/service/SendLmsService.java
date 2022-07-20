@@ -15,7 +15,7 @@ import java.io.IOException;
 public class SendLmsService {
     private final LmsService lmsService;
 
-    public void sendLms(String subject, String message, String phoneNo) throws IOException {
+    public void sendLms(String phoneNo, String subject, String message) throws IOException {
         try {
             lmsService.sendLMS(phoneNo, subject, message);
         } catch (Exception e) {
