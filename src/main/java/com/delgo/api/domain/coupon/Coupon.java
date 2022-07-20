@@ -26,7 +26,7 @@ public class Coupon {
     private Integer userId;
     private Integer couponManagerId;
     private Integer isUsed;
-    private Integer isValid;
+    private Integer isValid; // 1: 사용가능 0: 사용불가능
     @CreationTimestamp
     private LocalDateTime registDt;
     private LocalDate expireDt;
