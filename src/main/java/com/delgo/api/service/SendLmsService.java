@@ -15,9 +15,7 @@ import java.io.IOException;
 public class SendLmsService {
     private final LmsService lmsService;
 
-    public void sendComplete(String phoneNo) throws IOException {
-        String subject = "[Delgo 예약 완료 안내]";
-        String message = "내용";
+    public void sendLms(String subject, String message, String phoneNo) throws IOException {
         try {
             lmsService.sendLMS(phoneNo, subject, message);
         } catch (Exception e) {
@@ -25,23 +23,4 @@ public class SendLmsService {
         }
     }
 
-    public void sendConfirm(String phoneNo) throws IOException {
-        String subject = "[Delgo 예약 확정 안내]";
-        String message = "내용";
-        try {
-            lmsService.sendLMS(phoneNo, subject, message);
-        } catch (Exception e) {
-            throw new IOException();
-        }
-    }
-
-    public void sendCancel(String phoneNo) throws IOException {
-        String subject = "[Delgo 예약 취소 안내]";
-        String message = "내용";
-        try {
-            lmsService.sendLMS(phoneNo, subject, message);
-        } catch (Exception e) {
-            throw new IOException();
-        }
-    }
 }
