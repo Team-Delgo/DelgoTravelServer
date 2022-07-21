@@ -42,7 +42,7 @@ public class BookingService extends CommService {
     }
 
     public void tripToEnd(String today){
-        List<Booking> bookingList = bookingRepository.findByStartDt(today);
+        List<Booking> bookingList = bookingRepository.findByEndDt(today);
         for(Booking booking : bookingList){
             booking.setBookingState(BookingState.E);
             bookingRepository.save(booking);
