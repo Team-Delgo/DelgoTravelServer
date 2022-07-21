@@ -1,9 +1,8 @@
 package com.delgo.api.service;
 
-import com.delgo.api.domain.place.PlaceNotice;
-import com.delgo.api.domain.room.Room;
 import com.delgo.api.domain.photo.DetailRoomPhoto;
 import com.delgo.api.domain.price.Price;
+import com.delgo.api.domain.room.Room;
 import com.delgo.api.domain.room.RoomNotice;
 import com.delgo.api.repository.DetailRoomPhotoRepository;
 import com.delgo.api.repository.PriceRepository;
@@ -33,7 +32,7 @@ public class RoomService {
     private final PriceRepository priceRepository;
     private final DetailRoomPhotoRepository detailRoomPhotoRepository;
 
-    public List<RoomNotice> getRoomNotice(int roomId){
+    public List<RoomNotice> getRoomNotice(int roomId) {
         List<RoomNotice> roomNoticeList = roomNoticeRepository.findByRoomId(roomId);
         roomNoticeList.forEach(notice -> {
             String content = notice.getContent();
@@ -49,10 +48,11 @@ public class RoomService {
         if (roomList.size() > 0)
             roomList.forEach(room -> {
                 // roomId로 사진 조회해야 함.
-                Optional<DetailRoomPhoto> mainPhoto = detailRoomPhotoRepository.findByRoomIdAndIsMain(room.getRoomId(), 1);
+                Optional<DetailRoomPhoto> mainPhoto =
+                        detailRoomPhotoRepository.findByRoomIdAndIsMain(room.getRoomId(), 1);
                 mainPhoto.ifPresent(photo -> room.setMainPhotoUrl(photo.getUrl()));
                 // 가격 조회 및 적용
-                List<Price> pList = priceRepository.findByRoomIdAndIsBookingAndPriceDateBetween(room.getRoomId(), 0, startDt.toString(), endDt.toString());
+                List<Price> pList = priceRepository.findByRoomIdAndIsBookingAndIsWaitAndPriceDateBetween(room.getRoomId(), 0, 0, startDt.toString(), endDt.toString());
                 if (pList.size() == period.getDays() + 1) {
                     // 4박5일일 경우 총 여행경비는 앞 4일 가격의 합이다. 따라서 마지막 삭제
                     pList.remove(pList.size() - 1);
