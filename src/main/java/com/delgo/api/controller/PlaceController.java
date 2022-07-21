@@ -4,13 +4,12 @@ package com.delgo.api.controller;
 import com.delgo.api.comm.CommController;
 import com.delgo.api.comm.CommService;
 import com.delgo.api.comm.exception.ApiCode;
+import com.delgo.api.domain.Wish;
+import com.delgo.api.domain.photo.DetailPhoto;
 import com.delgo.api.domain.place.Place;
 import com.delgo.api.domain.place.PlaceNotice;
 import com.delgo.api.domain.room.Room;
-import com.delgo.api.domain.Wish;
-import com.delgo.api.domain.photo.DetailPhoto;
 import com.delgo.api.dto.DetailDTO;
-import com.delgo.api.repository.PlaceNoticeRepository;
 import com.delgo.api.service.PhotoService;
 import com.delgo.api.service.PlaceService;
 import com.delgo.api.service.RoomService;
@@ -23,9 +22,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.security.Policy;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @RestController
@@ -41,7 +42,7 @@ public class PlaceController extends CommController {
 
     /**
      * WhereToGO Page 조회
-     * Request Data : userId , startDt, endDt
+     * Request Data : userId, startDt, endDt
      * - wish 여부 판단
      * Response Data : ALL Place List
      */
@@ -76,9 +77,9 @@ public class PlaceController extends CommController {
         return SuccessReturn(placeList);
     }
 
-    /**
+    /*
      * Detail Page 조회
-     * Request Data : userId, placeId, startDt,endDt
+     * Request Data : userId, placeId, startDt, endDt
      * - userId : wish 여부 check
      * - placeId : 해당 placeId로 Place 조회 및 반환
      * - startDt, endDt : 예약 가능 여부 및 최저가격 조회에 사용
@@ -113,18 +114,16 @@ public class PlaceController extends CommController {
         if (roomList.size() == 0) // Validate
             return ErrorReturn(ApiCode.NOT_FOUND_DATA);
 
-
-
         // PlaceId로 Detail 상단에서 보여줄 Photo List 조회
         List<DetailPhoto> detailPhotos = photoService.getDetailPhotoList(placeId);
-
+        // Detail 공지사항 데이터 조회
         List<PlaceNotice> placeNoticeList = placeService.getPlaceNotice(placeId);
 
         return SuccessReturn(new DetailDTO(place, placeNoticeList, roomList, detailPhotos));
     }
 
     /*
-     * WhereToGo 검색 결과 반환 (UnUsed)
+     * WhereToGo 검색 결과 반환 (UNUsed)
      * Request Data : userId, name, address, startDt, endDt
      * - userId : wish 여부 check
      * - name, address : DB에서 일치 여부 조회 (정확히 일치 X 해당 단어 포함 0) [ 빈 값 허용 ]
@@ -169,11 +168,9 @@ public class PlaceController extends CommController {
 
     /*
      * TODO Main 숙소 추천 API ( 보완해야 함 )
-     * Request Data : userId, name, address, startDt, endDt
+     * Request Data : userId
      * - userId : wish 여부 check
-     * - name, address : DB에서 일치 여부 조회 (정확히 일치 X 해당 단어 포함 0) [ 빈 값 허용 ]
-     * - startDt, endDt : 예약 가능 여부 및 최저가격 조회에 사용
-     * Response Data : 검색조건에 부합하는 PlaceList 반환
+     * Response Data : 추천 로직에 따라 PlaceList 반환
      */
     @GetMapping("/recommend")
     public ResponseEntity recommendPlace(@RequestParam Integer userId) {
@@ -185,8 +182,6 @@ public class PlaceController extends CommController {
             List<Wish> wishList = wishService.getWishListByUserId(userId);
             placeService.setWishId(placeList, wishList);
         }
-
-//        Collections.shuffle(placeList);
 
         List<Place> returnList = new ArrayList<>();
         for (int i = 0; i < 5; i++)
