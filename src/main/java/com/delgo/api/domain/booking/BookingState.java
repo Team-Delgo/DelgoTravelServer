@@ -5,5 +5,6 @@ public enum BookingState {
     F, // booking fix
     CW, // cancel wait
     CF, // cancel fix
-    T// Terminate
+    T, // Trip
+    E, //End
 }
