@@ -73,6 +73,7 @@ public class UserController extends CommController {
         return SuccessReturn();
     }
 
+    // 비밀번호 재설정
     @PostMapping("/resetPassword")
     public ResponseEntity<?> resetPassword(@Validated @RequestBody ResetPasswordDTO resetPasswordDTO){
         User user = userService.getUserByEmail(resetPasswordDTO.getEmail()); // 유저 조회
