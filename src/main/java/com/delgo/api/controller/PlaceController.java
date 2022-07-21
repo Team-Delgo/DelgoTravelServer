@@ -10,10 +10,7 @@ import com.delgo.api.domain.place.Place;
 import com.delgo.api.domain.place.PlaceNotice;
 import com.delgo.api.domain.room.Room;
 import com.delgo.api.dto.DetailDTO;
-import com.delgo.api.service.PhotoService;
-import com.delgo.api.service.PlaceService;
-import com.delgo.api.service.RoomService;
-import com.delgo.api.service.WishService;
+import com.delgo.api.service.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -39,8 +36,9 @@ public class PlaceController extends CommController {
     private final RoomService roomService;
     private final PhotoService photoService;
     private final WishService wishService;
+    private final EditorNoteService editorNoteService;
 
-    /**
+    /*
      * WhereToGO Page 조회
      * Request Data : userId, startDt, endDt
      * - wish 여부 판단
@@ -123,6 +121,39 @@ public class PlaceController extends CommController {
     }
 
     /*
+     * TODO Main 숙소 추천 API ( 보완해야 함 )
+     * Request Data : userId
+     * - userId : wish 여부 check
+     * Response Data : 추천 로직에 따라 PlaceList 반환
+     */
+    @GetMapping("/recommend")
+    public ResponseEntity recommendPlace(@RequestParam Integer userId) {
+        List<Place> placeList = placeService.getPlaceAll();
+        placeService.setMainPhoto(placeList);
+
+        // userId == 0 이면 로그인 없이 조회 // userId 있을 경우 wish 여부 Check
+        if (userId != 0 && placeList.size() > 0) {
+            List<Wish> wishList = wishService.getWishListByUserId(userId);
+            placeService.setWishId(placeList, wishList);
+        }
+
+        List<Place> returnList = new ArrayList<>();
+        for (int i = 0; i < 5; i++)
+            returnList.add(placeList.get(i));
+
+        return SuccessReturn(returnList);
+    }
+
+    /*
+     * EditorNote 조회 API
+     * Response Data : 추천 로직에 따라 EditorNote 반환
+     */
+    @GetMapping("/getEditorNote")
+    public ResponseEntity gtEditorNote() {
+        return SuccessReturn(editorNoteService.getEditorNoteList());
+    }
+
+    /*
      * WhereToGo 검색 결과 반환 (UNUsed)
      * Request Data : userId, name, address, startDt, endDt
      * - userId : wish 여부 check
@@ -164,29 +195,5 @@ public class PlaceController extends CommController {
         }
 
         return SuccessReturn(placeList);
-    }
-
-    /*
-     * TODO Main 숙소 추천 API ( 보완해야 함 )
-     * Request Data : userId
-     * - userId : wish 여부 check
-     * Response Data : 추천 로직에 따라 PlaceList 반환
-     */
-    @GetMapping("/recommend")
-    public ResponseEntity recommendPlace(@RequestParam Integer userId) {
-        List<Place> placeList = placeService.getPlaceAll();
-        placeService.setMainPhoto(placeList);
-
-        // userId == 0 이면 로그인 없이 조회 // userId 있을 경우 wish 여부 Check
-        if (userId != 0 && placeList.size() > 0) {
-            List<Wish> wishList = wishService.getWishListByUserId(userId);
-            placeService.setWishId(placeList, wishList);
-        }
-
-        List<Place> returnList = new ArrayList<>();
-        for (int i = 0; i < 5; i++)
-            returnList.add(placeList.get(i));
-
-        return SuccessReturn(returnList);
     }
 }

@@ -11,7 +11,7 @@ import java.time.LocalDate;
 @Builder
 public class ReturnBookingDTO {
     private String bookingId; // 예약번호
-    private String userName; // 유저 이름
+    private String reservedName; // 예약자 이름
     private String userPhoneNo; // 유저 핸드폰 번호
     private String roomName; // 룸타입 ( 이름 )
     private String originalPrice; // 상품금액
