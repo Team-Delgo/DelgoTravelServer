@@ -13,6 +13,8 @@ public class BookingDTO {
     @NotNull
     private Integer userId;
     @NotNull
+    private String reservedName;
+    @NotNull
     private Integer roomId;
     @NotNull
     private Integer placeId;
@@ -21,13 +23,9 @@ public class BookingDTO {
     @NotNull
     private Integer point;
     @NotNull
-    private Integer personExtraNum;
+    private LocalDate startDt;
     @NotNull
-    private Integer petExtraNum;
-    @NotBlank
-    private String startDt;
-    @NotBlank
-    private String endDt;
+    private LocalDate endDt;
     @NotBlank
     private String orderId;
     @NotBlank
@@ -38,14 +36,13 @@ public class BookingDTO {
         return Booking.builder()
                 .bookingId(bookingId)
                 .userId(this.userId)
+                .reservedName(this.reservedName)
                 .roomId(this.roomId)
                 .placeId(this.placeId)
                 .couponId(this.couponId)
                 .point(this.point)
-                .personExtraNum(this.personExtraNum)
-                .petExtraNum(this.petExtraNum)
-                .startDt(LocalDate.parse(this.startDt))
-                .endDt(LocalDate.parse(this.endDt))
+                .startDt(this.startDt)
+                .endDt(this.endDt)
                 .bookingState(bookingState)
                 .orderId(this.orderId)
                 .paymentKey(this.paymentKey)

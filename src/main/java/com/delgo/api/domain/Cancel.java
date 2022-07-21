@@ -6,7 +6,6 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
-import java.time.LocalDate;
 
 @Data
 @Entity
@@ -15,6 +14,6 @@ import java.time.LocalDate;
 public class Cancel {
     @Id
     private int placeId;
-    private LocalDate remainDay;
+    private int remainDay;
     private int returnRate;
 }

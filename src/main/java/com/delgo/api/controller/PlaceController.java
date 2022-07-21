@@ -116,8 +116,10 @@ public class PlaceController extends CommController {
         List<DetailPhoto> detailPhotos = photoService.getDetailPhotoList(placeId);
         // Detail 공지사항 데이터 조회
         List<PlaceNotice> placeNoticeList = placeService.getPlaceNotice(placeId);
+        // Editor Not 가지고 있는지 여부 체크
+        Boolean isEditorNoteExist = editorNoteService.isEditorNoteExist(placeId);
 
-        return SuccessReturn(new DetailDTO(place, placeNoticeList, roomList, detailPhotos));
+        return SuccessReturn(new DetailDTO(place, isEditorNoteExist, placeNoticeList, roomList, detailPhotos));
     }
 
     /*

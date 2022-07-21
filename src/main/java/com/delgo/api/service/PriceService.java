@@ -1,8 +1,8 @@
 package com.delgo.api.service;
 
 import com.delgo.api.comm.CommService;
-import com.delgo.api.domain.room.Room;
 import com.delgo.api.domain.price.Price;
+import com.delgo.api.domain.room.Room;
 import com.delgo.api.repository.PriceRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -11,7 +11,6 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
-import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -39,7 +38,6 @@ public class PriceService extends CommService {
         //크롬 드라이버 셋팅 (드라이버 설치한 경로 입력)
         ChromeOptions options = new ChromeOptions();
         options.addArguments("--disable-popup-blocking");       //팝업안띄움
-        options.addArguments("headless");                       //브라우저 안띄움
         options.addArguments("--disable-gpu");            //gpu 비활성화
         options.addArguments("--blink-settings=imagesEnabled=false"); //이미지 다운 안받음
         options.addArguments("--headless");
@@ -68,9 +66,10 @@ public class PriceService extends CommService {
         List<Price> resultList = new ArrayList<>();
 
         driver.get(url);    //브라우저에서 url로 이동한다.
-        webDriverWait.until(  //cssSelector로 선택한 부분이 존재할때까지 기다린다. 최대 10초
-                ExpectedConditions.presenceOfElementLocated(By.cssSelector(".list_calendar_info li.item"))
-        );
+        Thread.sleep(2000);
+//        webDriverWait.until(  //cssSelector로 선택한 부분이 존재할때까지 기다린다. 최대 10초
+//                ExpectedConditions.presenceOfElementLocated(By.cssSelector(".list_calendar_info li.item"))
+//        );
 
         //  두달 치 가져옴
         for (int j = 0; j < 3; j++) {
@@ -162,12 +161,21 @@ public class PriceService extends CommService {
 
     // Booking getData에서 사용
     public int getOriginalPrice(int roomId, LocalDate startDt, LocalDate endDt) {
-        List<Price> priceList = priceRepository.findByRoomIdAndPriceDateBetween(roomId, startDt.toString(), endDt.toString());
+        List<Price> priceList = priceRepository.findByRoomIdAndPriceDateBetween(roomId, startDt.toString(),
+                endDt.toString());
         int originalPrice = 0;
         for (Price price : priceList) {
             originalPrice += formatPriceToInt(price.getPrice());
         }
 
         return originalPrice;
+    }
+
+    public void changeToReserveWait(LocalDate startDt, LocalDate endDt) {
+        List<Price> priceList = priceRepository.findByPriceDateBetween(startDt.toString(), endDt.toString());
+        priceList.forEach(price -> {
+            price.setIsWait(1);
+            priceRepository.save(price);
+        });
     }
 }

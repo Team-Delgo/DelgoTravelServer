@@ -15,8 +15,7 @@ import java.util.List;
 @AllArgsConstructor
 public class DetailDTO {
     private Place place;
-    // private List<PlaceNotice> policyNoticeList;
-    // private String placeNoticeTitle;
+    private Boolean isEditorNoteExist;
     private List<PlaceNotice> placeNoticeList;
     private List<Room> roomList;
     private List<DetailPhoto> detailPhotoList;
