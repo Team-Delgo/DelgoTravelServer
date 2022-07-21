@@ -44,7 +44,6 @@ public class PhotoController extends CommController {
         }
 
         User user = userService.getUserByUserId(userId);
-        //TODO : Validation
         user.setProfile(profileUrl);
 
         userService.updateUserData(user);
@@ -55,17 +54,22 @@ public class PhotoController extends CommController {
     /*
      * ReviewPhoto 등록 및 수정 [Review 작성 및 수정]
      * - 리뷰 사진은 최대 5개까지 저장 가능
-     * Request Data : reviewId, photo1, photo2, photo3, photo4, photo5
+     * Request Data : reviewId, photos
      * - reviewId : DB에 photoUrl 등록할 때 Review 식별
-     * - photo 1 ~ 5: 확장자는 .jpg를 기본으로 한다. [ 리뷰는 사진이 필수가 아니므로 *빈 값 허용한다.*  ]
+     * - photos: List이다,4개 까지 허용한다. (null 가능 == 0개 가능), 확장자는 .jpg를 기본으로 한다. [ 리뷰는 사진이 필수가 아니므로 *빈 값 허용한다.*  ]
      * Response Data : ApiCode
      */
-    @PostMapping("/upload/reviewPhoto")
-    public ResponseEntity<?> uploadReviewPhoto(@RequestParam int reviewId, @RequestPart List<MultipartFile> photos) {
+    @PostMapping(value = {"/upload/reviewPhoto/{reviewId}", "/upload/reviewPhoto"})
+    public ResponseEntity<?> uploadReviewPhoto(
+            @PathVariable Integer reviewId,
+            @RequestPart List<MultipartFile> photos) {
+        log.info("uploadReviewPhoto reviewId: {}", reviewId);
+        log.info("uploadReviewPhoto photos size: {} ", photos.size());
+
         if (!reviewService.isReviewExisting(reviewId))
             return ErrorReturn(ApiCode.REVIEW_NOT_EXIST);
-        if (photos.size() > 4) // TODO: ERROR CODE 만들어야 함. ( 사진 개수 제한 )
-            return ErrorReturn(ApiCode.REVIEW_NOT_EXIST);
+        if (photos.isEmpty() || photos.size() > 4 )
+            return ErrorReturn(ApiCode.REVIEW_PHOTO_COUNT_ERROR);
 
         Review review = reviewService.getReviewDataByReview(reviewId);
 

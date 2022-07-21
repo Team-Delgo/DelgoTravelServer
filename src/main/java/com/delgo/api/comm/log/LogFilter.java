@@ -32,8 +32,7 @@ public class LogFilter extends OncePerRequestFilter {
             wrappingRequest.setAttribute("requestBody", wrappingRequest.getRequestBody());
             chain.doFilter(wrappingRequest, wrappingResponse);
         } else {
-            System.out.println("들어옴 : " + request.getRequestURI());
-            ContentCachingRequestWrapper wrappingRequest = new ContentCachingRequestWrapper(request);
+            ContentCachingRequestWrapper wrappingRequest  = new ContentCachingRequestWrapper(request);
             chain.doFilter(wrappingRequest, wrappingResponse);
         }
         // 해당 내용 없으면 Client에서 Response 값 못 받음. *중요*

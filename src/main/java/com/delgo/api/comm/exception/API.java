@@ -32,6 +32,7 @@ public class API {
         //REVIEW ERROR
         public static final int REVIEW_DUPLICATE_ERROR = 313;
         public static final int REVIEW_NOT_EXIST = 320;
+        public static final int REVIEW_PHOTO_COUNT_ERROR = 321;
 
         //BOOKING ERROR
         public static final int BOOKING_NOT_EXIST = 314;
