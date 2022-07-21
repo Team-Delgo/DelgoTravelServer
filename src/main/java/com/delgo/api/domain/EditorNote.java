@@ -21,8 +21,8 @@ public class EditorNote {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int placeId;
-    private String main_url;
-    private String thumbnail_url;
+    private String mainUrl;
+    private String thumbnailUrl;
     @JsonIgnore
     @CreationTimestamp
     private LocalDate registDt;
