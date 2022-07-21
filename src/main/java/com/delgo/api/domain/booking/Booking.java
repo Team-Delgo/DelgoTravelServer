@@ -21,12 +21,11 @@ public class Booking {
     @Id
     private String bookingId;
     private Integer userId;
+    private String reservedName;
     private Integer roomId;
     private Integer placeId;
     private Integer couponId;
     private Integer point;
-    private Integer personExtraNum;
-    private Integer petExtraNum;
     private LocalDate startDt;
     private LocalDate endDt;
     @CreationTimestamp
