@@ -47,6 +47,9 @@ public enum ApiCode {
     PHONE_NO_NOT_EXIST(API.CODE.PHONE_NO_NOT_EXIST, "존재하지 않는 전화번호입니다."),
     PHONE_NO_DUPLICATE_ERROR(API.CODE.PHONE_NO_DUPLICATE_ERROR, "이미 존재하는 전화번호입니다."),
 
+    // NAME ERROR
+    NAME_DUPLICATE_ERROR(API.CODE.NAME_DUPLICATE_ERROR, "이미 존재하는 이름입니다."),
+
     UNKNOWN_ERROR(API.CODE.UNKNOWN_ERROR, "알수 없는 오류");
 
 

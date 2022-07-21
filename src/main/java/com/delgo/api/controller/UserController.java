@@ -110,6 +110,18 @@ public class UserController extends CommController {
         }
     }
 
+    // 이름 중복 확인
+    @GetMapping("/nameCheck")
+    public ResponseEntity<?> nameCheck(@RequestParam String name){
+        if(name.isBlank()){
+            return ErrorReturn(ApiCode.PARAM_ERROR);
+        }
+        if(!userService.isNameExisting(name))
+            return SuccessReturn();
+        else
+            return ErrorReturn(ApiCode.NAME_DUPLICATE_ERROR);
+    }
+
     // 소셜 회원가입
     @PostMapping("/socialSignup")
     public ResponseEntity<?> registerUserBySocial(@Validated @RequestBody SignUpDTO signUpDTO, HttpServletResponse response) {

@@ -82,6 +82,12 @@ public class UserService {
         return findUser.isPresent();
     }
 
+    // 이름 존재 유무 확인
+    public boolean isNameExisting(String name){
+        Optional<User> findUser = userRepository.findByName(name);
+        return findUser.isPresent();
+    }
+
     // myAccount
     public InfoDTO getInfoByUserId(int userId) {
         User user = userRepository.findByUserId(userId).orElseThrow(() -> new IllegalStateException("Not Found UserData"));

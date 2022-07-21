@@ -48,6 +48,9 @@ public class API {
         public static final int PHONE_NO_NOT_EXIST = 318;
         public static final int PHONE_NO_DUPLICATE_ERROR = 319;
 
+        //NAME ERROR
+        public static final int NAME_DUPLICATE_ERROR = 320;
+
 
         public static final int UNKNOWN_ERROR = 1000;
         public static final int SERVER_TIMEOUT_ERROR = 1001;
