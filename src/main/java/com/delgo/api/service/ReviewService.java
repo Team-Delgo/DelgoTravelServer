@@ -1,7 +1,7 @@
 package com.delgo.api.service;
 
-import com.delgo.api.domain.Place;
 import com.delgo.api.domain.Review;
+import com.delgo.api.domain.place.Place;
 import com.delgo.api.domain.room.Room;
 import com.delgo.api.domain.user.User;
 import com.delgo.api.dto.review.ReadReviewDTO;

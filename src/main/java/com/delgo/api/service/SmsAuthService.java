@@ -39,7 +39,6 @@ public class SmsAuthService {
             String authTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
             SmsAuth smsAuth = SmsAuth.builder()
                     .randNum(randNum)
-                    .authTime(authTime)
                     .phoneNo(phoneNo)
                     .build();
             smsAuthRepository.save(smsAuth);
@@ -57,7 +56,7 @@ public class SmsAuthService {
             log.warn("The authentication numbers do not match");
             throw new IllegalStateException();
         }
-        LocalDateTime sendTime = LocalDateTime.parse(findSmsAuth.get().getAuthTime(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        LocalDateTime sendTime = findSmsAuth.get().getAuthTime();
         LocalDateTime authTime = LocalDateTime.now();
         Long effectTime = ChronoUnit.MINUTES.between(sendTime, authTime);
         if (effectTime > 3)
@@ -68,11 +67,12 @@ public class SmsAuthService {
                 .orElseThrow(() -> new NullPointerException("NOT FOUND SMS AUTH DATA"));
     }
     public boolean isAuth(SmsAuth smsAuth){
-        LocalDate now = LocalDate.now(); // 현재시간
-        LocalDate authTime = LocalDate.parse(smsAuth.getAuthTime()); // 최근 인증시간
-        Long effectTime = ChronoUnit.MINUTES.between(now, authTime); // 사이 값
+        LocalDateTime sendTime = smsAuth.getAuthTime();
+        LocalDateTime authTime = LocalDateTime.now();
+        Long effectTime = ChronoUnit.MINUTES.between(sendTime, authTime);
         if (effectTime < 10)
             return true;
+
         return false;
     }
 }

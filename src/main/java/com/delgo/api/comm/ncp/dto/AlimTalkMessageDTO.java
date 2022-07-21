@@ -1,5 +1,6 @@
 package com.delgo.api.comm.ncp.dto;
 
+import com.delgo.api.comm.ncp.AlimTalkFix;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

@@ -73,6 +73,7 @@ public class UserController extends CommController {
         return SuccessReturn();
     }
 
+    // 비밀번호 재설정
     @PostMapping("/resetPassword")
     public ResponseEntity<?> resetPassword(@Validated @RequestBody ResetPasswordDTO resetPasswordDTO){
         User user = userService.getUserByEmail(resetPasswordDTO.getEmail()); // 유저 조회
@@ -108,6 +109,18 @@ public class UserController extends CommController {
         } else {
             return ErrorReturn(ApiCode.EMAIL_DUPLICATE_ERROR);
         }
+    }
+
+    // 이름 중복 확인
+    @GetMapping("/nameCheck")
+    public ResponseEntity<?> nameCheck(@RequestParam String name){
+        if(name.isBlank()){
+            return ErrorReturn(ApiCode.PARAM_ERROR);
+        }
+        if(!userService.isNameExisting(name))
+            return SuccessReturn();
+        else
+            return ErrorReturn(ApiCode.NAME_DUPLICATE_ERROR);
     }
 
     // 소셜 회원가입
