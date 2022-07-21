@@ -92,7 +92,7 @@ public class BookingService extends CommService {
 
         return ReturnBookingDTO.builder()
                 .bookingId(bookingId)
-                .userName(user.getName())
+                .reservedName(booking.getReservedName())
                 .userPhoneNo(user.getPhoneNo())
                 .roomName(room.getName())
                 .originalPrice(formatIntToPrice(originalPrice))
