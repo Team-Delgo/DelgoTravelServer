@@ -56,7 +56,7 @@ public class PhotoController extends CommController {
      * - 리뷰 사진은 최대 5개까지 저장 가능
      * Request Data : reviewId, photos
      * - reviewId : DB에 photoUrl 등록할 때 Review 식별
-     * - photos: List이다, 0 ~ 4개 허용, 확장자는 .jpg를 기본으로 한다. [ 리뷰는 사진이 필수가 아니므로 *빈 값 허용한다.*  ]
+     * - photos: List이다,4개 까지 허용한다. (null 가능 == 0개 가능), 확장자는 .jpg를 기본으로 한다. [ 리뷰는 사진이 필수가 아니므로 *빈 값 허용한다.*  ]
      * Response Data : ApiCode
      */
     @PostMapping(value = {"/upload/reviewPhoto/{reviewId}", "/upload/reviewPhoto"})
