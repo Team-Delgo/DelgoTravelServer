@@ -11,8 +11,8 @@ import java.io.IOException;
 import java.io.InputStream;
 
 public class RequestBodyWrapper extends HttpServletRequestWrapper {
-    class ServletInputStreamImpl extends ServletInputStream {
-        private InputStream inputStream;
+    static class ServletInputStreamImpl extends ServletInputStream {
+        private final InputStream inputStream;
 
         public ServletInputStreamImpl(final InputStream inputStream) {
             this.inputStream = inputStream;
