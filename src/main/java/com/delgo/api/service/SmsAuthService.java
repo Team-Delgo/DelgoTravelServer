@@ -9,9 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 import java.util.Random;
@@ -36,11 +34,12 @@ public class SmsAuthService {
 
         try {
             smsService.sendSMS(phoneNo, message);
-            String authTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-            SmsAuth smsAuth = SmsAuth.builder()
-                    .randNum(randNum)
-                    .phoneNo(phoneNo)
-                    .build();
+            SmsAuth smsAuth = smsAuthRepository.findByPhoneNo(phoneNo);
+            if(smsAuth != null){
+                smsAuth.setRandNum(randNum);
+            } else {
+                smsAuth = SmsAuth.builder().randNum(randNum).phoneNo(phoneNo).build();
+            }
             smsAuthRepository.save(smsAuth);
             int smsId = smsAuth.getSmsId();
             return smsId;
@@ -63,8 +62,7 @@ public class SmsAuthService {
             throw new IllegalStateException();
     }
     public SmsAuth getSmsAuthByPhoneNo(String phoneNO) {
-        return smsAuthRepository.findByPhoneNo(phoneNO)
-                .orElseThrow(() -> new NullPointerException("NOT FOUND SMS AUTH DATA"));
+        return smsAuthRepository.findByPhoneNo(phoneNO);
     }
     public boolean isAuth(SmsAuth smsAuth){
         LocalDateTime sendTime = smsAuth.getAuthTime();
