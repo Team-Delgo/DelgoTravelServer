@@ -43,7 +43,7 @@ public class API {
         public static final int EMAIL_DUPLICATE_ERROR = 316;
 
         //SMS AUTH ERROR
-        public static final int AUTH_NO_NOT_MATCHING = 317;
+        public static final int AUTH_DO_NOT_MATCHING = 317;
 
         //PHONE NO ERROR
         public static final int PHONE_NO_NOT_EXIST = 318;

@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Optional;
+
 @Slf4j
 @RestController
 @RequiredArgsConstructor
@@ -20,18 +22,18 @@ public class SmsAuthController extends CommController {
 
     // 회원가입 전 인증번호 전송
     @GetMapping("/phoneNoAuth")
-    public ResponseEntity<?> phoneNoCheck(@RequestParam String phoneNo) {
+    public ResponseEntity<?> phoneNoAuth(@RequestParam String phoneNo) {
         try {
-            if(phoneNo.isBlank()){
+            if (phoneNo.isBlank()) {
                 return ErrorReturn(ApiCode.PARAM_ERROR);
             }
             phoneNo = phoneNo.replaceAll("[^0-9]", "");
 
-            if(userService.isPhoneNoExisting(phoneNo)){
+            if (userService.isPhoneNoExisting(phoneNo)) {
                 return ErrorReturn(ApiCode.PHONE_NO_DUPLICATE_ERROR);
             }
 
-            if(smsAuthService.isSmsAuthExisting(phoneNo)){
+            if (smsAuthService.isSmsAuthExisting(phoneNo)) {
                 int smsId = smsAuthService.updateSmsAuth(phoneNo);
                 return SuccessReturn(smsId);
             } else {
@@ -39,30 +41,30 @@ public class SmsAuthController extends CommController {
                 return SuccessReturn(smsId);
             }
 
-        } catch (Exception e){
+        } catch (Exception e) {
             return ErrorReturn(ApiCode.UNKNOWN_ERROR);
         }
     }
 
     // 회원가입 후 인증번호 전송
     @GetMapping("/phoneNoCheck")
-    public ResponseEntity<?> phoneNoAuth(@RequestParam String phoneNo) {
+    public ResponseEntity<?> phoneNoCheck(@RequestParam String phoneNo) {
         try {
-            if(phoneNo.isBlank()){
+            if (phoneNo.isBlank()) {
                 return ErrorReturn(ApiCode.PARAM_ERROR);
             }
             phoneNo = phoneNo.replaceAll("[^0-9]", "");
-            if(!userService.isPhoneNoExisting(phoneNo)){
+            if (!userService.isPhoneNoExisting(phoneNo)) {
                 return ErrorReturn(ApiCode.PHONE_NO_NOT_EXIST);
             }
-            if(smsAuthService.isSmsAuthExisting(phoneNo)){
+            if (smsAuthService.isSmsAuthExisting(phoneNo)) {
                 int smsId = smsAuthService.updateSmsAuth(phoneNo);
                 return SuccessReturn(smsId);
             } else {
                 int smsId = smsAuthService.createSmsAuth(phoneNo);
                 return SuccessReturn(smsId);
             }
-        } catch (Exception e){
+        } catch (Exception e) {
             return ErrorReturn(ApiCode.UNKNOWN_ERROR);
         }
     }
@@ -70,10 +72,13 @@ public class SmsAuthController extends CommController {
     // 인증번호 확인
     @GetMapping("/authRandNum")
     public ResponseEntity<?> randNumCheck(@RequestParam Integer smsId, @RequestParam String enterNum) {
-        if(enterNum.isBlank()){
+        if (enterNum.isBlank()) {
             return ErrorReturn(ApiCode.PARAM_ERROR);
         }
-        smsAuthService.checkSMS(smsId, enterNum);
+        Optional<ApiCode> apiCode = smsAuthService.checkSMS(smsId, enterNum);
+        if (apiCode.isPresent())
+            return ErrorReturn(apiCode.get());
+
         return SuccessReturn();
     }
 }
