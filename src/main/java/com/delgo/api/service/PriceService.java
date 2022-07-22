@@ -71,7 +71,15 @@ public class PriceService extends CommService {
 //                ExpectedConditions.presenceOfElementLocated(By.cssSelector(".list_calendar_info li.item"))
 //        );
 
-        //  두달 치 가져옴
+        // 모든 날짜 예약 완료시 Naver Booking에서 다음달로 이동시킨다. ( 따라서 오늘이 포함된 달로 다시 Back 시켜야 함. )
+        while (true) {
+            if (setInitDate(today.getYear(), today.getMonthValue()))
+                break;
+            backBtnClick();
+        }
+
+//        log.info("----------------------------------------------------------------");
+//          두달 치 가져옴
         for (int j = 0; j < 3; j++) {
             // typeList ex : { "선택", "불가", "160,000원", "190,000원", "210,000원" }
             List<String> typeList = getPriceType(); // 가격의 종류 List
@@ -82,7 +90,8 @@ public class PriceService extends CommService {
                 canBookingList.forEach(date -> {
                     LocalDate localDate = LocalDate.parse(date);
                     // 오늘 기준 2달까지만 DB에 저장한다.
-                    if ((localDate.isAfter(today) && localDate.isBefore(lastDay)) || localDate.isEqual(today) || localDate.isEqual(lastDay))
+                    if ((localDate.isAfter(today) && localDate.isBefore(lastDay)) || localDate.isEqual(today) ||
+                            localDate.isEqual(lastDay))
                         resultList.add(
                                 Price.builder()
                                         .placeId(placeId)
@@ -99,7 +108,8 @@ public class PriceService extends CommService {
             canNotBookingList.forEach(date -> {
                 LocalDate localDate = LocalDate.parse(date);
                 // 오늘 기준 2달까지만 DB에 저장한다.
-                if ((localDate.isAfter(today) && localDate.isBefore(lastDay)) || localDate.isEqual(today) || localDate.isEqual(lastDay))
+                if ((localDate.isAfter(today) && localDate.isBefore(lastDay)) || localDate.isEqual(today) ||
+                        localDate.isEqual(lastDay))
                     resultList.add(
                             Price.builder()
                                     .placeId(placeId)
@@ -115,10 +125,34 @@ public class PriceService extends CommService {
         return resultList;
     }
 
-    // 다음달로 이동
+    // 크롤링 시작 날짜 조정
+    private boolean setInitDate(int nowYear, int nowMonth) throws InterruptedException {
+        List<String> date = new ArrayList<String>();
+        List<WebElement> elements = driver.findElements(By.cssSelector(".calendar-title span"));
+        elements.forEach(element -> date.add(element.getText()));
+
+        int year = Integer.parseInt(date.get(0));
+        int month = Integer.parseInt(date.get(1));
+
+//        log.info("now date : {} , {}",nowYear,nowMonth);
+//        log.info("init date : {} , {}",year,month);
+
+        return year == nowYear && month == nowMonth;
+    }
+
+    // 다음 달로 이동
     private void nextBtnClick() throws InterruptedException {
         // 다음[ > ] 버튼
         List<WebElement> elements = driver.findElements(By.cssSelector(".fn-forward2"));
+        elements.forEach(element -> element.click());
+
+        Thread.sleep(1000); //브라우저 로딩될때까지 잠시 기다린다.
+    }
+
+    // 이전 달로 이동
+    private void backBtnClick() throws InterruptedException {
+        // 다음[ < ] 버튼
+        List<WebElement> elements = driver.findElements(By.cssSelector(".fn-backward2"));
         elements.forEach(element -> element.click());
 
         Thread.sleep(1000); //브라우저 로딩될때까지 잠시 기다린다.
