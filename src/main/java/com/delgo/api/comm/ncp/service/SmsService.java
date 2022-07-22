@@ -1,9 +1,9 @@
 package com.delgo.api.comm.ncp.service;
 
 
-import com.delgo.api.comm.ncp.dto.SmsMessageDTO;
-import com.delgo.api.comm.ncp.dto.SmsResponseDTO;
-import com.delgo.api.comm.ncp.dto.SmsRequestDTO;
+import com.delgo.api.comm.ncp.dto.sms.SmsMessageDTO;
+import com.delgo.api.comm.ncp.dto.sms.SmsResponseDTO;
+import com.delgo.api.comm.ncp.dto.sms.SmsRequestDTO;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;

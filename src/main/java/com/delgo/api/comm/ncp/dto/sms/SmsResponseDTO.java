@@ -1,4 +1,4 @@
-package com.delgo.api.comm.ncp.dto;
+package com.delgo.api.comm.ncp.dto.sms;
 
 import lombok.*;
 
