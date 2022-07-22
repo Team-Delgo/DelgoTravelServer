@@ -22,8 +22,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
-import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
 
 @Slf4j
 @RestController
@@ -127,9 +125,7 @@ public class UserController extends CommController {
     @PostMapping("/socialSignup")
     public ResponseEntity<?> registerUserBySocial(@Validated @RequestBody SignUpDTO signUpDTO, HttpServletResponse response) {
         String phoneNoUpdate = signUpDTO.getUser().getPhoneNo().replaceAll("[^0-9]", "");
-        String birthdayUpdate = signUpDTO.getPet().getBirthday().replaceAll("[^0-9]", "");
         signUpDTO.getUser().setPhoneNo(phoneNoUpdate);
-        signUpDTO.getPet().setBirthday(birthdayUpdate);
         signUpDTO.getUser().setEmail("");
 
         User user = userService.socialSignup(signUpDTO.getUser(), signUpDTO.getPet());
@@ -147,9 +143,7 @@ public class UserController extends CommController {
     @PostMapping("/signup")
     public ResponseEntity<?> registerUser(@Validated @RequestBody SignUpDTO signUpDTO, HttpServletResponse response) {
         String phoneNoUpdate = signUpDTO.getUser().getPhoneNo().replaceAll("[^0-9]", "");
-        String birthdayUpdate = signUpDTO.getPet().getBirthday().replaceAll("[^0-9]", "");
         signUpDTO.getUser().setPhoneNo(phoneNoUpdate);
-        signUpDTO.getPet().setBirthday(birthdayUpdate);
         User user = userService.signup(signUpDTO.getUser(), signUpDTO.getPet());
         user.setPassword(""); // 보안
 
@@ -163,11 +157,10 @@ public class UserController extends CommController {
     }
 
     // 회원탈퇴
-    @PostMapping("/deleteUser")
-    public ResponseEntity<?> deleteUser(@Validated @RequestBody SignUpDTO signUpDTO){
+    @PostMapping(value = {"/deleteUser/{userId}", "/deleteUser"})
+    public ResponseEntity<?> deleteUser(@PathVariable(value = "userId") Integer userId){
 
-        userService.deleteUser(signUpDTO.getUser().getEmail());
+        userService.deleteUser(userId);
         return SuccessReturn();
     }
-
 }
