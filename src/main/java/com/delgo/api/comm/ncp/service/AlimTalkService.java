@@ -1,10 +1,9 @@
 package com.delgo.api.comm.ncp.service;
 
-import com.delgo.api.comm.ncp.AlimTalkFix;
-import com.delgo.api.comm.ncp.dto.AlimTalkMessageDTO;
-import com.delgo.api.comm.ncp.dto.AlimTalkRequestDTO;
-import com.delgo.api.comm.ncp.dto.AlimTalkResponseDTO;
-import com.delgo.api.domain.pet.PetSize;
+import com.delgo.api.comm.ncp.dto.alimTalk.AlimTalkButtonDTO;
+import com.delgo.api.comm.ncp.dto.alimTalk.AlimTalkMessageDTO;
+import com.delgo.api.comm.ncp.dto.alimTalk.AlimTalkRequestDTO;
+import com.delgo.api.comm.ncp.dto.alimTalk.AlimTalkResponseDTO;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
@@ -53,12 +52,17 @@ public class AlimTalkService {
     String apiUrl = requestUrlHeader + requestUrlService + serviceId + requestUrlType;
     String sigUrl = requestUrlService + serviceId + requestUrlType;
 
-    public AlimTalkResponseDTO sendAlimTalk(String templateCode, String recipientPhoneNumber) throws JsonProcessingException, UnsupportedEncodingException, InvalidKeyException, NoSuchAlgorithmException {
+    public AlimTalkResponseDTO sendAlimTalk(String templateCode, String recipientPhoneNumber, String content) throws JsonProcessingException, UnsupportedEncodingException, InvalidKeyException, NoSuchAlgorithmException {
         long time = System.currentTimeMillis();
         String timeStamp = Long.toString(time);
         List<AlimTalkMessageDTO> messages = new ArrayList<>();
-        AlimTalkFix alimTalkFix = new AlimTalkFix("유저이름", "숙소", "방타입", PetSize.M, "", "2022-07-22", "2022-07-24");
-        messages.add(new AlimTalkMessageDTO("82", recipientPhoneNumber, alimTalkFix.toString()));
+
+
+        AlimTalkButtonDTO alimTalkButtonDTO = new AlimTalkButtonDTO("WL", "Delgo에서 보기", "http://www.delgo.pet/", "http://www.delgo.pet/");
+        List<AlimTalkButtonDTO> buttons = new ArrayList<>();
+        buttons.add(alimTalkButtonDTO);
+
+        messages.add(new AlimTalkMessageDTO("82", recipientPhoneNumber,  content, buttons));
         AlimTalkRequestDTO alimTalkRequestDTO = new AlimTalkRequestDTO(plusFriendId, templateCode, messages);
         ObjectMapper objectMapper = new ObjectMapper();
         String jsonBody = objectMapper.writeValueAsString(alimTalkRequestDTO);
