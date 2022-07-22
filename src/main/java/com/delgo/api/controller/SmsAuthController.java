@@ -29,10 +29,16 @@ public class SmsAuthController extends CommController {
 
             if(userService.isPhoneNoExisting(phoneNo)){
                 return ErrorReturn(ApiCode.PHONE_NO_DUPLICATE_ERROR);
+            }
+
+            if(smsAuthService.isSmsAuthExisting(phoneNo)){
+                int smsId = smsAuthService.updateSmsAuth(phoneNo);
+                return SuccessReturn(smsId);
             } else {
-                int smsId = smsAuthService.sendSMS(phoneNo);
+                int smsId = smsAuthService.createSmsAuth(phoneNo);
                 return SuccessReturn(smsId);
             }
+
         } catch (Exception e){
             return ErrorReturn(ApiCode.UNKNOWN_ERROR);
         }
@@ -48,8 +54,12 @@ public class SmsAuthController extends CommController {
             phoneNo = phoneNo.replaceAll("[^0-9]", "");
             if(!userService.isPhoneNoExisting(phoneNo)){
                 return ErrorReturn(ApiCode.PHONE_NO_NOT_EXIST);
+            }
+            if(smsAuthService.isSmsAuthExisting(phoneNo)){
+                int smsId = smsAuthService.updateSmsAuth(phoneNo);
+                return SuccessReturn(smsId);
             } else {
-                int smsId = smsAuthService.sendSMS(phoneNo);
+                int smsId = smsAuthService.createSmsAuth(phoneNo);
                 return SuccessReturn(smsId);
             }
         } catch (Exception e){
