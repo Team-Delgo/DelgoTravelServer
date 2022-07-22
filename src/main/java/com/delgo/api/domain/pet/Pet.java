@@ -28,7 +28,7 @@ public class Pet {
     private PetSize size;
 
     @Column(nullable = false, name="birthday")
-    private String birthday;
+    private LocalDate birthday;
 
     @Column(name="user_id")
     private int userId;

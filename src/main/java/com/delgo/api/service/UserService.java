@@ -54,16 +54,17 @@ public class UserService {
     }
 
     // 회원탈퇴
-    public void deleteUser(String email) {
-        User user = userRepository.findByEmail(email).orElseThrow(() -> new IllegalArgumentException("The email does not exist"));
-        Pet pet = petRepository.findByUserId(user.getUserId()).orElseThrow(() -> new IllegalArgumentException("Something wrong"));
+    public void deleteUser(int userId) {
+        User user = userRepository.findByUserId(userId).orElseThrow(() -> new NullPointerException("NOT FOUND USER"));
+        Pet pet = petRepository.findByUserId(userId).orElseThrow(() -> new NullPointerException("NOT FOUND PET"));
         petRepository.delete(pet);
         userRepository.delete(user);
     }
 
     // 비밀번호 변경
     public void changePassword(String checkedEmail, String newPassword) {
-        User user = userRepository.findByEmail(checkedEmail).orElseThrow(() -> new IllegalArgumentException("The email does not exist"));
+        User user = userRepository.findByEmail(checkedEmail).orElseThrow(() -> new IllegalArgumentException("The " +
+                "email does not exist"));
         String encodedPassword = passwordEncoder.encode(newPassword);
         user.setPassword(encodedPassword);
         userRepository.save(user);
@@ -83,17 +84,17 @@ public class UserService {
     }
 
     // 이름 존재 유무 확인
-    public boolean isNameExisting(String name){
+    public boolean isNameExisting(String name) {
         Optional<User> findUser = userRepository.findByName(name);
         return findUser.isPresent();
     }
 
     // myAccount
     public InfoDTO getInfoByUserId(int userId) {
-        User user = userRepository.findByUserId(userId).orElseThrow(() -> new IllegalStateException("Not Found UserData"));
+        User user = userRepository.findByUserId(userId).orElseThrow(() -> new NullPointerException("NOT FOUND USER"));
         String profileUrl = user.getProfile();
 
-        Pet pet = petRepository.findByUserId(userId).orElseThrow(() -> new IllegalStateException("Not Found PetData"));
+        Pet pet = petRepository.findByUserId(userId).orElseThrow(() -> new NullPointerException("NOT FOUND PET"));
 
         String petName = pet.getName();
 
