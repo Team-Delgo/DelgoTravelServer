@@ -49,9 +49,6 @@ public class UserController extends CommController {
         int userId = user.getUserId();
         Pet originPet = petService.getPetByUserId(userId);
 
-        if(modifyPetDTO.getBirthday() != null)
-            originPet.setBirthday(modifyPetDTO.getBirthday());
-
         if(modifyPetDTO.getName() != null)
             originPet.setName(modifyPetDTO.getName());
 
