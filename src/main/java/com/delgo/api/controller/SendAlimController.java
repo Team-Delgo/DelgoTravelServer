@@ -20,14 +20,14 @@ public class SendAlimController extends CommController {
 
     // 예약 완료 알림톡 전송
     @GetMapping("/completeReservation")
-    public ResponseEntity<?> completeReservation(@RequestParam String templateCode, String phoneNo, String placeName, String roomName, PetSize petSize, String option, String startDt, String endDt) {
+    public ResponseEntity<?> completeReservation(@RequestParam String templateCode, String phoneNo, String placeName, String roomName, String startDt, String endDt) {
         try {
             if(phoneNo.isBlank() || templateCode.isBlank()){
                 return ErrorReturn(ApiCode.PARAM_ERROR);
             }
             phoneNo = phoneNo.replaceAll("[^0-9]", "");
 
-            alimService.sendWaitAlimTalk("Wait", phoneNo, placeName, roomName, petSize, option, startDt, endDt);
+            alimService.sendWaitAlimTalk("Wait", phoneNo, placeName, roomName, startDt, endDt);
 
             return SuccessReturn();
 
@@ -36,14 +36,14 @@ public class SendAlimController extends CommController {
         }
     }
     @GetMapping("/fixReservation")
-    public ResponseEntity<?> fixReservation(@RequestParam String templateCode, String phoneNo, String userName, String placeName, String roomName, PetSize petSize, String option, String startDt, String endDt) {
+    public ResponseEntity<?> fixReservation(@RequestParam String templateCode, String phoneNo, String userName, String placeName, String roomName, String startDt, String endDt) {
         try {
             if(phoneNo.isBlank() || templateCode.isBlank()){
                 return ErrorReturn(ApiCode.PARAM_ERROR);
             }
             phoneNo = phoneNo.replaceAll("[^0-9]", "");
 
-            alimService.sendFixAlimTalk("Fix", phoneNo, userName, placeName, roomName, petSize, option, startDt, endDt);
+            alimService.sendFixAlimTalk("Fix", phoneNo, userName, placeName, roomName, startDt, endDt);
 
             return SuccessReturn();
 
