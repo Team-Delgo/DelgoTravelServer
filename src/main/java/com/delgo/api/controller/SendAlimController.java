@@ -35,4 +35,36 @@ public class SendAlimController extends CommController {
             return ErrorReturn(ApiCode.UNKNOWN_ERROR);
         }
     }
+    @GetMapping("/fixReservation")
+    public ResponseEntity<?> fixReservation(@RequestParam String templateCode, String phoneNo, String userName, String placeName, String roomName, PetSize petSize, String option, String startDt, String endDt) {
+        try {
+            if(phoneNo.isBlank() || templateCode.isBlank()){
+                return ErrorReturn(ApiCode.PARAM_ERROR);
+            }
+            phoneNo = phoneNo.replaceAll("[^0-9]", "");
+
+            alimService.sendFixAlimTalk("Fix", phoneNo, userName, placeName, roomName, petSize, option, startDt, endDt);
+
+            return SuccessReturn();
+
+        } catch (Exception e){
+            return ErrorReturn(ApiCode.UNKNOWN_ERROR);
+        }
+    }
+    @GetMapping("/cancelReservation")
+    public ResponseEntity<?> cancelReservation(@RequestParam String templateCode, String phoneNo, String placeName, String roomName, String price, String payment) {
+        try {
+            if(phoneNo.isBlank() || templateCode.isBlank()){
+                return ErrorReturn(ApiCode.PARAM_ERROR);
+            }
+            phoneNo = phoneNo.replaceAll("[^0-9]", "");
+
+            alimService.sendCancelAlimTalk("Cancel", phoneNo, placeName, roomName, price, payment);
+
+            return SuccessReturn();
+
+        } catch (Exception e){
+            return ErrorReturn(ApiCode.UNKNOWN_ERROR);
+        }
+    }
 }

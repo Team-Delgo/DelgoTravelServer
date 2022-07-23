@@ -37,4 +37,43 @@ public class AlimService {
         }
     }
 
+    public void sendFixAlimTalk(String templateCode, String phoneNo, String userName, String placeName, String roomName, PetSize petSize, String option, String startDt, String endDt) throws IOException {
+        try {
+            String content = "[Delgo] 예약확정 안내\n" +
+                    "안녕하세요? " + userName +"님의 예약이 확정되었습니다.\n" +
+                    "아래 숙소의 예약 정보를 확인해주세요.\n" +
+                    "\n" +
+                    "숙소이름 : " + placeName + "\n" +
+                    "객실타입 : " + roomName + " (기준인원2명)\n" +
+                    "견종타입 : " + petSize + "\n" +
+                    "추가사항: " + option + "\n" +
+                    "입실일시: " + startDt + " 15:00 ~\n" +
+                    "퇴실일시: " + endDt + " 11:00\n" +
+                    "\n" +
+                    "반려견과 좋은 시간 보내세요!";
+            alimTalkService.sendAlimTalk(templateCode, phoneNo, content);
+        } catch (Exception e) {
+            throw new IOException();
+        }
+    }
+
+    public void sendCancelAlimTalk(String templateCode, String phoneNo, String placeName, String roomName, String price, String payment) throws IOException {
+        try {
+            String content = "[Delgo] 예약취소 안내\n" +
+                    "안녕하세요? Delgo입니다.\n" +
+                    "고객님께서 예약하신 숙소가 취소되었습니다.\n" +
+                    "\n" +
+                    "숙소이름 : " + placeName + "\n" +
+                    "객실타입 : " + roomName + " (기준인원2명)\n" +
+                    "환불예정금액: " + price + "원\n" +
+                    "결제수단: " + payment + "\n" +
+                    "환불소요기간: 영업일 기준 3~5일\n" +
+                    "\n" +
+                    "이용해 주셔서 감사합니다.";
+            alimTalkService.sendAlimTalk(templateCode, phoneNo, content);
+        } catch (Exception e) {
+            throw new IOException();
+        }
+    }
+
 }
