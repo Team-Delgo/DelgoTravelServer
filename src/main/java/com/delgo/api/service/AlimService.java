@@ -16,14 +16,12 @@ import java.io.IOException;
 public class AlimService {
     private final AlimTalkService alimTalkService;
 
-    public void sendWaitAlimTalk(String templateCode, String phoneNo, String placeName, String roomName, PetSize petSize, String option, String startDt, String endDt) throws IOException {
+    public void sendWaitAlimTalk(String templateCode, String phoneNo, String placeName, String roomName, String startDt, String endDt) throws IOException {
         try {
             String content = "[Delgo] 예약대기 안내\n" +
                     "아래 숙소의 예약 대기가 접수 되었습니다.\n" +
                     "숙소이름 : " + placeName + "\n" +
                     "객실타입 : " + roomName + " (기준인원2명)\n" +
-                    "견종타입 : " + petSize + "\n" +
-                    "추가사항: " + option + "\n" +
                     "입실일시: " + startDt + " 15:00 ~\n" +
                     "퇴실일시: " + endDt + " 11:00\n" +
                     "\n" +
@@ -37,7 +35,7 @@ public class AlimService {
         }
     }
 
-    public void sendFixAlimTalk(String templateCode, String phoneNo, String userName, String placeName, String roomName, PetSize petSize, String option, String startDt, String endDt) throws IOException {
+    public void sendFixAlimTalk(String templateCode, String phoneNo, String userName, String placeName, String roomName, String startDt, String endDt) throws IOException {
         try {
             String content = "[Delgo] 예약확정 안내\n" +
                     "안녕하세요? " + userName +"님의 예약이 확정되었습니다.\n" +
@@ -45,8 +43,6 @@ public class AlimService {
                     "\n" +
                     "숙소이름 : " + placeName + "\n" +
                     "객실타입 : " + roomName + " (기준인원2명)\n" +
-                    "견종타입 : " + petSize + "\n" +
-                    "추가사항: " + option + "\n" +
                     "입실일시: " + startDt + " 15:00 ~\n" +
                     "퇴실일시: " + endDt + " 11:00\n" +
                     "\n" +
