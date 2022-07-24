@@ -24,7 +24,6 @@ public class ReviewController extends CommController {
     @PostMapping("/write")
     public ResponseEntity writeReview(@Validated @RequestBody CreateReviewDTO createReviewDTO) {
         //중복 확인
-//        Boolean isDuplicated = reviewService.checkDuplicateReview(createReviewDTO.getUserId(), createReviewDTO.getPlaceId(), createReviewDTO.getRoomId());
         if (reviewService.isReviewExisting(createReviewDTO.getBookingId()))
             return ErrorReturn(ApiCode.REVIEW_DUPLICATE_ERROR);
 

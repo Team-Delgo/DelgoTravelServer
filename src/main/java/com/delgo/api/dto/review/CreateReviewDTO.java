@@ -20,6 +20,6 @@ public class CreateReviewDTO {
     private String bookingId;
     @NotNull
     private int rating;
-    @NotNull
+    @NotBlank
     private String text;
 }
