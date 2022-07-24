@@ -23,6 +23,11 @@ public class EditorNoteService extends CommService {
         return editorNoteRepository.findAll();
     }
 
+    public EditorNote getEditorNoteByPlaceId(int placeId) {
+        return editorNoteRepository.findByPlaceId(placeId)
+                .orElseThrow(() -> new NullPointerException("NOT FOUND EDITOR NOTE"));
+    }
+
     public boolean isEditorNoteExist(int placeId) {
         Optional<EditorNote> option = editorNoteRepository.findByPlaceId(placeId);
         return option.isPresent();

@@ -24,6 +24,7 @@ public class Place {
     private LocalDate registDt;
     private String checkin;
     private String checkout;
+    private String conceptTag;
 
     @Transient
     private String mainPhotoUrl;
