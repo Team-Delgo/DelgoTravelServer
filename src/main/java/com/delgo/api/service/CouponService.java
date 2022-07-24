@@ -23,12 +23,12 @@ public class CouponService extends CommService {
     private final CouponManagerRepository couponManagerRepository;
 
     public List<Coupon> getCouponListByUserId(int userId) {
-        return couponRepository.findByUserId(userId);
+        return couponRepository.findByUserIdAndIsUsedAndIsValid(userId, 0, 1);
     }
 
-    public void deleteExpiredCoupon(String yesterday){
+    public void deleteExpiredCoupon(String yesterday) {
         List<Coupon> deleteList = couponRepository.findByExpireDt(yesterday);
-        for(Coupon coupon : deleteList){
+        for (Coupon coupon : deleteList) {
             coupon.setIsValid(0);
             couponRepository.save(coupon);
         }
