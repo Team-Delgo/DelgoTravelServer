@@ -62,7 +62,7 @@ public class PhotoController extends CommController {
     @PostMapping(value = {"/upload/reviewPhoto/{reviewId}", "/upload/reviewPhoto"})
     public ResponseEntity<?> uploadReviewPhoto(
             @PathVariable Integer reviewId,
-            @RequestPart List<MultipartFile> photos) {
+            @RequestPart(required = false) List<MultipartFile> photos) {
         log.info("uploadReviewPhoto reviewId: {}", reviewId);
         log.info("uploadReviewPhoto photos size: {} ", photos.size());
 
