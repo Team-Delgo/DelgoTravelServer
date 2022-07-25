@@ -195,8 +195,8 @@ public class PriceService extends CommService {
 
     // Booking getData에서 사용
     public int getOriginalPrice(int roomId, LocalDate startDt, LocalDate endDt) {
-        List<Price> priceList = priceRepository.findByRoomIdAndPriceDateBetween(roomId, startDt.toString(),
-                endDt.toString());
+        List<Price> priceList = priceRepository.findByRoomIdAndPriceDateBetween(roomId, startDt.toString(), endDt.toString());
+        priceList.remove(priceList.size() - 1);
         int originalPrice = 0;
         for (Price price : priceList) {
             originalPrice += formatPriceToInt(price.getPrice());
@@ -205,10 +205,18 @@ public class PriceService extends CommService {
         return originalPrice;
     }
 
-    public void changeToReserveWait(LocalDate startDt, LocalDate endDt) {
+    public void changeToReserveWait(LocalDate startDt, LocalDate endDt, int isWait) {
         List<Price> priceList = priceRepository.findByPriceDateBetween(startDt.toString(), endDt.toString());
         priceList.forEach(price -> {
-            price.setIsWait(1);
+            price.setIsWait(isWait);
+            priceRepository.save(price);
+        });
+    }
+
+    public void changeToReserveFix(LocalDate startDt, LocalDate endDt, int isBooking) {
+        List<Price> priceList = priceRepository.findByPriceDateBetween(startDt.toString(), endDt.toString());
+        priceList.forEach(price -> {
+            price.setIsBooking(isBooking);
             priceRepository.save(price);
         });
     }
