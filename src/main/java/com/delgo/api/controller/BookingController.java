@@ -4,7 +4,8 @@ package com.delgo.api.controller;
 import com.delgo.api.comm.CommController;
 import com.delgo.api.comm.CommService;
 import com.delgo.api.comm.exception.ApiCode;
-import com.delgo.api.comm.ncp.service.LmsService;
+import com.delgo.api.comm.ncp.service.SmsService;
+import com.delgo.api.domain.Cancel;
 import com.delgo.api.domain.booking.Booking;
 import com.delgo.api.domain.booking.BookingState;
 import com.delgo.api.domain.user.User;
@@ -19,6 +20,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.time.Period;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -40,7 +42,8 @@ public class BookingController extends CommController {
     private final BookingService bookingService;
     private final PriceService priceService;
     private final PlaceService placeService;
-    private final LmsService lmsService;
+    private final SmsService smsService;
+    private final AlimService alimService;
 
     /**
      * 예약 요청 API
@@ -52,39 +55,43 @@ public class BookingController extends CommController {
         if (!commService.checkDate(bookingDTO.getStartDt().toString(), bookingDTO.getEndDt().toString()))
             return ErrorReturn(ApiCode.PARAM_DATE_ERROR);
         // Validate - 예약가능한 날짜인가?
-        if(!placeService.checkCanBooking(bookingDTO.getPlaceId(),bookingDTO.getStartDt(),bookingDTO.getEndDt()))
+        if (!placeService.checkCanBooking(bookingDTO.getPlaceId(), bookingDTO.getStartDt(), bookingDTO.getEndDt()))
             return ErrorReturn(ApiCode.ALREADY_BOOKING_PLACE);
 
-        // TODO: 쿠폰 사용 표시
         if (bookingDTO.getCouponId() != 0) {
-            // TODO: Validate - 쿠폰이 유효한 쿠폰인가?
             couponService.couponUse(bookingDTO.getCouponId());
         }
         // TODO: Point 사용 표시
         if (bookingDTO.getPoint() != 0) {
-            // TODO: DB 에 Point 관련 로직 짜야 함.
         }
-        // 예약 요청 정보를 Booking Table에 저장 , booking_status - W[wait]
+
         Booking booking = bookingDTO.build(bookingService.createBookingNum(), BookingState.W);
+        booking.setFinalPrice(bookingService.calculateFinalPrice(booking)); // 최종 가격 계산
         Booking savedBooking = bookingService.insertOrUpdateBooking(booking);
 
         //Price Table에 예약 대기중 표시
-        priceService.changeToReserveWait(bookingDTO.getStartDt(), bookingDTO.getEndDt());
+        priceService.changeToReserveWait(bookingDTO.getStartDt(), bookingDTO.getEndDt(), 1);
 
-        // User에게 대기요청문자 발송 [ 문자 어떻게 들어가야 할지 생각 필요 ]
-        User user = userService.getUserByUserId(savedBooking.getUserId());
         try {
-            // TODO: 운영진에게 예약요청문자 발송 [ 내용 어떤 거 들어갈지 생각 필요 ]
-//            lmsService.sendLMS(ADMIN_PHONE_NO, "ADMIN 테스트", "예약요청이 들어왔습니다.");
-//
+            // 운영진에게 예약 요청 문자 발송
+            String adminMsg = "예약번호 : " + booking.getBookingId() + " 예약요청이 들어왔습니다.";
+            smsService.sendSMS(ADMIN_PHONE_NO, adminMsg);
+
 //            // TODO: 사용자에게 예약대기문자 발송 [ 내용 어떤 거 들어갈지 생각 필요 ]
-//            lmsService.sendLMS(user.getPhoneNo(), "테스트 제목", "예약완료 될 때까지 기다려주세요.");
+            alimService.sendWaitAlimTalk(booking);
         } catch (Exception e) {
             e.printStackTrace();
             return ErrorReturn(ApiCode.SMS_ERROR);
         }
 
         return SuccessReturn(savedBooking.getBookingId());
+    }
+    /**
+     * 예약 내용 조회 : 예약확인 페이지
+     */
+    @GetMapping("/getData")
+    public ResponseEntity getBookingList(@RequestParam String bookingId) {
+        return SuccessReturn(bookingService.getReturnBookingData(bookingId));
     }
 
     /**
@@ -133,44 +140,33 @@ public class BookingController extends CommController {
         return SuccessReturn(historyList.stream().sorted(Comparator.comparing(HistoryDTO::getStartDt).reversed()));
     }
 
-
-    /**
-     * 예약 내용 조회 : 예약확인 페이지
-     */
-    @GetMapping("/getData")
-    public ResponseEntity getBookingList(@RequestParam String bookingId) {
-        return SuccessReturn(bookingService.getReturnBookingData(bookingId));
-    }
-
     // TODO: 취소 요청 API
     @PostMapping(value = {"/cancel/{bookingId}", "/cancel"})
     public ResponseEntity cancelRequest(@PathVariable String bookingId) {
         log.info(bookingId);
         Booking booking = bookingService.getBookingByBookingId(bookingId);
-        // TODO: 현재 날짜 vs 여행 날짜 비교 ( 남은 날짜 비교 취소 퍼센트 비교를 위해 )
+
+        // 오늘 날짜 vs 여행 날짜 비교 ( 남은 날짜 비교 취소 퍼센트 비교를 위해 )
         LocalDate tripDay = booking.getStartDt();
         if (tripDay.isBefore(LocalDate.now()))
             ErrorReturn(ApiCode.PARAM_DATE_ERROR);
 
-//        Period period = Period.between(LocalDate.now(), tripDay);
-//        Cancel cancel = cancelService.getCancelByPlaceIdAndRemainDay(booking.getPlaceId(), period.getDays());
-//        int returnRate = cancel.getReturnRate();
+        Period period = Period.between(LocalDate.now(), tripDay);
+        Cancel cancel = cancelService.getCancelByPlaceIdAndRemainDay(booking.getPlaceId(), period.getDays());
+        int returnRate = cancel.getReturnRate();
 
-//        if(returnRate == 0)
+        if (returnRate == 0)
+            ErrorReturn(ApiCode.REFUND_ZERO);
         // TODO: 환불률 0%면 취쇼요청 Cancel
 
-        // TODO: Booking State CW로 변경
         booking.setBookingState(BookingState.CW);
         bookingService.insertOrUpdateBooking(booking);
 
-        // TODO: 사용자 OR 운영진 카톡 발송
         // User 조회
         User user = userService.getUserByUserId(booking.getUserId());
-//        log.info(user.toString());
         try {
             // TODO: 사용자에게 취소대기문자 발송 [ 내용 어떤 거 들어갈지 생각 필요 ]
 //            smsService.sendSMS(user.getPhoneNo(), "예약완료 될 때까지 기다려주세요.");
-
             // TODO: 운영진에게 취소문자 발송  내용 어떤 거 들어갈지 생각 필요 ]
 //            smsService.sendSMS(user.getPhoneNo(), "예약요청이 들어왔습니다.");
         } catch (Exception e) {

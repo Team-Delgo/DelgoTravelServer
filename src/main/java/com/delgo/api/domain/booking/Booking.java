@@ -28,6 +28,7 @@ public class Booking {
     private Integer point;
     private LocalDate startDt;
     private LocalDate endDt;
+    private Integer finalPrice;
     @CreationTimestamp
     private LocalDate registDt;
     @Enumerated(EnumType.STRING)
