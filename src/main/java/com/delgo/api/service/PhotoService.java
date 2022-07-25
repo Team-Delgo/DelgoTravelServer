@@ -35,8 +35,11 @@ public class PhotoService extends CommService {
     public String uploadPetProfile(int userId, MultipartFile photo) {
         // ex) png, jpg, jpeg
         String[] type = Objects.requireNonNull(photo.getOriginalFilename()).split("\\.");
+        String extension = type[type.length - 1];
+        if (!extension.equals("png") && !extension.equals("jpg") && !extension.equals("jpeg"))
+            throw new NullPointerException("PHOTO EXTENSION IS WRONG");
 
-        String fileName = userId + "_pet_profile." + type[type.length - 1];
+        String fileName = userId + "_pet_profile." + extension;
         String dir = "/var/www/delgo-api/";
         // NCP Link
         String link = "https://kr.object.ncloudstorage.com/delgo-pet-profile/" + fileName;
@@ -55,7 +58,7 @@ public class PhotoService extends CommService {
             }
 
             // Cache 무효화
-            link += "?" +LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyMMddhhmmss")) + numberGen(4, 1);
+            link += "?" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyMMddhhmmss")) + numberGen(4, 1);
             return link;
         } catch (Exception e) {
             return "error:" + e.getMessage();
@@ -66,8 +69,11 @@ public class PhotoService extends CommService {
     public String uploadReviewPhoto(int reviewId, int order, MultipartFile photo) {
         // ex) png, jpg, jpeg
         String[] type = Objects.requireNonNull(photo.getOriginalFilename()).split("\\.");
+        String extension = type[type.length - 1];
+        if (!extension.equals("png") && !extension.equals("jpg") && !extension.equals("jpeg"))
+            throw new NullPointerException("PHOTO EXTENSION IS WRONG");
 
-        String fileName = reviewId + "_review" + order + "." + type[type.length - 1];
+        String fileName = reviewId + "_review" + order + "." + extension;
         String dir = "/var/www/delgo-api/";
         String link = "https://kr.object.ncloudstorage.com/delgo-review/" + fileName; //NCP Link
 
@@ -85,7 +91,7 @@ public class PhotoService extends CommService {
 
             reviewPhotoRepository.save(ReviewPhoto.builder().reviewId(reviewId).url(link).build());
             // Cache 무효화
-            link += "?" +LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyMMddhhmmss")) + numberGen(4, 1);
+            link += "?" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyMMddhhmmss")) + numberGen(4, 1);
             return link;
         } catch (Exception e) {
             return "error:" + e.getMessage();

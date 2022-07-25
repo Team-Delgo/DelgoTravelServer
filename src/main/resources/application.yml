@@ -15,7 +15,12 @@ spring:
     show-sql: false
     hibernate:
       ddl-auto: none
+  servlet:
+    multipart:
+      maxFileSize: 50MB
+      maxRequestSize: 50MB
 
 config:
-#  driverLocation: C:\\Users\\admin\\Desktop\\chromedriver.exe #Local
+#  driverLocation: C:\\chrome\\chromedriver.exe #Local
   driverLocation: /var/www/chrome/chromedriver #Dev
+

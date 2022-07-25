@@ -147,12 +147,22 @@ public class PlaceController extends CommController {
     }
 
     /*
-     * EditorNote 조회 API
+     * EditorNote 전체 데이터 조회 API
      * Response Data : 추천 로직에 따라 EditorNote 반환
      */
-    @GetMapping("/getEditorNote")
-    public ResponseEntity gtEditorNote() {
+    @GetMapping("/getEditorNote/all")
+    public ResponseEntity gtEditorNoteByall() {
         return SuccessReturn(editorNoteService.getEditorNoteList());
+    }
+
+    /*
+     * 특정 Place의 EditorNote 조회 API
+     * Request Data : placeId
+     * Response Data : placeId에 해당하는 EditorNote 반환
+     */
+    @GetMapping("/getEditorNote/place")
+    public ResponseEntity gtEditorNoteByPlace(@RequestParam Integer placeId) {
+        return SuccessReturn(editorNoteService.getEditorNoteByPlaceId(placeId));
     }
 
     /*
