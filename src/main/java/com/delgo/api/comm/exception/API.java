@@ -30,13 +30,17 @@ public class API {
         public static final int COUPON_DUPLICATE_ERROR = 312;
 
         //REVIEW ERROR
-        public static final int REVIEW_DUPLICATE_ERROR = 313;
-        public static final int REVIEW_NOT_EXIST = 314;
-        public static final int REVIEW_PHOTO_COUNT_ERROR = 315;
+        public static final int REVIEW_DUPLICATE_ERROR = 330;
+        public static final int REVIEW_NOT_EXIST = 331;
+        public static final int REVIEW_PHOTO_COUNT_ERROR = 332;
+        public static final int PHOTO_EXTENSION_ERROR = 333;
 
         //BOOKING ERROR
         public static final int BOOKING_NOT_EXIST = 316;
         public static final int ALREADY_BOOKING_PLACE = 317;
+
+        //CANCEL ERROR
+        public static final int REFUND_ZERO = 318;
 
         //EMAIL ERROR
         public static final int EMAIL_NOT_EXIST = 315;
