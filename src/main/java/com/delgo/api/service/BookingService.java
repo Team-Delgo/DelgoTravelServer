@@ -74,6 +74,13 @@ public class BookingService extends CommService {
     public String createBookingNum() {
         return LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyMMddhhmmss")) + numberGen(4, 1);
     }
+    public int calculateFinalPrice(Booking booking) {
+        int originalPrice = priceService.getOriginalPrice(booking.getRoomId(), booking.getStartDt(), booking.getEndDt());
+        int point = booking.getPoint();
+        int couponPrice = (booking.getCouponId() == 0) ? 0 : couponService.getCouponPrice(booking.getCouponId(), originalPrice);
+
+        return originalPrice - point - couponPrice;
+    }
 
     public ReturnBookingDTO getReturnBookingData(String bookingId) {
         Booking booking = getBookingByBookingId(bookingId);
