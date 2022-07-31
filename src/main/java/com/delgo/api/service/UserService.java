@@ -1,5 +1,7 @@
 package com.delgo.api.service;
 
+import com.delgo.api.domain.booking.Booking;
+import com.delgo.api.domain.booking.BookingState;
 import com.delgo.api.domain.pet.Pet;
 import com.delgo.api.domain.user.User;
 import com.delgo.api.dto.user.InfoDTO;
@@ -10,7 +12,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 
 @Slf4j
@@ -24,6 +29,7 @@ public class UserService {
     private final CouponRepository couponRepository;
     private final ReviewRepository reviewRepository;
     private final PasswordEncoder passwordEncoder;
+    private final BookingRepository bookingRepository;
 
     // 회원가입
     public User signup(User user, Pet pet) {
@@ -101,7 +107,12 @@ public class UserService {
         int couponNum = couponRepository.findByUserId(userId).size();
         int reviewNum = reviewRepository.findByUserId(userId).size();
 
-        InfoDTO infoDTO = new InfoDTO(profileUrl, petName, couponNum, reviewNum);
+        List<Booking> waitBookingList = bookingRepository.findByUserIdAndBookingState(userId, BookingState.W);
+        List<Booking> fixBookingList = bookingRepository.findByUserIdAndBookingState(userId, BookingState.F);
+        List<Booking> bookingList = Stream.concat(waitBookingList.stream(), fixBookingList.stream()).collect(Collectors.toList());
+
+
+        InfoDTO infoDTO = new InfoDTO(profileUrl, petName, couponNum, reviewNum,bookingList);
 
         return infoDTO;
     }

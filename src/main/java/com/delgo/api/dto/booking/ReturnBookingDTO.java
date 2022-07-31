@@ -19,6 +19,8 @@ public class ReturnBookingDTO {
     private Integer couponId; // 쿠폰 Id
     private String couponPrice; // 쿠폰 사용 금액
     private String finalPrice; // 최종 금액
+    private String commission; // 취소 수수료
+    private String refund; // 환불금
     private LocalDate startDt; // 체크인 날짜
     private LocalDate endDt; // 체크아웃 날짜
     private LocalDate registDt; // 등록 날짜

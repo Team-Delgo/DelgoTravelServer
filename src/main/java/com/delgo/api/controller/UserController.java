@@ -34,7 +34,7 @@ public class UserController extends CommController {
     private final SmsAuthService smsAuthService;
 
     @GetMapping("/myAccount")
-    public ResponseEntity<?> myAccount(@RequestParam Integer userId){
+    public ResponseEntity<?> myAccount(@RequestParam Integer userId) {
         InfoDTO infoDTO = userService.getInfoByUserId(userId);
 
         return SuccessReturn(infoDTO);
@@ -42,17 +42,17 @@ public class UserController extends CommController {
 
     // 펫 정보 수정
     @PostMapping("/changePetInfo")
-    public ResponseEntity<?> changePetInfo(@Validated @RequestBody ModifyPetDTO modifyPetDTO){
+    public ResponseEntity<?> changePetInfo(@Validated @RequestBody ModifyPetDTO modifyPetDTO) {
         String checkedEmail = modifyPetDTO.getEmail();
 
         User user = userService.getUserByEmail(checkedEmail);
         int userId = user.getUserId();
         Pet originPet = petService.getPetByUserId(userId);
 
-        if(modifyPetDTO.getName() != null)
+        if (modifyPetDTO.getName() != null)
             originPet.setName(modifyPetDTO.getName());
 
-        if(modifyPetDTO.getSize() != null)
+        if (modifyPetDTO.getSize() != null)
             originPet.setSize(modifyPetDTO.getSize());
 
         petService.changePetInfo(originPet);
@@ -62,7 +62,7 @@ public class UserController extends CommController {
 
     // 비밀번호 변경 - Account Page
     @PostMapping("/changePassword")
-    public ResponseEntity<?> changePassword(@Validated @RequestBody ResetPasswordDTO resetPassword){
+    public ResponseEntity<?> changePassword(@Validated @RequestBody ResetPasswordDTO resetPassword) {
         // 사용자 확인 - 토큰 사용
         userService.changePassword(resetPassword.getEmail(), resetPassword.getNewPassword());
         return SuccessReturn();
@@ -70,10 +70,10 @@ public class UserController extends CommController {
 
     // 비밀번호 재설정
     @PostMapping("/resetPassword")
-    public ResponseEntity<?> resetPassword(@Validated @RequestBody ResetPasswordDTO resetPasswordDTO){
+    public ResponseEntity<?> resetPassword(@Validated @RequestBody ResetPasswordDTO resetPasswordDTO) {
         User user = userService.getUserByEmail(resetPasswordDTO.getEmail()); // 유저 조회
         SmsAuth smsAuth = smsAuthService.getSmsAuthByPhoneNo(user.getPhoneNo()); // SMS DATA 조회
-        if(!smsAuthService.isAuth(smsAuth))
+        if (!smsAuthService.isAuth(smsAuth))
             ErrorReturn(ApiCode.SMS_ERROR);
 
         userService.changePassword(resetPasswordDTO.getEmail(), resetPasswordDTO.getNewPassword());
@@ -83,11 +83,11 @@ public class UserController extends CommController {
     // 이메일 존재 유무 확인
     @GetMapping("/emailAuth")
     public ResponseEntity<?> emailAuth(@RequestParam String email) {
-        if(email.isBlank()){
+        if (email.isBlank()) {
             return ErrorReturn(ApiCode.PARAM_ERROR);
         }
 
-        if(userService.isEmailExisting(email)) {
+        if (userService.isEmailExisting(email)) {
             return SuccessReturn(userService.getUserByEmail(email).getPhoneNo());
         }
         return ErrorReturn(ApiCode.EMAIL_NOT_EXIST);
@@ -96,10 +96,10 @@ public class UserController extends CommController {
     // 이메일 중복 확인
     @GetMapping("/emailCheck")
     public ResponseEntity<?> emailCheck(@RequestParam String email) {
-        if(email.isBlank()){
+        if (email.isBlank()) {
             return ErrorReturn(ApiCode.PARAM_ERROR);
         }
-        if(!userService.isEmailExisting(email)){
+        if (!userService.isEmailExisting(email)) {
             return SuccessReturn();
         } else {
             return ErrorReturn(ApiCode.EMAIL_DUPLICATE_ERROR);
@@ -108,11 +108,11 @@ public class UserController extends CommController {
 
     // 이름 중복 확인
     @GetMapping("/nameCheck")
-    public ResponseEntity<?> nameCheck(@RequestParam String name){
-        if(name.isBlank()){
+    public ResponseEntity<?> nameCheck(@RequestParam String name) {
+        if (name.isBlank()) {
             return ErrorReturn(ApiCode.PARAM_ERROR);
         }
-        if(!userService.isNameExisting(name))
+        if (!userService.isNameExisting(name))
             return SuccessReturn();
         else
             return ErrorReturn(ApiCode.NAME_DUPLICATE_ERROR);
@@ -142,7 +142,8 @@ public class UserController extends CommController {
         String phoneNoUpdate = signUpDTO.getUser().getPhoneNo().replaceAll("[^0-9]", "");
         signUpDTO.getUser().setPhoneNo(phoneNoUpdate);
         User user = userService.signup(signUpDTO.getUser(), signUpDTO.getPet());
-        user.setPassword(""); // 보안
+//        user.setPassword(""); // 보안
+        Pet pet = petService.getPetByUserId(user.getUserId());
 
         String Access_jwtToken = tokenService.createToken("Access", signUpDTO.getUser().getEmail()); // Access Token 생성
         String Refresh_jwtToken = tokenService.createToken("Refresh", signUpDTO.getUser().getEmail()); // Refresh Token 생성
@@ -150,12 +151,12 @@ public class UserController extends CommController {
         response.addHeader(Access_JwtProperties.HEADER_STRING, Access_JwtProperties.TOKEN_PREFIX + Access_jwtToken);
         response.addHeader(Refresh_JwtProperties.HEADER_STRING, Refresh_JwtProperties.TOKEN_PREFIX + Refresh_jwtToken);
 
-        return SuccessReturn(user);
+        return SuccessReturn(new SignUpDTO(user, pet));
     }
 
     // 회원탈퇴
     @PostMapping(value = {"/deleteUser/{userId}", "/deleteUser"})
-    public ResponseEntity<?> deleteUser(@PathVariable(value = "userId") Integer userId){
+    public ResponseEntity<?> deleteUser(@PathVariable(value = "userId") Integer userId) {
 
         userService.deleteUser(userId);
         return SuccessReturn();
