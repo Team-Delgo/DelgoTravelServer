@@ -17,49 +17,50 @@ import org.springframework.web.bind.annotation.RestController;
 public class SendAlimController extends CommController {
 
     private final AlimService alimService;
+//
+//    // 예약 완료 알림톡 전송
+//    @GetMapping("/completeReservation")
+//    public ResponseEntity<?> completeReservation(@RequestParam String phoneNo, String placeName, String roomName, String peopleNum, String startDt, String checkIn, String endDt, String checkOut) {
+//        try {
+//            if(phoneNo.isBlank()){
+//                return ErrorReturn(ApiCode.PARAM_ERROR);
+//            }
+//            phoneNo = phoneNo.replaceAll("[^0-9]", "");
+//
+//            alimService.sendWaitAlimTalk("WaitAlim", phoneNo, placeName, roomName, peopleNum, startDt, checkIn, endDt, checkOut);
+//
+//            return SuccessReturn();
+//
+//        } catch (Exception e){
+//            return ErrorReturn(ApiCode.UNKNOWN_ERROR);
+//        }
+//    }
+//    @GetMapping("/fixReservation")
+//    public ResponseEntity<?> fixReservation(@RequestParam String phoneNo, String userName, String placeName, String roomName, String peopleNum, String startDt, String checkIn, String endDt, String checkOut) {
+//        try {
+//            if(phoneNo.isBlank()){
+//                return ErrorReturn(ApiCode.PARAM_ERROR);
+//            }
+//            phoneNo = phoneNo.replaceAll("[^0-9]", "");
+//
+//            alimService.sendFixAlimTalk("FixAlim", phoneNo, userName, placeName, roomName, peopleNum, startDt, checkIn, endDt, checkOut);
+//
+//            return SuccessReturn();
+//
+//        } catch (Exception e){
+//            return ErrorReturn(ApiCode.UNKNOWN_ERROR);
+//        }
+//    }
 
-    // 예약 완료 알림톡 전송
-    @GetMapping("/completeReservation")
-    public ResponseEntity<?> completeReservation(@RequestParam String phoneNo, String placeName, String roomName, String peopleNum, String startDt, String checkIn, String endDt, String checkOut) {
+    @GetMapping("/cancelWaitReservation")
+    public ResponseEntity<?> cancelReservation(@RequestParam String phoneNo, String placeName, String roomName, String peopleNum, String startDt, String checkIn, String endDt, String checkOut) {
         try {
             if(phoneNo.isBlank()){
                 return ErrorReturn(ApiCode.PARAM_ERROR);
             }
             phoneNo = phoneNo.replaceAll("[^0-9]", "");
 
-            alimService.sendWaitAlimTalk("WaitAlim", phoneNo, placeName, roomName, peopleNum, startDt, checkIn, endDt, checkOut);
-
-            return SuccessReturn();
-
-        } catch (Exception e){
-            return ErrorReturn(ApiCode.UNKNOWN_ERROR);
-        }
-    }
-    @GetMapping("/fixReservation")
-    public ResponseEntity<?> fixReservation(@RequestParam String phoneNo, String userName, String placeName, String roomName, String peopleNum, String startDt, String checkIn, String endDt, String checkOut) {
-        try {
-            if(phoneNo.isBlank()){
-                return ErrorReturn(ApiCode.PARAM_ERROR);
-            }
-            phoneNo = phoneNo.replaceAll("[^0-9]", "");
-
-            alimService.sendFixAlimTalk("FixAlim", phoneNo, userName, placeName, roomName, peopleNum, startDt, checkIn, endDt, checkOut);
-
-            return SuccessReturn();
-
-        } catch (Exception e){
-            return ErrorReturn(ApiCode.UNKNOWN_ERROR);
-        }
-    }
-    @GetMapping("/cancelReservation")
-    public ResponseEntity<?> cancelReservation(@RequestParam String phoneNo, String placeName, String roomName, String peopleNum, String price, String payment) {
-        try {
-            if(phoneNo.isBlank()){
-                return ErrorReturn(ApiCode.PARAM_ERROR);
-            }
-            phoneNo = phoneNo.replaceAll("[^0-9]", "");
-
-            alimService.sendCancelAlimTalk("Cancel", phoneNo, placeName, roomName, peopleNum, price, payment);
+            alimService.sendCancelWaitAlimTalk(phoneNo, placeName, roomName, peopleNum, startDt, checkIn, endDt, checkOut);
 
             return SuccessReturn();
 
