@@ -7,10 +7,7 @@ import com.delgo.api.comm.security.jwt.Refresh_JwtProperties;
 import com.delgo.api.domain.SmsAuth;
 import com.delgo.api.domain.pet.Pet;
 import com.delgo.api.domain.user.User;
-import com.delgo.api.dto.user.InfoDTO;
-import com.delgo.api.dto.user.ModifyPetDTO;
-import com.delgo.api.dto.user.ResetPasswordDTO;
-import com.delgo.api.dto.user.SignUpDTO;
+import com.delgo.api.dto.user.*;
 import com.delgo.api.service.PetService;
 import com.delgo.api.service.SmsAuthService;
 import com.delgo.api.service.TokenService;
@@ -118,40 +115,57 @@ public class UserController extends CommController {
             return ErrorReturn(ApiCode.NAME_DUPLICATE_ERROR);
     }
 
-    // 소셜 회원가입
-    @PostMapping("/socialSignup")
-    public ResponseEntity<?> registerUserBySocial(@Validated @RequestBody SignUpDTO signUpDTO, HttpServletResponse response) {
-        String phoneNoUpdate = signUpDTO.getUser().getPhoneNo().replaceAll("[^0-9]", "");
-        signUpDTO.getUser().setPhoneNo(phoneNoUpdate);
-        signUpDTO.getUser().setEmail("");
-
-        User user = userService.socialSignup(signUpDTO.getUser(), signUpDTO.getPet());
-
-        String Access_jwtToken = tokenService.createToken("Access", signUpDTO.getUser().getPhoneNo()); // Access Token 생성
-        String Refresh_jwtToken = tokenService.createToken("Refresh", signUpDTO.getUser().getPhoneNo()); // Refresh Token 생성
-
-        response.addHeader(Access_JwtProperties.HEADER_STRING, Access_JwtProperties.TOKEN_PREFIX + Access_jwtToken);
-        response.addHeader(Refresh_JwtProperties.HEADER_STRING, Refresh_JwtProperties.TOKEN_PREFIX + Refresh_jwtToken);
-
-        return SuccessReturn(user);
-    }
+//    // 소셜 회원가입
+//    @PostMapping("/socialSignup")
+//    public ResponseEntity<?> registerUserBySocial(@Validated @RequestBody SignUpDTO signUpDTO, HttpServletResponse
+//    response) {
+////        String phoneNoUpdate = signUpDTO.getUser().getPhoneNo().replaceAll("[^0-9]", "");
+////        signUpDTO.getUser().setPhoneNo(phoneNoUpdate);
+////        signUpDTO.getUser().setEmail("");
+////
+////        User user = userService.socialSignup(signUpDTO.getUser(), signUpDTO.getPet());
+////
+////        String Access_jwtToken = tokenService.createToken("Access", signUpDTO.getUser().getPhoneNo()); // Access
+// Token 생성
+////        String Refresh_jwtToken = tokenService.createToken("Refresh", signUpDTO.getUser().getPhoneNo()); //
+// Refresh Token 생성
+//
+//        response.addHeader(Access_JwtProperties.HEADER_STRING, Access_JwtProperties.TOKEN_PREFIX + sAccess_jwtToken);
+//        response.addHeader(Refresh_JwtProperties.HEADER_STRING, Refresh_JwtProperties.TOKEN_PREFIX +
+//        Refresh_jwtToken);
+//
+//        return SuccessReturn(user);
+//    }
 
     // 회원가입
     @PostMapping("/signup")
     public ResponseEntity<?> registerUser(@Validated @RequestBody SignUpDTO signUpDTO, HttpServletResponse response) {
-        String phoneNoUpdate = signUpDTO.getUser().getPhoneNo().replaceAll("[^0-9]", "");
-        signUpDTO.getUser().setPhoneNo(phoneNoUpdate);
-        User user = userService.signup(signUpDTO.getUser(), signUpDTO.getPet());
-//        user.setPassword(""); // 보안
-        Pet pet = petService.getPetByUserId(user.getUserId());
+        if (userService.isEmailExisting(signUpDTO.getEmail())) // Email 중복확인
+            return ErrorReturn(ApiCode.EMAIL_DUPLICATE_ERROR);
 
-        String Access_jwtToken = tokenService.createToken("Access", signUpDTO.getUser().getEmail()); // Access Token 생성
-        String Refresh_jwtToken = tokenService.createToken("Refresh", signUpDTO.getUser().getEmail()); // Refresh Token 생성
+        User user = User.builder()
+                .name(signUpDTO.getUserName())
+                .email(signUpDTO.getEmail())
+                .password(signUpDTO.getPassword())
+                .phoneNo(signUpDTO.getPhoneNo().replaceAll("[^0-9]", ""))
+                .build();
+        Pet pet = Pet.builder()
+                .name(signUpDTO.getPetName())
+                .size(signUpDTO.getPetSize())
+                .birthday(signUpDTO.getBirthday())
+                .build();
+
+        User userByDB = userService.signup(user, pet);
+//        user.setPassword(""); // 보안
+        Pet petByDB = petService.getPetByUserId(user.getUserId());
+
+        String Access_jwtToken = tokenService.createToken("Access", user.getEmail()); // Access Token 생성
+        String Refresh_jwtToken = tokenService.createToken("Refresh", user.getEmail()); // Refresh Token 생성
 
         response.addHeader(Access_JwtProperties.HEADER_STRING, Access_JwtProperties.TOKEN_PREFIX + Access_jwtToken);
         response.addHeader(Refresh_JwtProperties.HEADER_STRING, Refresh_JwtProperties.TOKEN_PREFIX + Refresh_jwtToken);
 
-        return SuccessReturn(new SignUpDTO(user, pet));
+        return SuccessReturn(new UserPetDTO(userByDB, petByDB));
     }
 
     // 회원탈퇴
