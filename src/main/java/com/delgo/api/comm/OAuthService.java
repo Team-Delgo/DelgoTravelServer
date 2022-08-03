@@ -1,15 +1,16 @@
 package com.delgo.api.comm;
 
-import com.delgo.api.comm.exception.API;
 import com.delgo.api.comm.exception.ApiCode;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
+import lombok.NoArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+@NoArgsConstructor
 @Service
 public class OAuthService {
 
@@ -100,19 +101,22 @@ public class OAuthService {
             }
             System.out.println("response body : " + result);
 
-//            //Gson 라이브러리로 JSON파싱
-//            JsonParser parser = new JsonParser();
-//            JsonElement element = parser.parse(result);
+            //Gson 라이브러리로 JSON파싱
+            JsonParser parser = new JsonParser();
+            JsonElement element = parser.parse(result);
 
-//            int id = element.getAsJsonObject().get("id").getAsInt();
-//            boolean hasEmail = element.getAsJsonObject().get("kakao_account").getAsJsonObject().get("has_email").getAsBoolean();
-//            String email = "";
-//            if(hasEmail){
-//                email = element.getAsJsonObject().get("kakao_account").getAsJsonObject().get("email").getAsString();
+            int id = element.getAsJsonObject().get("id").getAsInt();
+            // boolean hasPhoneNo = element.getAsJsonObject().get("kakao_account").getAsJsonObject().get("has_phone_number").getAsBoolean();
+            String phoneNo = phoneNo = element.getAsJsonObject().get("kakao_account").getAsJsonObject().get("phone_number").getAsString();
+//            if(hasPhoneNo){
+//                phoneNo = element.getAsJsonObject().get("kakao_account").getAsJsonObject().get("phone_number").getAsString();
 //            }
-//
-//            System.out.println("id : " + id);
-//            System.out.println("email : " + email);
+            // boolean hasName = element.getAsJsonObject().get("kakao_account").getAsJsonObject().get("has_name").getAsBoolean();
+            String name = element.getAsJsonObject().get("kako_account").getAsJsonObject().get("name").getAsString();
+
+            System.out.println("id : " + id);
+            System.out.println("phoneNo : " + phoneNo);
+            System.out.println("nickname: " + name);
 
             br.close();
 
