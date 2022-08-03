@@ -33,8 +33,6 @@ public class UserService {
 
     // 회원가입
     public User signup(User user, Pet pet) {
-        // Email 중복확인
-        isEmailExisting(user.getEmail());
         // 패스워드 암호화 및 적용
         String encodedPassword = passwordEncoder.encode(user.getPassword());
         user.setPassword(encodedPassword);

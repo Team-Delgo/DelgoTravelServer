@@ -1,20 +1,30 @@
 package com.delgo.api.dto.user;
 
-import com.delgo.api.domain.pet.Pet;
-import com.delgo.api.domain.user.User;
+import com.delgo.api.domain.pet.PetSize;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.time.LocalDate;
 
 @Data
 @Builder
 @AllArgsConstructor
 public class SignUpDTO {
+    @NotBlank
+    private String userName;
+    @NotBlank
+    private String email;
+    @NotBlank
+    private String password;
+    @NotBlank
+    private String phoneNo;
+    @NotBlank
+    private String petName;
     @NotNull
-    private User user;
+    private PetSize petSize;
     @NotNull
-    private Pet pet;
+    private LocalDate birthday;
 }

@@ -133,14 +133,14 @@ public class PlaceController extends CommController {
         List<Place> placeList = placeService.getPlaceAll();
         placeService.setMainPhoto(placeList);
 
+        List<Place> returnList = new ArrayList<>();
         // userId == 0 이면 로그인 없이 조회 // userId 있을 경우 wish 여부 Check
         if (userId != 0 && placeList.size() > 0) {
             List<Wish> wishList = wishService.getWishListByUserId(userId);
             placeService.setWishId(placeList, wishList);
         }
 
-        List<Place> returnList = new ArrayList<>();
-        for (int i = 0; i < 5; i++)
+        for (int i = 0; i < placeList.size(); i++)
             returnList.add(placeList.get(i));
 
         return SuccessReturn(returnList);
