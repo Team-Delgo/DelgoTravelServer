@@ -28,16 +28,19 @@ public class OAuthService {
 
             BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(conn.getOutputStream()));
             StringBuilder sb = new StringBuilder();
+            // 직접
+            // https://kauth.kakao.com/oauth/authorize?client_id=b40f84b68ce44634317bb5530b0166c1&redirect_uri=https://delgo.pet/oauth/callback/kakao&response_type=code
+
             sb.append("grant_type=authorization_code");
             sb.append("&client_id=b40f84b68ce44634317bb5530b0166c1");
-            sb.append("&redirect_uri=https://delgo.pet/oauth/callback/kakao");
+            sb.append("&redirect_uri=https://www.delgo.pet/oauth/callback/kakao");
             sb.append("&code=" + code);
             bw.write(sb.toString());
             bw.flush();
 
             //결과 코드가 200이라면 성공
             int responseCode = conn.getResponseCode();
-            System.out.println("responseCode : " + responseCode);
+            System.out.println("get token responseCode : " + responseCode);
             if(responseCode != 200)
                 return null;
 
@@ -86,7 +89,7 @@ public class OAuthService {
 
             //결과 코드가 200이라면 성공
             int responseCode = conn.getResponseCode();
-            System.out.println("responseCode : " + responseCode);
+            System.out.println("create kakao user responseCode : " + responseCode);
 
             if(responseCode != 200)
                 throw new Exception(ApiCode.UNKNOWN_ERROR.getMsg());
