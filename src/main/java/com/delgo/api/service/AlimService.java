@@ -45,22 +45,24 @@ public class AlimService {
         }
     }
 
-    public void sendCancelWaitAlimTalk(String phoneNo, String placeName, String roomName, String peopleNum, String startDt, String checkIn, String endDt, String checkOut) throws IOException {
-
+    public void sendCancelWaitAlimTalk(Booking booking) throws IOException {
+        Place place = placeService.getPlaceByPlaceId(booking.getPlaceId());
+        Room room = roomService.getRoomByRoomId(booking.getRoomId());
+        User user = userService.getUserByUserId(booking.getUserId());
         try {
             String content = "[Delgo] 취소 안내\n" +
             "아래 숙소의 취소가 접수되었습니다.\n" +
-            "숙소이름 : " + placeName + "\n" +
-            "객실타입 : " + roomName + " (기준인원 " + peopleNum + " 명)\n" +
-            "입실일시: " + startDt + " " + checkIn + " ~\n" +
-            "퇴실일시: " + endDt + " " + checkOut + "\n\n" +
+            "숙소이름 : " + place.getName() + "\n" +
+            "객실타입 : " + room.getName() + " (기준인원 " + room.getPersonStandardNum() + " 명)\n" +
+            "입실일시: " + booking.getStartDt() + " " + place.getCheckin() + " ~\n" +
+            "퇴실일시: " + booking.getEndDt() + " " + place.getCheckout() + "\n\n" +
 
             "취소 확정 여부는 해당 숙소에 취소 요청 확인 후 카카오톡 알림으로 발송됩니다.\n" +
             "(영업시간 이외 접수된 취소요청은 다음날 오전 중 문자로 발송됩니다.\n\n" +
 
             "이제는 델고 가요!";
 
-            alimTalkService.sendAlimTalk("CancelWait", phoneNo, content);
+            alimTalkService.sendAlimTalk("CancelWait", user.getPhoneNo(), content);
         } catch (Exception e) {
             throw new IOException();
         }
