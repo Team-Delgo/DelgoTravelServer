@@ -20,4 +20,9 @@ public class CommController {
         return ResponseEntity.ok().body(
                 ResponseDTO.builder().code(apiCode.getCode()).codeMsg(apiCode.getMsg()).build());
     }
+
+    public ResponseEntity ErrorReturn(ApiCode apiCode, Object data) {
+        return ResponseEntity.ok().body(
+                ResponseDTO.builder().code(apiCode.getCode()).codeMsg(apiCode.getMsg()).data(data).build());
+    }
 }
