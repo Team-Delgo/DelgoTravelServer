@@ -26,6 +26,7 @@ public class Place {
     private String checkout;
     private String conceptTag;
     private String phoneNo;
+    private String mapUrl;
 
     @Transient
     private String mainPhotoUrl;

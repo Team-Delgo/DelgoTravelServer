@@ -1,6 +1,7 @@
 package com.delgo.api.comm;
 
 import com.delgo.api.comm.exception.ApiCode;
+import com.delgo.api.dto.KakaoDTO;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import lombok.NoArgsConstructor;
@@ -74,8 +75,9 @@ public class OAuthService {
         return access_Token;
     }
 
-    public void createKakaoUser(String token) throws Exception {
+    public KakaoDTO createKakaoUser(String token) throws Exception {
 
+        KakaoDTO kakaoDTO = new KakaoDTO();
         String reqURL = "https://kapi.kakao.com/v2/user/me";
 
         //access_token을 이용하여 사용자 정보 조회
@@ -91,7 +93,7 @@ public class OAuthService {
             int responseCode = conn.getResponseCode();
             System.out.println("create kakao user responseCode : " + responseCode);
 
-            if(responseCode != 200)
+            if (responseCode != 200)
                 throw new Exception(ApiCode.UNKNOWN_ERROR.getMsg());
 
             //요청을 통해 얻은 JSON타입의 Response 메세지 읽어오기
@@ -109,22 +111,27 @@ public class OAuthService {
             JsonElement element = parser.parse(result);
 
             int id = element.getAsJsonObject().get("id").getAsInt();
-            // boolean hasPhoneNo = element.getAsJsonObject().get("kakao_account").getAsJsonObject().get("has_phone_number").getAsBoolean();
-            String phoneNo = phoneNo = element.getAsJsonObject().get("kakao_account").getAsJsonObject().get("phone_number").getAsString();
-//            if(hasPhoneNo){
-//                phoneNo = element.getAsJsonObject().get("kakao_account").getAsJsonObject().get("phone_number").getAsString();
-//            }
+            boolean hasPhoneNo = element.getAsJsonObject().get("kakao_account").getAsJsonObject().get("has_phone_number").getAsBoolean();
+
+            if(!hasPhoneNo)
+                return kakaoDTO;
+
+            String phoneNo = element.getAsJsonObject().get("kakao_account").getAsJsonObject().get("phone_number").getAsString();
+            String email = element.getAsJsonObject().get("kakao_account").getAsJsonObject().get("email").getAsString();
             // boolean hasName = element.getAsJsonObject().get("kakao_account").getAsJsonObject().get("has_name").getAsBoolean();
-            String name = element.getAsJsonObject().get("kako_account").getAsJsonObject().get("name").getAsString();
+            // String name = element.getAsJsonObject().get("kako_account").getAsJsonObject().get("name").getAsString();
 
             System.out.println("id : " + id);
             System.out.println("phoneNo : " + phoneNo);
-            System.out.println("nickname: " + name);
-
+            System.out.println("phoneNo : " + email);
+            System.out.println("hasPhoneNo : " + hasPhoneNo);
             br.close();
 
-        } catch (IOException e) {
-
+            kakaoDTO.setEmail(email);
+            kakaoDTO.setPhoneNo(phoneNo);
+            return kakaoDTO;
+        } catch (IOException ignored) {
+            return kakaoDTO;
         }
     }
 }

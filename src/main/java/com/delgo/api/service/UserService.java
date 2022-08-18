@@ -34,21 +34,9 @@ public class UserService {
     // 회원가입
     public User signup(User user, Pet pet) {
         // 패스워드 암호화 및 적용
-        String encodedPassword = passwordEncoder.encode(user.getPassword());
-        user.setPassword(encodedPassword);
+//        String encodedPassword = passwordEncoder.encode(user.getPassword());
+//        user.setPassword(encodedPassword);
         // User Data save
-        User owner = userRepository.save(user);
-        // Pet Data save
-        pet.setUserId(owner.getUserId());
-        petRepository.save(pet);
-
-        return owner;
-    }
-
-    // 소셜 회원가입
-    public User socialSignup(User user, Pet pet) {
-        // User Data save
-        user.setPassword("");
         User owner = userRepository.save(user);
         // Pet Data save
         pet.setUserId(owner.getUserId());
@@ -122,6 +110,11 @@ public class UserService {
 
     public User getUserByUserId(int userId) {
         return userRepository.findByUserId(userId)
+                .orElseThrow(() -> new NullPointerException("NOT FOUND USER"));
+    }
+
+    public User getUserByPhoneNo(String phoneNo) {
+        return userRepository.findByPhoneNo(phoneNo)
                 .orElseThrow(() -> new NullPointerException("NOT FOUND USER"));
     }
 

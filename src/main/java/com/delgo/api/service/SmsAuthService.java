@@ -81,6 +81,11 @@ public class SmsAuthService extends CommService {
                 .orElseThrow(() -> new NullPointerException("NOT FOUND SMS AUTH DATA"));
     }
 
+    public SmsAuth getSmsAuthBySmsId(int smsId) {
+        return smsAuthRepository.findBySmsId(smsId)
+                .orElseThrow(() -> new NullPointerException("NOT FOUND SMS AUTH DATA"));
+    }
+
     public boolean isAuth(SmsAuth smsAuth) {
         LocalDateTime sendTime = smsAuth.getAuthTime();
         LocalDateTime authTime = LocalDateTime.now();

@@ -8,7 +8,6 @@ import com.delgo.api.comm.ncp.service.SmsService;
 import com.delgo.api.domain.Cancel;
 import com.delgo.api.domain.booking.Booking;
 import com.delgo.api.domain.booking.BookingState;
-import com.delgo.api.domain.user.User;
 import com.delgo.api.dto.HistoryDTO;
 import com.delgo.api.dto.booking.BookingDTO;
 import com.delgo.api.dto.booking.ReturnBookingDTO;
@@ -77,7 +76,7 @@ public class BookingController extends CommController {
             String adminMsg = "예약번호 : " + booking.getBookingId() + " 예약요청이 들어왔습니다.";
             smsService.sendSMS(ADMIN_PHONE_NO, adminMsg);
 
-//            // TODO: 사용자에게 예약대기문자 발송 [ 내용 어떤 거 들어갈지 생각 필요 ]
+            // TODO: 사용자에게 예약대기문자 발송 [ 내용 어떤 거 들어갈지 생각 필요 ]
             alimService.sendWaitAlimTalk(booking);
         } catch (Exception e) {
             e.printStackTrace();
@@ -118,6 +117,27 @@ public class BookingController extends CommController {
                 tripList.stream().sorted(compare).map(b -> bookingService.getReturnBookingData(b.getBookingId())).collect(Collectors.toList());
 
         return SuccessReturn(Stream.concat(returnTripList.stream(), returnFixList.stream()).collect(Collectors.toList()));
+    }
+
+    /**
+     * 예약 내용 조회 : Account
+     */
+    @GetMapping("/getData/account")
+    public ResponseEntity getBookingListByAccount(@RequestParam Integer userId) {
+        if (userId == 0)
+            return ErrorReturn(ApiCode.NOT_FOUND_DATA);
+
+        List<Booking> bookingList = bookingService.getBookingByUserId(userId);
+        if (bookingList.isEmpty()) // 조회되는 BOOKING DATA 없음
+            return SuccessReturn(bookingList);
+
+        //정렬 기준 1. 시작 날짜, 2. 종료 날짜
+        Comparator<Booking> compare = Comparator
+                .comparing(Booking::getStartDt)
+                .thenComparing(Booking::getEndDt);
+
+        List<ReturnBookingDTO> returnList = bookingList.stream().sorted(compare).map(b -> bookingService.getReturnBookingData(b.getBookingId())).collect(Collectors.toList());
+        return SuccessReturn(returnList);
     }
 
     /**
@@ -162,13 +182,13 @@ public class BookingController extends CommController {
         booking.setBookingState(BookingState.CW);
         bookingService.insertOrUpdateBooking(booking);
 
-        // User 조회
-        User user = userService.getUserByUserId(booking.getUserId());
         try {
-            // TODO: 사용자에게 취소대기문자 발송 [ 내용 어떤 거 들어갈지 생각 필요 ]
-//            smsService.sendSMS(user.getPhoneNo(), "예약완료 될 때까지 기다려주세요.");
-            // TODO: 운영진에게 취소문자 발송  내용 어떤 거 들어갈지 생각 필요 ]
-//            smsService.sendSMS(user.getPhoneNo(), "예약요청이 들어왔습니다.");
+            // 운영진에게 예약 요청 문자 발송
+            String adminMsg = "예약번호 : " + booking.getBookingId() + " 취소 요청이 들어왔습니다.";
+            smsService.sendSMS(ADMIN_PHONE_NO, adminMsg);
+
+            // TODO: 사용자에게 예약대기문자 발송 [ 내용 어떤 거 들어갈지 생각 필요 ]
+            alimService.sendCancelWaitAlimTalk(booking);
         } catch (Exception e) {
             e.printStackTrace();
             return ErrorReturn(ApiCode.SMS_ERROR);
