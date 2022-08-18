@@ -20,11 +20,14 @@ import java.time.LocalDate;
 public class EditorNote {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private int editorNoteId;
     private int placeId;
-    private String mainUrl;
+    private String url;
     private String thumbnailUrl;
+    private String thumbnailTitle;
+    private String thumbnailSubtitle;
     @JsonIgnore
     @CreationTimestamp
     private LocalDate registDt;
-
+    private int order;
 }

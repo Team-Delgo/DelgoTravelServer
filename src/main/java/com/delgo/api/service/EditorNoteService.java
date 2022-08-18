@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 
 @Slf4j
 @Service
@@ -23,14 +22,17 @@ public class EditorNoteService extends CommService {
         return editorNoteRepository.findAll();
     }
 
-    public EditorNote getEditorNoteByPlaceId(int placeId) {
-        return editorNoteRepository.findByPlaceId(placeId)
-                .orElseThrow(() -> new NullPointerException("NOT FOUND EDITOR NOTE"));
+    public List<EditorNote> getEditorNoteByPlaceId(int placeId) {
+        return editorNoteRepository.findByPlaceId(placeId);
+    }
+
+    public List<EditorNote> getThumbnail() {
+        return editorNoteRepository.findByOrder(1);
     }
 
     public boolean isEditorNoteExist(int placeId) {
-        Optional<EditorNote> option = editorNoteRepository.findByPlaceId(placeId);
-        return option.isPresent();
+        List<EditorNote> editList = editorNoteRepository.findByPlaceId(placeId);
+        return !editList.isEmpty();
     }
 
 }

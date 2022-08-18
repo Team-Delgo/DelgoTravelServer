@@ -152,7 +152,7 @@ public class PlaceController extends CommController {
      */
     @GetMapping("/getEditorNote/all")
     public ResponseEntity gtEditorNoteByall() {
-        return SuccessReturn(editorNoteService.getEditorNoteList());
+        return SuccessReturn(editorNoteService.getThumbnail());
     }
 
     /*
