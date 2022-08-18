@@ -7,6 +7,7 @@ import com.delgo.api.comm.security.jwt.Refresh_JwtProperties;
 import com.delgo.api.domain.SmsAuth;
 import com.delgo.api.domain.pet.Pet;
 import com.delgo.api.domain.user.User;
+import com.delgo.api.domain.user.UserSocial;
 import com.delgo.api.dto.user.*;
 import com.delgo.api.service.PetService;
 import com.delgo.api.service.SmsAuthService;
@@ -15,6 +16,7 @@ import com.delgo.api.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,6 +26,7 @@ import javax.servlet.http.HttpServletResponse;
 @RestController
 @RequiredArgsConstructor
 public class UserController extends CommController {
+    private final PasswordEncoder passwordEncoder;
 
     private final UserService userService;
     private final PetService petService;
@@ -115,27 +118,33 @@ public class UserController extends CommController {
             return ErrorReturn(ApiCode.NAME_DUPLICATE_ERROR);
     }
 
-//    // 소셜 회원가입
-//    @PostMapping("/socialSignup")
-//    public ResponseEntity<?> registerUserBySocial(@Validated @RequestBody SignUpDTO signUpDTO, HttpServletResponse
-//    response) {
-////        String phoneNoUpdate = signUpDTO.getUser().getPhoneNo().replaceAll("[^0-9]", "");
-////        signUpDTO.getUser().setPhoneNo(phoneNoUpdate);
-////        signUpDTO.getUser().setEmail("");
-////
-////        User user = userService.socialSignup(signUpDTO.getUser(), signUpDTO.getPet());
-////
-////        String Access_jwtToken = tokenService.createToken("Access", signUpDTO.getUser().getPhoneNo()); // Access
-// Token 생성
-////        String Refresh_jwtToken = tokenService.createToken("Refresh", signUpDTO.getUser().getPhoneNo()); //
-// Refresh Token 생성
-//
-//        response.addHeader(Access_JwtProperties.HEADER_STRING, Access_JwtProperties.TOKEN_PREFIX + sAccess_jwtToken);
-//        response.addHeader(Refresh_JwtProperties.HEADER_STRING, Refresh_JwtProperties.TOKEN_PREFIX +
-//        Refresh_jwtToken);
-//
-//        return SuccessReturn(user);
-//    }
+    // 소셜 회원가입
+    @PostMapping("/oAuthSignup")
+    public ResponseEntity<?> registerUserByOAuth(@Validated @RequestBody OAuthSignUpDTO signUpDTO, HttpServletResponse response) {
+        User user = User.builder()
+                .name(signUpDTO.getUserName())
+                .phoneNo(signUpDTO.getPhoneNo().replaceAll("[^0-9]", ""))
+                .email("")
+                .password("")
+                .userSocial(signUpDTO.getUserSocial())
+                .build();
+        Pet pet = Pet.builder()
+                .name(signUpDTO.getPetName())
+                .size(signUpDTO.getPetSize())
+                .birthday(signUpDTO.getBirthday())
+                .build();
+
+        User userByDB = userService.signup(user, pet);
+        Pet petByDB = petService.getPetByUserId(user.getUserId());
+
+        String Access_jwtToken = tokenService.createToken("Access", user.getEmail()); // Access Token 생성
+        String Refresh_jwtToken = tokenService.createToken("Refresh", user.getEmail()); // Refresh Token 생성
+
+        response.addHeader(Access_JwtProperties.HEADER_STRING, Access_JwtProperties.TOKEN_PREFIX + Access_jwtToken);
+        response.addHeader(Refresh_JwtProperties.HEADER_STRING, Refresh_JwtProperties.TOKEN_PREFIX + Refresh_jwtToken);
+
+        return SuccessReturn(new UserPetDTO(userByDB, petByDB));
+    }
 
     // 회원가입
     @PostMapping("/signup")
@@ -146,8 +155,9 @@ public class UserController extends CommController {
         User user = User.builder()
                 .name(signUpDTO.getUserName())
                 .email(signUpDTO.getEmail())
-                .password(signUpDTO.getPassword())
+                .password(passwordEncoder.encode(signUpDTO.getPassword()))
                 .phoneNo(signUpDTO.getPhoneNo().replaceAll("[^0-9]", ""))
+                .userSocial(UserSocial.D)
                 .build();
         Pet pet = Pet.builder()
                 .name(signUpDTO.getPetName())

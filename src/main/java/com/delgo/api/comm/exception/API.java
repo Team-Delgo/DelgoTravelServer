@@ -2,7 +2,6 @@ package com.delgo.api.comm.exception;
 
 public class API {
     public static class CODE {
-
         // -------------------------COMMON-------------------------
         public static final int SUCCESS = 200;
 
@@ -49,12 +48,17 @@ public class API {
         //SMS AUTH ERROR
         public static final int AUTH_DO_NOT_MATCHING = 317;
 
-        //PHONE NO ERROR
-        public static final int PHONE_NO_NOT_EXIST = 318;
-        public static final int PHONE_NO_DUPLICATE_ERROR = 319;
-
         //NAME ERROR
         public static final int NAME_DUPLICATE_ERROR = 320;
+
+        //PHONE NO ERROR
+        public static final int PHONE_NO_NOT_EXIST = 370;
+        public static final int PHONE_NO_DUPLICATE_ERROR = 371;
+
+        //OAuth ERROR
+        public static final int KAKAO_PHONE_NO_NOT_EXIST = 380;
+        public static final int KAKAO_NOT_CONNECT = 381;
+        public static final int ANOTHER_OAUTH_CONNECT = 382;
 
 
         public static final int UNKNOWN_ERROR = 1000;
