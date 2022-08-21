@@ -196,7 +196,8 @@ public class PriceService extends CommService {
     // Booking getData에서 사용
     public int getOriginalPrice(int roomId, LocalDate startDt, LocalDate endDt) {
         List<Price> priceList = priceRepository.findByRoomIdAndPriceDateBetween(roomId, startDt.toString(), endDt.toString());
-        priceList.remove(priceList.size() - 1);
+        if(priceList.size()>=2)
+            priceList.remove(priceList.size() - 1);
         int originalPrice = 0;
         for (Price price : priceList) {
             originalPrice += formatPriceToInt(price.getPrice());
