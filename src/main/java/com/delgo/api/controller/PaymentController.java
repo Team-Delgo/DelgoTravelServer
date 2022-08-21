@@ -9,12 +9,15 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.*;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.ResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.PostConstruct;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
@@ -43,13 +46,13 @@ public class PaymentController extends CommController {
     private final String SECRET_KEY = "test_sk_ADpexMgkW36GJqKEJoBVGbR5ozO0";
 
     @PostMapping("/payment/cancel")
-    public ResponseEntity<?> requestRefund(@RequestBody String cancelReason, @PathVariable String paymentKey){
+    public ResponseEntity<?> requestRefund(@RequestParam String paymentKey){
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", "Basic " + Base64.getEncoder().encodeToString((SECRET_KEY + ":").getBytes()));
         headers.setContentType(MediaType.APPLICATION_JSON);
 
         Map<String, String> payloadMap = new HashMap<>();
-        payloadMap.put("cancelReason", cancelReason);
+        payloadMap.put("cancelReason", "고객이 취소를 원함");
 
         HttpEntity<String> request = null;
         try {
@@ -64,8 +67,32 @@ public class PaymentController extends CommController {
         if (responseEntity.getStatusCode() == HttpStatus.OK) {
             return SuccessReturn();
         } else {
+            System.out.println(responseEntity.getStatusCode());
             return ErrorReturn(ApiCode.UNKNOWN_ERROR);
         }
+
+//        HttpRequest request = HttpRequest.newBuilder()
+//                .uri(URI.create("https://api.tosspayments.com/v1/payments/" + paymentKey + "/cancel"))
+//                .header("Authorization", "Basic dGVzdF9za19BRHBleE1na1czNkdKcUtFSm9CVkdiUjVvek8wOg==")
+//                .header("Content-Type", "application/json")
+//                .method("POST", HttpRequest.BodyPublishers.ofString("{\"cancelReason\":\"고객이 취소를 원함\",\"cancelAmount\":1000}"))
+//                .build();
+//        HttpResponse<String> response = null;
+//        try {
+//            response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//        System.out.println(response.body());
+
+
+
+//        if (response.statusCode() == 200) {
+//            return SuccessReturn();
+//        } else {
+//            System.out.println(response.statusCode());
+//            return ErrorReturn(ApiCode.UNKNOWN_ERROR);
+//        }
 
     }
 
