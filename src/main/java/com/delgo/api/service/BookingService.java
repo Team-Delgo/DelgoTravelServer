@@ -15,6 +15,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Period;
@@ -35,6 +39,8 @@ public class BookingService extends CommService {
     private final CancelService cancelService;
 
     private final BookingRepository bookingRepository;
+
+    private final String SECRET_KEY = "test_sk_ADpexMgkW36GJqKEJoBVGbR5ozO0";
 
     public void fixToTrip(String today) {
         List<Booking> bookingList = bookingRepository.findByStartDt(today);
@@ -155,5 +161,21 @@ public class BookingService extends CommService {
                 .place(place)
                 .isReviewExisting(reviewService.isReviewExisting(bookingId))
                 .build();
+    }
+
+    public HttpResponse<String> requestPaymentCancel(String paymentKey){
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create("https://api.tosspayments.com/v1/payments/" + paymentKey + "/cancel"))
+                .header("Authorization", "Basic dGVzdF9za19PeUwwcVo0RzFWT0xvYkI2S3d2cm9XYjJNUVlnOg==")
+                .header("Content-Type", "application/json")
+                .method("POST", HttpRequest.BodyPublishers.ofString("{\"cancelReason\":\"고객이 취소를 원함\"}"))
+                .build();
+        HttpResponse<String> response = null;
+        try {
+            response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return response;
     }
 }
