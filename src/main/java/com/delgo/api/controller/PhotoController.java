@@ -32,8 +32,8 @@ public class PhotoController extends CommController {
      * - photo : 확장자는 .jpg를 기본으로 한다. [.jpeg도 가능] [ 따로 확장자를 체크하진 않는다.]
      * Response Data : ApiCode
      */
-    @PostMapping("/upload/petProfile")
-    public ResponseEntity<?> uploadPetProfile(@RequestParam Integer userId, @RequestPart MultipartFile photo) {
+    @PostMapping(value={"/upload/petProfile/{userId}","/upload/petProfile"})
+    public ResponseEntity<?> uploadPetProfile(@PathVariable Integer userId, @RequestPart(required = false) MultipartFile photo) {
         if (photo.isEmpty()) // Validate - Empty Check;
             return ErrorReturn(ApiCode.PARAM_ERROR);
 
