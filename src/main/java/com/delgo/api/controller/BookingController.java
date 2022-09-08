@@ -172,7 +172,8 @@ public class BookingController extends CommController {
             ErrorReturn(ApiCode.PARAM_DATE_ERROR);
 
         Period period = Period.between(LocalDate.now(), tripDay);
-        Cancel cancel = cancelService.getCancelByPlaceIdAndRemainDay(booking.getPlaceId(), period.getDays());
+        int getDay = (period.getDays() >= 14) ? 14 : period.getDays();
+        Cancel cancel = cancelService.getCancelByPlaceIdAndRemainDay(booking.getPlaceId(), getDay);
         int returnRate = cancel.getReturnRate();
 
         if (returnRate == 0)
