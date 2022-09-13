@@ -23,4 +23,3 @@ spring:
 config:
 #  driverLocation: C:\\chrome\\chromedriver.exe #Local
   driverLocation: /var/www/chrome/chromedriver #Dev
-
