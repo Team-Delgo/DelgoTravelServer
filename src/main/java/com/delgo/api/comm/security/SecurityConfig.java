@@ -38,12 +38,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
 				.addFilter(new JwtAuthenticationFilter(authenticationManager()))
 				.addFilter(new JwtAuthorizationFilter(authenticationManager(),userRepository))
 				.authorizeRequests()
-//				.antMatchers("/test").authenticated()
-//				.antMatchers("/test2").authenticated()
-//				.antMatchers("/wish/**").authenticated()
+				.antMatchers("/wish/**").authenticated()
 //				.antMatchers("/booking/**").authenticated()
+//				.antMatchers("/photo/**").authenticated()
 //				.antMatchers("/coupon/**").authenticated()
-//				.antMatchers("/review/write").authenticated()
+//				.antMatchers("/review/**").authenticated()
+//				.antMatchers("/changePassword").authenticated()
 				.anyRequest().permitAll();
 	}
 }
