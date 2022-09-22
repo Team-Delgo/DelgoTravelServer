@@ -33,6 +33,7 @@ public class PriceService extends CommService {
 
     public void crawlingProcess(List<Room> roomList) {
 
+        System.setProperty("webdriver.chrome.whitelistedIps", "");
         System.setProperty("webdriver.chrome.driver", driverLocation); // Local
 
         //크롬 드라이버 셋팅 (드라이버 설치한 경로 입력)

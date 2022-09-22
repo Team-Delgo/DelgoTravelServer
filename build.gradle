@@ -25,8 +25,8 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.session:spring-session-core'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-    implementation('com.h2database:h2')
-    implementation 'junit:junit:4.13.1'
+    implementation 'junit:junit:4.13.2'
+    implementation 'org.projectlombok:lombok:1.18.24'
     compileOnly 'org.projectlombok:lombok'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
     runtimeOnly 'org.mariadb.jdbc:mariadb-java-client'
@@ -43,11 +43,12 @@ dependencies {
     // jwt
     implementation group: 'com.auth0', name: 'java-jwt', version: '3.19.0'
     // NCP Object Storage Control SDK
-    implementation 'com.amazonaws:aws-java-sdk-s3:1.12.213'
+    implementation 'com.amazonaws:aws-java-sdk-s3:1.12.300'
     // Crawling
-    implementation 'org.jsoup:jsoup:1.14.3'
-    implementation 'org.seleniumhq.selenium:selenium-java:4.1.4'
+    implementation 'org.jsoup:jsoup:1.15.3'
+    implementation 'org.seleniumhq.selenium:selenium-java:4.2.1'
 
+    implementation 'com.google.code.gson:gson:2.9.0'
     implementation group: 'org.json', name: 'json', version: '20220320'
     implementation 'com.google.code.gson:gson:2.9.0'
 }
