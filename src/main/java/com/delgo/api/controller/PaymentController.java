@@ -2,9 +2,11 @@ package com.delgo.api.controller;
 
 import com.delgo.api.comm.CommController;
 import com.delgo.api.comm.exception.ApiCode;
+import com.delgo.api.service.BookingService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.*;
 import org.springframework.http.client.ClientHttpResponse;
@@ -24,58 +26,55 @@ import java.util.Map;
 
 @Slf4j
 @Controller
+@RequiredArgsConstructor
 public class PaymentController extends CommController {
-    private final RestTemplate restTemplate = new RestTemplate();
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
-
-    @PostConstruct
-    private void init() {
-        restTemplate.setErrorHandler(new ResponseErrorHandler() {
-            @Override
-            public boolean hasError(ClientHttpResponse response) {
-                return false;
-            }
-
-            @Override
-            public void handleError(ClientHttpResponse response) {
-            }
-        });
-    }
-
-    private final String SECRET_KEY = "test_sk_ADpexMgkW36GJqKEJoBVGbR5ozO0";
+    private final BookingService bookingService;
 
     @PostMapping("/payment/cancel")
     public ResponseEntity<?> requestRefund(@RequestParam String paymentKey){
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("Authorization", "Basic " + Base64.getEncoder().encodeToString((SECRET_KEY + ":").getBytes()));
-        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpResponse<String> response = bookingService.requestPaymentCancel(paymentKey);
 
-        Map<String, String> payloadMap = new HashMap<>();
-        payloadMap.put("cancelReason", "고객이 취소를 원함");
+        System.out.println(response.statusCode());
+        System.out.println(response.body());
 
-        HttpEntity<String> request = null;
-        try {
-            request = new HttpEntity<>(objectMapper.writeValueAsString(payloadMap), headers);
-        } catch (JsonProcessingException e) {
-            return ErrorReturn(ApiCode.UNKNOWN_ERROR);
-        }
-
-        ResponseEntity<JsonNode> responseEntity = restTemplate.postForEntity(
-                "https://api.tosspayments.com/v1/payments/" + paymentKey + "/cancel", request, JsonNode.class);
-
-        if (responseEntity.getStatusCode() == HttpStatus.OK) {
+        if(response.statusCode() == HttpStatus.OK.value()){
             return SuccessReturn();
-        } else {
-            System.out.println(responseEntity.getStatusCode());
-            return ErrorReturn(ApiCode.UNKNOWN_ERROR);
         }
+        return ErrorReturn(ApiCode.UNKNOWN_ERROR);
+
+
+//        HttpHeaders headers = new HttpHeaders();
+//        headers.set("Authorization", "Basic " + Base64.getEncoder().encodeToString((SECRET_KEY + ":").getBytes()));
+//        headers.setContentType(MediaType.APPLICATION_JSON);
+//
+//        Map<String, String> payloadMap = new HashMap<>();
+//        payloadMap.put("cancelReason", "고객이 취소를 원함");
+//
+//        HttpEntity<String> request = null;
+//        try {
+//            request = new HttpEntity<>(objectMapper.writeValueAsString(payloadMap), headers);
+//        } catch (JsonProcessingException e) {
+//            return ErrorReturn(ApiCode.UNKNOWN_ERROR);
+//        }
+//
+//        ResponseEntity<JsonNode> responseEntity = restTemplate.postForEntity(
+//                "https://api.tosspayments.com/v1/payments/" + paymentKey + "/cancel", request, JsonNode.class);
+//
+//        if (responseEntity.getStatusCode() == HttpStatus.OK) {
+//            return SuccessReturn();
+//        } else {
+//            System.out.println(responseEntity.getStatusCode());
+//            return ErrorReturn(ApiCode.UNKNOWN_ERROR);
+//        }
+
+
 
 //        HttpRequest request = HttpRequest.newBuilder()
 //                .uri(URI.create("https://api.tosspayments.com/v1/payments/" + paymentKey + "/cancel"))
-//                .header("Authorization", "Basic dGVzdF9za19BRHBleE1na1czNkdKcUtFSm9CVkdiUjVvek8wOg==")
+//                .header("Authorization", "Basic dGVzdF9za19PeUwwcVo0RzFWT0xvYkI2S3d2cm9XYjJNUVlnOg==")
 //                .header("Content-Type", "application/json")
-//                .method("POST", HttpRequest.BodyPublishers.ofString("{\"cancelReason\":\"고객이 취소를 원함\",\"cancelAmount\":1000}"))
+//                .method("POST", HttpRequest.BodyPublishers.ofString("{\"cancelReason\":\"고객이 취소를 원함\"}"))
 //                .build();
 //        HttpResponse<String> response = null;
 //        try {
@@ -90,6 +89,8 @@ public class PaymentController extends CommController {
 //        if (response.statusCode() == 200) {
 //            return SuccessReturn();
 //        } else {
+//            System.out.println(paymentKey);
+//
 //            System.out.println(response.statusCode());
 //            return ErrorReturn(ApiCode.UNKNOWN_ERROR);
 //        }
