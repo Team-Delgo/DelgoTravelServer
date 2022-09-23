@@ -4,7 +4,7 @@ import com.delgo.api.domain.user.UserSocial;
 import lombok.Data;
 
 @Data
-public class KakaoDTO {
+public class OAuthDTO {
     private String email = "";
     private String phoneNo = "";
     private UserSocial userSocial;
