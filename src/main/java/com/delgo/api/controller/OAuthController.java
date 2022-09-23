@@ -1,7 +1,7 @@
 package com.delgo.api.controller;
 
 import com.delgo.api.comm.CommController;
-import com.delgo.api.comm.OAuthService;
+import com.delgo.api.comm.oauth.KakaoService;
 import com.delgo.api.comm.exception.ApiCode;
 import com.delgo.api.comm.security.jwt.Access_JwtProperties;
 import com.delgo.api.comm.security.jwt.Refresh_JwtProperties;
@@ -28,16 +28,16 @@ import javax.servlet.http.HttpServletResponse;
 public class OAuthController extends CommController {
     private final UserService userService;
     private final PetService petService;
-    private final OAuthService oAuthService;
+    private final KakaoService kakaoService;
     private final TokenService tokenService;
 
     // 회원가입 전 인증번호 전송
     @PostMapping(value = {"/setAccessCode/kakao/{accessCode}","/setAccessCode/kakao/"})
     public ResponseEntity<?> setAccessCode(@PathVariable String accessCode, HttpServletResponse response) throws Exception {
         log.info("accessCode : {}", accessCode);
-        String accessToken = oAuthService.getKakaoAccessToken(accessCode);
+        String accessToken = kakaoService.getKakaoAccessToken(accessCode);
         log.info("accessToken : {}", accessToken);
-        KakaoDTO kakaoDTO = oAuthService.createKakaoUser(accessToken);
+        KakaoDTO kakaoDTO = kakaoService.createKakaoUser(accessToken);
         String kakaoPhoneNo = kakaoDTO.getPhoneNo();
 
         // TODO : 카카오 에러 // 1000

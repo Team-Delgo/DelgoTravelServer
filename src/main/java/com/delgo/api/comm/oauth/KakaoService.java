@@ -1,4 +1,4 @@
-package com.delgo.api.comm;
+package com.delgo.api.comm.oauth;
 
 import com.delgo.api.comm.exception.ApiCode;
 import com.delgo.api.dto.KakaoDTO;
@@ -13,7 +13,7 @@ import java.net.URL;
 
 @NoArgsConstructor
 @Service
-public class OAuthService {
+public class KakaoService {
 
     public String getKakaoAccessToken (String code) {
         String access_Token = "";
