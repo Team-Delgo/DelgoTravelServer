@@ -1,14 +1,14 @@
 package com.delgo.api.controller;
 
 import com.delgo.api.comm.CommController;
-import com.delgo.api.comm.OAuthService;
+import com.delgo.api.comm.oauth.KakaoService;
 import com.delgo.api.comm.exception.ApiCode;
 import com.delgo.api.comm.security.jwt.Access_JwtProperties;
 import com.delgo.api.comm.security.jwt.Refresh_JwtProperties;
 import com.delgo.api.domain.pet.Pet;
 import com.delgo.api.domain.user.User;
 import com.delgo.api.domain.user.UserSocial;
-import com.delgo.api.dto.KakaoDTO;
+import com.delgo.api.dto.OAuthDTO;
 import com.delgo.api.dto.user.UserPetDTO;
 import com.delgo.api.service.PetService;
 import com.delgo.api.service.TokenService;
@@ -28,17 +28,17 @@ import javax.servlet.http.HttpServletResponse;
 public class OAuthController extends CommController {
     private final UserService userService;
     private final PetService petService;
-    private final OAuthService oAuthService;
+    private final KakaoService kakaoService;
     private final TokenService tokenService;
 
     // 회원가입 전 인증번호 전송
     @PostMapping(value = {"/setAccessCode/kakao/{accessCode}","/setAccessCode/kakao/"})
     public ResponseEntity<?> setAccessCode(@PathVariable String accessCode, HttpServletResponse response) throws Exception {
         log.info("accessCode : {}", accessCode);
-        String accessToken = oAuthService.getKakaoAccessToken(accessCode);
+        String accessToken = kakaoService.getKakaoAccessToken(accessCode);
         log.info("accessToken : {}", accessToken);
-        KakaoDTO kakaoDTO = oAuthService.createKakaoUser(accessToken);
-        String kakaoPhoneNo = kakaoDTO.getPhoneNo();
+        OAuthDTO oAuthDTO = kakaoService.createKakaoUser(accessToken);
+        String kakaoPhoneNo = oAuthDTO.getPhoneNo();
 
         // TODO : 카카오 에러 // 1000
         if(kakaoPhoneNo.equals(""))
@@ -50,20 +50,20 @@ public class OAuthController extends CommController {
 
         kakaoPhoneNo = kakaoPhoneNo.replaceAll("[^0-9]", "");
         kakaoPhoneNo = "010" + kakaoPhoneNo.substring(kakaoPhoneNo.length()-8, kakaoPhoneNo.length());
-        kakaoDTO.setPhoneNo(kakaoPhoneNo);
+        oAuthDTO.setPhoneNo(kakaoPhoneNo);
         log.info("kakaoPhoneNo : {}", kakaoPhoneNo);
 
         // TODO : 카카오 전화번호 0 ,  DB 전화번호 X // PhoneNo 반환
         if(!userService.isPhoneNoExisting(kakaoPhoneNo))
-            return ErrorReturn(ApiCode.PHONE_NO_NOT_EXIST, kakaoDTO);
+            return ErrorReturn(ApiCode.PHONE_NO_NOT_EXIST, oAuthDTO);
 
         User user = userService.getUserByPhoneNo(kakaoPhoneNo);
-        kakaoDTO.setUserSocial(user.getUserSocial());
+        oAuthDTO.setUserSocial(user.getUserSocial());
 
         // TODO : 카카오 전화번호 0 , DB 전화번호 0, 카카오 연동 X // 현재 연동된 OAuth 코드 반환
-        kakaoDTO.setEmail(user.getEmail());
+        oAuthDTO.setEmail(user.getEmail());
         if(user.getUserSocial() != UserSocial.K)
-            return ErrorReturn(ApiCode.KAKAO_NOT_CONNECT, kakaoDTO);
+            return ErrorReturn(ApiCode.KAKAO_NOT_CONNECT, oAuthDTO);
 
         Pet pet = petService.getPetByUserId(user.getUserId());
         String Access_jwtToken = tokenService.createToken("Access", user.getEmail()); // Access Token 생성

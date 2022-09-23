@@ -1,7 +1,7 @@
-package com.delgo.api.comm;
+package com.delgo.api.comm.oauth;
 
 import com.delgo.api.comm.exception.ApiCode;
-import com.delgo.api.dto.KakaoDTO;
+import com.delgo.api.dto.OAuthDTO;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import lombok.NoArgsConstructor;
@@ -13,7 +13,7 @@ import java.net.URL;
 
 @NoArgsConstructor
 @Service
-public class OAuthService {
+public class KakaoService {
 
     public String getKakaoAccessToken (String code) {
         String access_Token = "";
@@ -75,9 +75,9 @@ public class OAuthService {
         return access_Token;
     }
 
-    public KakaoDTO createKakaoUser(String token) throws Exception {
+    public OAuthDTO createKakaoUser(String token) throws Exception {
 
-        KakaoDTO kakaoDTO = new KakaoDTO();
+        OAuthDTO oAuthDTO = new OAuthDTO();
         String reqURL = "https://kapi.kakao.com/v2/user/me";
 
         //access_token을 이용하여 사용자 정보 조회
@@ -114,7 +114,7 @@ public class OAuthService {
             boolean hasPhoneNo = element.getAsJsonObject().get("kakao_account").getAsJsonObject().get("has_phone_number").getAsBoolean();
 
             if(!hasPhoneNo)
-                return kakaoDTO;
+                return oAuthDTO;
 
             String phoneNo = element.getAsJsonObject().get("kakao_account").getAsJsonObject().get("phone_number").getAsString();
             String email = element.getAsJsonObject().get("kakao_account").getAsJsonObject().get("email").getAsString();
@@ -127,11 +127,11 @@ public class OAuthService {
             System.out.println("hasPhoneNo : " + hasPhoneNo);
             br.close();
 
-            kakaoDTO.setEmail(email);
-            kakaoDTO.setPhoneNo(phoneNo);
-            return kakaoDTO;
+            oAuthDTO.setEmail(email);
+            oAuthDTO.setPhoneNo(phoneNo);
+            return oAuthDTO;
         } catch (IOException ignored) {
-            return kakaoDTO;
+            return oAuthDTO;
         }
     }
 }

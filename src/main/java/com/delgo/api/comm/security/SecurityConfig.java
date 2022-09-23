@@ -38,12 +38,25 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
 				.addFilter(new JwtAuthenticationFilter(authenticationManager()))
 				.addFilter(new JwtAuthorizationFilter(authenticationManager(),userRepository))
 				.authorizeRequests()
+				// Wish
 				.antMatchers("/wish/**").authenticated()
-//				.antMatchers("/booking/**").authenticated()
-//				.antMatchers("/photo/**").authenticated()
-//				.antMatchers("/coupon/**").authenticated()
-//				.antMatchers("/review/**").authenticated()
-//				.antMatchers("/changePassword").authenticated()
+				// Booking
+				.antMatchers("/booking/request").authenticated()
+				.antMatchers("/booking/getData").authenticated()
+				.antMatchers("/booking/getData/main").authenticated()
+				.antMatchers("/booking/cancel/**").authenticated()
+				.antMatchers("/booking/cancel/**").authenticated()
+				// Cupon
+				.antMatchers("/coupon/regist").authenticated()
+				.antMatchers("/coupon/getCouponList").authenticated()
+				// Review
+				.antMatchers("/review/write").authenticated()
+				.antMatchers("/review/getReview/user").authenticated()
+				.antMatchers("/photo/upload/reviewPhoto/**").authenticated()
+				// myAccount
+				.antMatchers("/myAccount").authenticated()
+				.antMatchers("/changePetInfo").authenticated()
+				.antMatchers("/changePassword").authenticated()
 				.anyRequest().permitAll();
 	}
 }
