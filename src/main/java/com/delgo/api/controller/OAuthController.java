@@ -1,6 +1,7 @@
 package com.delgo.api.controller;
 
 import com.delgo.api.comm.CommController;
+import com.delgo.api.comm.oauth.AppleService;
 import com.delgo.api.comm.oauth.KakaoService;
 import com.delgo.api.comm.exception.ApiCode;
 import com.delgo.api.comm.security.jwt.Access_JwtProperties;
@@ -13,14 +14,17 @@ import com.delgo.api.dto.user.UserPetDTO;
 import com.delgo.api.service.PetService;
 import com.delgo.api.service.TokenService;
 import com.delgo.api.service.UserService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.minidev.json.JSONObject;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.HashMap;
+import java.util.Map;
 
 @Slf4j
 @RestController
@@ -29,7 +33,63 @@ public class OAuthController extends CommController {
     private final UserService userService;
     private final PetService petService;
     private final KakaoService kakaoService;
+    private final AppleService appleService;
     private final TokenService tokenService;
+
+    // 애플로그인
+    public static final String TEAM_ID = "GGS2HY6B73";
+    public static final String REDIRECT_URL = "https://delgo.pet/oauth/redirect/apple";
+    public static final String CLIENT_ID = "pet.delgo";
+    public static final String KEY_ID = "P9AZCBNYJG";
+    public static final String AUTH_URL = "https://appleid.apple.com";
+    public static final String KEY_PATH = "static/apple/AuthKey_P9AZCBNYJG.p8";
+
+    @PostMapping("/getAppleAuthUrl")
+    public ResponseEntity<?> getAppleAuthUrl(HttpServletRequest request) throws Exception {
+        String reqUrl = AUTH_URL + "/auth/authorize?client_id=" + CLIENT_ID + "&redirect_url=" + REDIRECT_URL + "&response_type=code id_token&response_mode=form_post";
+
+        return SuccessReturn(reqUrl);
+    }
+
+    @RequestMapping(value = "/oauth_apple")
+    public ResponseEntity oauth_apple(HttpServletRequest request, @RequestParam(value = "code") String code, HttpServletResponse response) throws Exception {
+
+        String client_secret = appleService.createClientSecret(TEAM_ID, CLIENT_ID, KEY_ID, KEY_PATH, AUTH_URL);
+
+        String reqUrl = AUTH_URL + "/auth/token";
+
+        Map<String, String> tokenRequest = new HashMap<>();
+
+        tokenRequest.put("client_id", CLIENT_ID);
+        tokenRequest.put("client_secret", client_secret);
+        tokenRequest.put("code", code);
+        tokenRequest.put("grant_type", "authorization_code");
+
+        String apiResponse = appleService.doPost(reqUrl, tokenRequest);
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        JSONObject tokenResponse = objectMapper.readValue(apiResponse, JSONObject.class);
+
+        // 애플 정보조회 성공
+        if (tokenResponse.get("error") == null ) {
+
+            JSONObject payload = appleService.decodeFromIdToken(tokenResponse.getAsString("id_token"));
+            //  회원 고유 식별자
+            String appleUniqueNo = payload.getAsString("sub");
+
+            /**
+
+             TO DO : 리턴받은 appleUniqueNo 해당하는 회원정보 조회 후 로그인 처리 후 메인으로 이동
+
+             */
+
+
+            // 애플 정보조회 실패
+        } else {
+            return ErrorReturn(ApiCode.UNKNOWN_ERROR);
+        }
+        return SuccessReturn();
+    }
 
     // 회원가입 전 인증번호 전송
     @PostMapping(value = {"/setAccessCode/kakao/{accessCode}","/setAccessCode/kakao/"})
