@@ -1,6 +1,7 @@
 package com.delgo.api.service;
 
 import com.delgo.api.comm.CommService;
+import com.delgo.api.comm.ncp.service.SmsService;
 import com.delgo.api.domain.price.Price;
 import com.delgo.api.domain.room.Room;
 import com.delgo.api.repository.PriceRepository;
@@ -11,11 +12,14 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,6 +29,8 @@ import java.util.List;
 public class PriceService extends CommService {
 
     private final PriceRepository priceRepository;
+    private final SmsService smsService;
+    private String ADMIN_PHONE_NO = "01062511583";
 
     @Value("${config.driverLocation}")
     String driverLocation;
@@ -51,14 +57,35 @@ public class PriceService extends CommService {
         //브라우저 선택
         roomList.forEach(room -> {
             try {
-                List<Price> list = getDataList(room.getRoomId(), room.getPlaceId(), room.getCrawlingUrl());
-                priceRepository.saveAll(list);
+                    List<Price> list = getDataList(room.getRoomId(), room.getPlaceId(), room.getCrawlingUrl());
+                    list.forEach(price -> System.out.println(price.toString()));
+                    System.out.println("***************************************************");
+                    priceRepository.saveAll(list);
             } catch (InterruptedException e) {
+                System.out.println("**************************에러 발생 *************************");
+                String msg = "[시간] \n" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy년 MM월 dd일 hh시 mm분 ss초"))
+                        + "\n  RefreshPriceJob 동작중 에러가 발생했습니다. \n" + e.getMessage();
+                try {
+                    smsService.sendSMS(ADMIN_PHONE_NO, msg);
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+
                 e.printStackTrace();
             }
         });
-        driver.close();    //탭 닫기
+        System.out.println("driver 종료");
         driver.quit();     //브라우저 닫기
+
+        try {
+            // 개발자에게 쿼츠 정상 동작 문자 발송
+            String msg = "[시간] \n" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy년 MM월 dd일 hh시 mm분 ss초"))
+                    + "\n RefreshPriceJob 동작 완료";
+            smsService.sendSMS(ADMIN_PHONE_NO, msg);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private List<Price> getDataList(int roomId, int placeId, String url) throws InterruptedException {
@@ -67,10 +94,10 @@ public class PriceService extends CommService {
         List<Price> resultList = new ArrayList<>();
 
         driver.get(url);    //브라우저에서 url로 이동한다.
-        Thread.sleep(2000);
-//        webDriverWait.until(  //cssSelector로 선택한 부분이 존재할때까지 기다린다. 최대 10초
-//                ExpectedConditions.presenceOfElementLocated(By.cssSelector(".list_calendar_info li.item"))
-//        );
+//        Thread.sleep(2000);
+        webDriverWait.until(  //cssSelector로 선택한 부분이 존재할때까지 기다린다. 최대 10초
+                ExpectedConditions.presenceOfElementLocated(By.cssSelector(".list_calendar_info li.item"))
+        );
 
         // 모든 날짜 예약 완료시 Naver Booking에서 다음달로 이동시킨다. ( 따라서 오늘이 포함된 달로 다시 Back 시켜야 함. )
         while (true) {
@@ -91,8 +118,7 @@ public class PriceService extends CommService {
                 canBookingList.forEach(date -> {
                     LocalDate localDate = LocalDate.parse(date);
                     // 오늘 기준 2달까지만 DB에 저장한다.
-                    if ((localDate.isAfter(today) && localDate.isBefore(lastDay)) || localDate.isEqual(today) ||
-                            localDate.isEqual(lastDay))
+                    if ((localDate.isAfter(today) && localDate.isBefore(lastDay)) || localDate.isEqual(today) || localDate.isEqual(lastDay))
                         resultList.add(
                                 Price.builder()
                                         .placeId(placeId)
@@ -109,8 +135,7 @@ public class PriceService extends CommService {
             canNotBookingList.forEach(date -> {
                 LocalDate localDate = LocalDate.parse(date);
                 // 오늘 기준 2달까지만 DB에 저장한다.
-                if ((localDate.isAfter(today) && localDate.isBefore(lastDay)) || localDate.isEqual(today) ||
-                        localDate.isEqual(lastDay))
+                if ((localDate.isAfter(today) && localDate.isBefore(lastDay)) || localDate.isEqual(today) || localDate.isEqual(lastDay))
                     resultList.add(
                             Price.builder()
                                     .placeId(placeId)
@@ -135,9 +160,6 @@ public class PriceService extends CommService {
         int year = Integer.parseInt(date.get(0));
         int month = Integer.parseInt(date.get(1));
 
-//        log.info("now date : {} , {}",nowYear,nowMonth);
-//        log.info("init date : {} , {}",year,month);
-
         return year == nowYear && month == nowMonth;
     }
 
@@ -145,18 +167,18 @@ public class PriceService extends CommService {
     private void nextBtnClick() throws InterruptedException {
         // 다음[ > ] 버튼
         List<WebElement> elements = driver.findElements(By.cssSelector(".fn-forward2"));
-        elements.forEach(element -> element.click());
+        elements.forEach(WebElement::click);
 
-        Thread.sleep(1000); //브라우저 로딩될때까지 잠시 기다린다.
+        Thread.sleep(2000); //브라우저 로딩될때까지 잠시 기다린다.
     }
 
     // 이전 달로 이동
     private void backBtnClick() throws InterruptedException {
         // 다음[ < ] 버튼
         List<WebElement> elements = driver.findElements(By.cssSelector(".fn-backward2"));
-        elements.forEach(element -> element.click());
+        elements.forEach(WebElement::click);
 
-        Thread.sleep(1000); //브라우저 로딩될때까지 잠시 기다린다.
+        Thread.sleep(2000); //브라우저 로딩될때까지 잠시 기다린다.
     }
 
     // 가격 Type 조회
@@ -164,9 +186,6 @@ public class PriceService extends CommService {
         List<String> typeList = new ArrayList<String>();
         List<WebElement> elements = driver.findElements(By.cssSelector(".list_calendar_info li.item"));
         elements.forEach(element -> typeList.add(element.getText()));
-
-//        typeList.forEach(type -> System.out.println("type: " + type));
-//        System.out.println("Price Type length" + typeList.size());
 
         return typeList;
     }
