@@ -8,6 +8,8 @@ import com.delgo.api.repository.DetailRoomPhotoRepository;
 import com.delgo.api.repository.PriceRepository;
 import com.delgo.api.repository.RoomNoticeRepository;
 import com.delgo.api.repository.RoomRepository;
+import com.delgo.api.service.crawling.GetPhotosCrawlingService;
+import com.delgo.api.service.crawling.room.GetRoomCrawlingService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -31,6 +33,38 @@ public class RoomService {
     private final RoomNoticeRepository roomNoticeRepository;
     private final PriceRepository priceRepository;
     private final DetailRoomPhotoRepository detailRoomPhotoRepository;
+
+    private final GetRoomCrawlingService getRoomCrawlingService;
+    private final GetPhotosCrawlingService getPhotosCrawlingService;
+
+
+    public Room registerRoom(int placeId, String crawlingUrl) {
+        Room room = getRoomCrawlingService.crawlingProcess(placeId, crawlingUrl);
+        Room registerRoom = roomRepository.save(room);
+
+        return registerRoom;
+    }
+
+    public List<DetailRoomPhoto> registerDetailRoomPhotos(int placeId, int roomId, String crawlingUrl) {
+        List<String> photoUrlList = getPhotosCrawlingService.crawlingProcess(crawlingUrl);
+
+        List<DetailRoomPhoto> detailRoomPhotoList = new ArrayList<>();
+        for (String photoUrl : photoUrlList)
+            detailRoomPhotoList.add(DetailRoomPhoto.builder()
+                    .placeId(placeId)
+                    .roomId(roomId)
+                    .url(photoUrl)
+                    .isMain(0)
+                    .build());
+
+        // 첫 번째 사진 Main으로 등록
+        detailRoomPhotoList.get(0).setIsMain(1);
+
+        // DB에 저장
+        List<DetailRoomPhoto> registerList = detailRoomPhotoRepository.saveAll(detailRoomPhotoList);
+
+        return registerList;
+    }
 
     public List<RoomNotice> getRoomNotice(int roomId) {
         List<RoomNotice> roomNoticeList = roomNoticeRepository.findByRoomId(roomId);

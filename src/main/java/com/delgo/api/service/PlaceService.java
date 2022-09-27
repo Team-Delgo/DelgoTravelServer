@@ -4,10 +4,12 @@ import com.delgo.api.domain.Wish;
 import com.delgo.api.domain.photo.DetailPhoto;
 import com.delgo.api.domain.place.Place;
 import com.delgo.api.domain.place.PlaceNotice;
-import com.delgo.api.domain.room.Room;
 import com.delgo.api.domain.price.Price;
+import com.delgo.api.domain.room.Room;
 import com.delgo.api.repository.*;
 import com.delgo.api.repository.specification.PlaceSpecification;
+import com.delgo.api.service.crawling.GetPhotosCrawlingService;
+import com.delgo.api.service.crawling.place.GetPlaceCrawlingService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -30,7 +32,38 @@ public class PlaceService {
     private final PlaceNoticeRepository placeNoticeRepository;
     private final DetailPhotoRepository detailPhotoRepository;
 
-    public List<PlaceNotice> getPlaceNotice(int placeId){
+    private final GetPlaceCrawlingService getPlaceCrawlingService;
+    private final GetPhotosCrawlingService getPhotosCrawlingService;
+
+    public Place registerPlace(String crawlingUrl) {
+        Place place = getPlaceCrawlingService.crawlingProcess(crawlingUrl);
+        Place registerPlace = placeRepository.save(place);
+
+        return registerPlace;
+    }
+
+    public List<DetailPhoto> registerDetailPhotos(int placeId, String crawlingUrl) {
+        List<String> detailPhotoUrlList = getPhotosCrawlingService.crawlingProcess(crawlingUrl);
+
+        List<DetailPhoto> detailPhotoList = new ArrayList<>();
+        for (String photoUrl : detailPhotoUrlList)
+            detailPhotoList.add(DetailPhoto.builder()
+                    .placeId(placeId)
+                    .url(photoUrl)
+                    .isMain(0)
+                    .build());
+
+        // 첫 번째 사진 Main으로 등록
+        detailPhotoList.get(0).setIsMain(1);
+
+        // DB에 저장
+        List<DetailPhoto> registerList = detailPhotoRepository.saveAll(detailPhotoList);
+
+        return registerList;
+    }
+
+
+    public List<PlaceNotice> getPlaceNotice(int placeId) {
         List<PlaceNotice> placeNoticeList = placeNoticeRepository.findByPlaceId(placeId);
         placeNoticeList.forEach(notice -> {
             String content = notice.getContent();

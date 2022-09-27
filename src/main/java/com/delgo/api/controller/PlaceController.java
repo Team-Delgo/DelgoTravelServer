@@ -11,6 +11,8 @@ import com.delgo.api.domain.place.PlaceNotice;
 import com.delgo.api.domain.room.Room;
 import com.delgo.api.dto.DetailDTO;
 import com.delgo.api.service.*;
+import com.delgo.api.service.crawling.GetPriceCrawlingService;
+import com.delgo.api.service.crawling.place.GetRoomListCrawlingService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -37,6 +39,39 @@ public class PlaceController extends CommController {
     private final PhotoService photoService;
     private final WishService wishService;
     private final EditorNoteService editorNoteService;
+
+    private final GetRoomListCrawlingService getRoomListCrawlingService;
+    private final GetPriceCrawlingService getPriceCrawlingService;
+
+    /*
+     * 새로운 Place 등록
+     * Request Data : crawling Url
+     * Response Data : 등록한 Place & RoomList
+     */
+    @GetMapping("/register")
+    public ResponseEntity register(@RequestParam String crawlingUrl) {
+        // Validate - Blank Check; [ String 만 해주면 됨 ]
+        if (crawlingUrl.isBlank())
+            return ErrorReturn(ApiCode.PARAM_ERROR);
+
+        // Place 등록.
+        Place place = placeService.registerPlace(crawlingUrl);
+        // Place Photo 등록
+        List <DetailPhoto> detailPhotos = placeService.registerDetailPhotos(place.getPlaceId(),crawlingUrl);
+        // Room Url List 조회
+        List<String> roomUrlList = getRoomListCrawlingService.crawlingProcess(crawlingUrl);
+        List<Room> roomList = new ArrayList<>();
+        // Room 등록
+        for(String url : roomUrlList){
+            Room room = roomService.registerRoom(place.getPlaceId(), url);
+            roomList.add(room);
+            roomService.registerDetailRoomPhotos(place.getPlaceId(),room.getRoomId(),url);
+        }
+
+        // Room 가격 데이터 크롤링
+        getPriceCrawlingService.crawlingProcess(roomList);
+        return SuccessReturn(place);
+    }
 
     /*
      * WhereToGO Page 조회
