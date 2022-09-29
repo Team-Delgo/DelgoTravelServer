@@ -42,8 +42,8 @@ public class OAuthController extends CommController {
         log.info("appleUniqueNo : {}", appleUniqueNo);
 
         // DB에 appleUniqueNo 존재 X
-        if (!userService.isAppleUniqueNoExisting(appleUniqueNo)) 
-            return ErrorReturn(ApiCode.APPLE_UNIQUE_NO_NOT_FOUND);
+        if (!userService.isAppleUniqueNoExisting(appleUniqueNo))
+            return ErrorReturn(ApiCode.APPLE_UNIQUE_NO_NOT_FOUND, appleUniqueNo);
         
         // DB에 appleUniqueNo 존재 O -> 해당 User 반환
         User user = userService.getUserByAppleUniqueNo(appleUniqueNo);

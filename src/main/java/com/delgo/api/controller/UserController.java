@@ -8,6 +8,8 @@ import com.delgo.api.domain.SmsAuth;
 import com.delgo.api.domain.pet.Pet;
 import com.delgo.api.domain.user.User;
 import com.delgo.api.domain.user.UserSocial;
+import com.delgo.api.dto.user.OAuthSignUpDTO;
+import com.delgo.api.dto.user.SignUpDTO;
 import com.delgo.api.dto.user.*;
 import com.delgo.api.service.PetService;
 import com.delgo.api.service.SmsAuthService;
@@ -119,7 +121,7 @@ public class UserController extends CommController {
     }
 
     // 소셜 회원가입
-    @PostMapping("/oAuthSignup")
+    @PostMapping("/oauth-signup")
     public ResponseEntity<?> registerUserByOAuth(@Validated @RequestBody OAuthSignUpDTO signUpDTO, HttpServletResponse response) {
         User user = User.builder()
                 .name(signUpDTO.getUserName())
@@ -133,6 +135,14 @@ public class UserController extends CommController {
                 .size(signUpDTO.getPetSize())
                 .birthday(signUpDTO.getBirthday())
                 .build();
+
+        // Apple 회원가입 시 appleUniqueNo 넣어주어야 함.
+        if (signUpDTO.getUserSocial() == UserSocial.A) {
+            if (signUpDTO.getAppleUniqueNo() == null || signUpDTO.getAppleUniqueNo().isBlank())
+                return ErrorReturn(ApiCode.PARAM_ERROR);
+            else
+                user.setAppleUniqueNo(signUpDTO.getAppleUniqueNo());
+        }
 
         User userByDB = userService.signup(user, pet);
         Pet petByDB = petService.getPetByUserId(user.getUserId());
