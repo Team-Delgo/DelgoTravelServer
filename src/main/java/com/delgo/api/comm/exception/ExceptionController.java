@@ -44,6 +44,10 @@ public class ExceptionController extends CommController {
     // Optional Select Error Check
     @ExceptionHandler({NullPointerException.class})
     public ResponseEntity methodArgumentNotValidException(NullPointerException e) {
+        if(e.getMessage() == null)
+            return ResponseEntity.ok().body(
+                    ResponseDTO.builder().code(ApiCode.UNKNOWN_ERROR.getCode()).codeMsg(ApiCode.UNKNOWN_ERROR.getMsg()).build());
+
         if(e.getMessage().equals("PHOTO EXTENSION IS WRONG"))
             return ResponseEntity.ok().body(
                     ResponseDTO.builder().code(ApiCode.PHOTO_EXTENSION_ERROR.getCode()).codeMsg(ApiCode.PHOTO_EXTENSION_ERROR.getMsg()).build());

@@ -56,9 +56,8 @@ public class API {
         public static final int PHONE_NO_DUPLICATE_ERROR = 371;
 
         //OAuth ERROR
-        public static final int KAKAO_PHONE_NO_NOT_EXIST = 380;
-        public static final int KAKAO_NOT_CONNECT = 381;
-        public static final int ANOTHER_OAUTH_CONNECT = 382;
+        public static final int OAUTH_PHONE_NO_NOT_EXIST = 380;
+        public static final int ANOTHER_OAUTH_CONNECT = 381;
 
 
         public static final int UNKNOWN_ERROR = 1000;
