@@ -1,5 +1,6 @@
 package com.delgo.api.comm.oauth;
 
+import com.delgo.api.service.ECPrivateKeyImpl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
@@ -24,7 +25,6 @@ import org.bouncycastle.util.io.pem.PemReader;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
-import sun.security.ec.ECPrivateKeyImpl;
 
 import java.io.FileReader;
 import java.security.interfaces.ECPrivateKey;
