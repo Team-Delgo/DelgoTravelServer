@@ -33,9 +33,6 @@ public class UserService {
 
     // 회원가입
     public User signup(User user, Pet pet) {
-        // 패스워드 암호화 및 적용
-//        String encodedPassword = passwordEncoder.encode(user.getPassword());
-//        user.setPassword(encodedPassword);
         // User Data save
         User owner = userRepository.save(user);
         // Pet Data save
@@ -81,6 +78,12 @@ public class UserService {
         return findUser.isPresent();
     }
 
+    // 애플 연동 유무 확인
+    public boolean isAppleUniqueNoExisting(String appleUniqueNo) {
+        Optional<User> findUser = userRepository.findByAppleUniqueNo(appleUniqueNo);
+        return findUser.isPresent();
+    }
+
     // myAccount
     public InfoDTO getInfoByUserId(int userId) {
         User user = userRepository.findByUserId(userId).orElseThrow(() -> new NullPointerException("NOT FOUND USER"));
@@ -115,6 +118,11 @@ public class UserService {
 
     public User getUserByPhoneNo(String phoneNo) {
         return userRepository.findByPhoneNo(phoneNo)
+                .orElseThrow(() -> new NullPointerException("NOT FOUND USER"));
+    }
+
+    public User getUserByAppleUniqueNo(String appleUniqueNo) {
+        return userRepository.findByAppleUniqueNo(appleUniqueNo)
                 .orElseThrow(() -> new NullPointerException("NOT FOUND USER"));
     }
 

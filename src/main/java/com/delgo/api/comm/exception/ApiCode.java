@@ -58,6 +58,7 @@ public enum ApiCode {
     //OAuth ERROR
     OAUTH_PHONE_NO_NOT_EXIST(API.CODE.OAUTH_PHONE_NO_NOT_EXIST, "전화번호가 없습니다."),
     ANOTHER_OAUTH_CONNECT(API.CODE.ANOTHER_OAUTH_CONNECT, "이미 다른 OAuth와 연동 되어 있습니다."),
+    APPLE_UNIQUE_NO_NOT_FOUND(API.CODE.APPLE_UNIQUE_NO_NOT_FOUND, "Apple Unique No를 찾지 못했습니다."),
 
 
 

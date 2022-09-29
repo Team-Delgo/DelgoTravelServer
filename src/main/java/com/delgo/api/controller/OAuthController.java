@@ -34,21 +34,20 @@ public class OAuthController extends CommController {
     private final AppleService appleService;
     private final TokenService tokenService;
 
-    // 애플로그인
-    public static final String TEAM_ID = "GGS2HY6B73";
-    public static final String REDIRECT_URL = "https://delgo.pet/oauth/redirect/apple";
-    public static final String CLIENT_ID = "pet.delgo";
-    public static final String KEY_ID = "P9AZCBNYJG";
-    public static final String AUTH_URL = "https://appleid.apple.com";
-    public static final String KEY_PATH = "static/apple/AuthKey_P9AZCBNYJG.p8";
-
     // Apple
-    @PostMapping(value = {"/apple/id_token/{id_token}","/apple/id_token/"})
+    @PostMapping(value = {"/apple/id_token/{id_token}", "/apple/id_token/"})
     public ResponseEntity oauthApple(@PathVariable String id_token, HttpServletResponse response) {
         JSONObject payload = appleService.decodeFromIdToken(id_token);
         String appleUniqueNo = payload.getAsString("sub");  //  회원 고유 식별자
+        log.info("appleUniqueNo : {}", appleUniqueNo);
 
-        return SuccessReturn(appleUniqueNo);
+        // DB에 appleUniqueNo 존재 X
+        if (!userService.isAppleUniqueNoExisting(appleUniqueNo))
+            return ErrorReturn(ApiCode.APPLE_UNIQUE_NO_NOT_FOUND, appleUniqueNo);
+        
+        // DB에 appleUniqueNo 존재 O -> 해당 User 반환
+        User user = userService.getUserByAppleUniqueNo(appleUniqueNo);
+        return SuccessReturn(user);
     }
 
     // Kakao
