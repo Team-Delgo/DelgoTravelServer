@@ -10,6 +10,7 @@ public class API {
 
         // TOKEN ERROR
         public static final int TOKEN_ERROR = 303;
+        public static final int REFRESH_TOKEN_ERROR = 333;
 
         // LOGIN ERROR
         public static final int LOGIN_ERROR = 304;
