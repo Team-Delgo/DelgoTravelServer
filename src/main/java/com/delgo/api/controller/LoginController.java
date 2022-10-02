@@ -101,7 +101,7 @@ public class LoginController extends CommController {
 
             return SuccessReturn();
         } catch (Exception e) { // Refresh_Toekn 인증 실패 ( 로그인 화면으로 이동 필요 )
-            return ErrorReturn(ApiCode.TOKEN_ERROR);
+            return ErrorReturn(ApiCode.REFRESH_TOKEN_ERROR);
         }
     }
 
