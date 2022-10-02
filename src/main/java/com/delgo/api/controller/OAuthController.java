@@ -47,7 +47,15 @@ public class OAuthController extends CommController {
         
         // DB에 appleUniqueNo 존재 O -> 해당 User 반환
         User user = userService.getUserByAppleUniqueNo(appleUniqueNo);
-        return SuccessReturn(user);
+        Pet pet = petService.getPetByUserId(user.getUserId());
+
+        String Access_jwtToken = tokenService.createToken("Access", user.getEmail()); // Access Token 생성
+        String Refresh_jwtToken = tokenService.createToken("Refresh", user.getEmail()); // Refresh Token 생성
+
+        response.addHeader(Access_JwtProperties.HEADER_STRING, Access_JwtProperties.TOKEN_PREFIX + Access_jwtToken);
+        response.addHeader(Refresh_JwtProperties.HEADER_STRING, Refresh_JwtProperties.TOKEN_PREFIX + Refresh_jwtToken);
+
+        return SuccessReturn(new UserPetDTO(user, pet));
     }
 
     // Kakao
