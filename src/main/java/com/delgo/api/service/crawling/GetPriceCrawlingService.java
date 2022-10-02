@@ -90,26 +90,43 @@ public class GetPriceCrawlingService extends CommService {
         LocalDate today = LocalDate.now();
         LocalDate lastDay = today.plusMonths(2);
         List<Price> resultList = new ArrayList<>();
+        try {
+            driver.get(url);    //브라우저에서 url로 이동한다.
+            webDriverWait.until(  //cssSelector로 선택한 부분이 존재할때까지 기다린다. 최대 10초
+                    ExpectedConditions.presenceOfElementLocated(By.cssSelector(".list_calendar_info li.item")));
 
-        driver.get(url);    //브라우저에서 url로 이동한다.
-        webDriverWait.until(  //cssSelector로 선택한 부분이 존재할때까지 기다린다. 최대 10초
-                ExpectedConditions.presenceOfElementLocated(By.cssSelector(".list_calendar_info li.item")));
-
-        // 모든 날짜 예약 완료시 Naver Booking에서 다음달로 이동시킨다. ( 따라서 오늘이 포함된 달로 다시 Back 시켜야 함. )
-        while (true) {
-            if (setInitDate(today.getYear(), today.getMonthValue())) break;
-            backBtnClick();
-        }
+            // 모든 날짜 예약 완료시 Naver Booking에서 다음달로 이동시킨다. ( 따라서 오늘이 포함된 달로 다시 Back 시켜야 함. )
+            while (true) {
+                if (setInitDate(today.getYear(), today.getMonthValue())) break;
+                backBtnClick();
+            }
 
 //          두달 치 가져옴
-        for (int j = 0; j < 3; j++) {
-            // typeList ex : { "선택", "불가", "160,000원", "190,000원", "210,000원" }
-            List<String> typeList = getPriceType(); // 가격의 종류 List
-            // 예약 가능한 날짜 가격별로 조회
-            for (int i = 0; i < typeList.size() - 2; i++) {
-                List<String> canBookingList = getCanBookingList(i);
-                String price = typeList.get(i + 2);
-                canBookingList.forEach(date -> {
+            for (int j = 0; j < 3; j++) {
+                // typeList ex : { "선택", "불가", "160,000원", "190,000원", "210,000원" }
+                List<String> typeList = getPriceType(); // 가격의 종류 List
+                // 예약 가능한 날짜 가격별로 조회
+                for (int i = 0; i < typeList.size() - 2; i++) {
+                    List<String> canBookingList = getCanBookingList(i);
+                    String price = typeList.get(i + 2);
+                    canBookingList.forEach(date -> {
+                        LocalDate localDate = LocalDate.parse(date);
+                        // 오늘 기준 2달까지만 DB에 저장한다.
+                        if ((localDate.isAfter(today) && localDate.isBefore(lastDay)) || localDate.isEqual(today) || localDate.isEqual(lastDay))
+                            resultList.add(
+                                    Price.builder()
+                                            .placeId(placeId)
+                                            .roomId(roomId)
+                                            .priceDate(date)
+                                            .price(price)
+                                            .isWait(0)
+                                            .build());
+                    });
+                }
+
+                // 예약 불가능한 날짜 조회
+                List<String> canNotBookingList = getCanNotBookingList();
+                canNotBookingList.forEach(date -> {
                     LocalDate localDate = LocalDate.parse(date);
                     // 오늘 기준 2달까지만 DB에 저장한다.
                     if ((localDate.isAfter(today) && localDate.isBefore(lastDay)) || localDate.isEqual(today) || localDate.isEqual(lastDay))
@@ -118,29 +135,24 @@ public class GetPriceCrawlingService extends CommService {
                                         .placeId(placeId)
                                         .roomId(roomId)
                                         .priceDate(date)
-                                        .price(price)
+                                        .price("0")
+                                        .isBooking(1)
                                         .isWait(0)
                                         .build());
                 });
+                nextBtnClick();
             }
-
-            // 예약 불가능한 날짜 조회
-            List<String> canNotBookingList = getCanNotBookingList();
-            canNotBookingList.forEach(date -> {
-                LocalDate localDate = LocalDate.parse(date);
-                // 오늘 기준 2달까지만 DB에 저장한다.
-                if ((localDate.isAfter(today) && localDate.isBefore(lastDay)) || localDate.isEqual(today) || localDate.isEqual(lastDay))
-                    resultList.add(
-                            Price.builder()
-                                    .placeId(placeId)
-                                    .roomId(roomId)
-                                    .priceDate(date)
-                                    .price("0")
-                                    .isBooking(1)
-                                    .isWait(0)
-                                    .build());
-            });
-            nextBtnClick();
+        } catch (InterruptedException e) {
+            System.out.println("**************************에러 발생 *************************");
+            String msg = "[시간] \n" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy년 MM월 dd일 hh시 mm분 " +
+                    "ss초"))
+                    + "\n  RefreshPriceJob 동작중 에러가 발생했습니다. \n" + e.getMessage();
+            try {
+                smsService.sendSMS(ADMIN_PHONE_NO, msg);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+            e.printStackTrace();
         }
         return resultList;
     }
