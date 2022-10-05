@@ -16,6 +16,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 public class OAuthSignUpDTO {
+    private String email;
     @NotBlank
     private String userName;
     @NotBlank

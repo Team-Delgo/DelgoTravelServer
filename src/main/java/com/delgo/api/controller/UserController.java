@@ -126,7 +126,7 @@ public class UserController extends CommController {
         User user = User.builder()
                 .name(signUpDTO.getUserName())
                 .phoneNo(signUpDTO.getPhoneNo().replaceAll("[^0-9]", ""))
-                .email("")
+                .email(signUpDTO.getEmail())
                 .password("")
                 .userSocial(signUpDTO.getUserSocial())
                 .build();
