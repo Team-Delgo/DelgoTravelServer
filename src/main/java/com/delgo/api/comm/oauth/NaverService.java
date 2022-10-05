@@ -88,4 +88,35 @@ public class NaverService {
         }
         return oAuthDTO;
     }
+
+    public void deleteNaverUser(String accessToken) {
+        String API_URL = "https://nid.naver.com/oauth2.0/token";
+        String requestURL = API_URL
+                + "?grant_type=authorization_code"
+                + "&client_id=" + CLIENT_ID
+                + "&client_secret=" + CLIENT_SECRET
+                + "&access_token=" + accessToken // 인증 코드
+                + "&service_provider=NAVER"; // 상태 토큰
+
+        HttpComponentsClientHttpRequestFactory httpRequestFactory = new HttpComponentsClientHttpRequestFactory();
+        RestTemplate restTemplate = new RestTemplate(httpRequestFactory);
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", "Bearer " + accessToken);
+
+        HttpEntity entity = new HttpEntity<>(headers);
+        ResponseEntity<String> responseEntity = restTemplate.exchange(requestURL, HttpMethod.GET, entity, String.class);
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        try {
+            JsonNode jsonNode = objectMapper.readTree(responseEntity.getBody());
+
+
+            System.out.println("************************************************");
+            System.out.println("jsonNode: " + jsonNode);
+            System.out.println("************************************************");
+
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+    }
 }

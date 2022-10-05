@@ -35,4 +35,12 @@ public class OAuthTest {
 
         naverService.createNaverUser(token);
     }
+
+    @Test
+    public void NaverLogOut() throws Exception {
+//       https://www.delgo.pet/oauth/callback/naver?code=GWx84ipdno3k59z44N&state=9kgsGTfH4j7IyAkg
+        String accessToken = "AAAAOvSSVipN25hL4qLU13pIpDsZbgchc6H27vkyDvzLwNLyBMhzzMobL3wcWS0Mqp77VYCtE20jeCVkoo4CpgtdY70";
+        naverService.deleteNaverUser(accessToken);
+
+    }
 }
