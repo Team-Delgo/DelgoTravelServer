@@ -71,13 +71,16 @@ public class NaverService {
         try {
             JsonNode jsonNode = objectMapper.readTree(responseEntity.getBody());
             JsonNode phoneNo = jsonNode.get("response").get("mobile");
+            JsonNode email = jsonNode.get("response").get("email");
 
             oAuthDTO.setPhoneNo(phoneNo.toString().replace("\"",""));
+            oAuthDTO.setEmail(email.toString().replace("\"",""));
             oAuthDTO.setUserSocial(UserSocial.N);
 
             System.out.println("************************************************");
             System.out.println("jsonNode: " + jsonNode);
             System.out.println("phoneNo: " + phoneNo);
+            System.out.println("email: " + email);
             System.out.println("************************************************");
 
         } catch (JsonProcessingException e) {

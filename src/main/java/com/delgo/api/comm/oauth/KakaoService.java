@@ -123,7 +123,7 @@ public class KakaoService {
 
             System.out.println("id : " + id);
             System.out.println("phoneNo : " + phoneNo);
-            System.out.println("phoneNo : " + email);
+            System.out.println("email : " + email);
             System.out.println("hasPhoneNo : " + hasPhoneNo);
             br.close();
 
