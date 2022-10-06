@@ -2,6 +2,8 @@ package com.delgo.api.controller;
 
 import com.delgo.api.comm.CommController;
 import com.delgo.api.comm.exception.ApiCode;
+import com.delgo.api.domain.user.User;
+import com.delgo.api.domain.user.UserSocial;
 import com.delgo.api.service.PetService;
 import com.delgo.api.service.SmsAuthService;
 import com.delgo.api.service.TokenService;
@@ -13,6 +15,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 @Slf4j
@@ -34,7 +38,14 @@ public class SmsAuthController extends CommController {
             phoneNo = phoneNo.replaceAll("[^0-9]", "");
 
             if (userService.isPhoneNoExisting(phoneNo)) {
-                return ErrorReturn(ApiCode.PHONE_NO_DUPLICATE_ERROR);
+                User user = userService.getUserByPhoneNo(phoneNo);
+                Map<String, Object> returnMap = new HashMap<>();
+                if (user.getUserSocial().equals(UserSocial.A))
+                    returnMap.put("email", "애플로 로그인해주세요.");
+                else
+                    returnMap.put("email", user.getEmail());
+                returnMap.put("userSocial", user.getUserSocial());
+                return ErrorReturn(ApiCode.PHONE_NO_DUPLICATE_ERROR, returnMap);
             }
 
             if (smsAuthService.isSmsAuthExisting(phoneNo)) {
