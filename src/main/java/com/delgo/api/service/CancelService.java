@@ -21,4 +21,8 @@ public class CancelService extends CommService {
                 .orElseThrow(() -> new NullPointerException("NOT FOUND CANCEL"));
     }
 
+    public Cancel getCancelByCancelId(int cancelId) {
+        return cancelRepository.findByCancelId(cancelId)
+                .orElseThrow(() -> new NullPointerException("NOT FOUND CANCEL"));
+    }
 }

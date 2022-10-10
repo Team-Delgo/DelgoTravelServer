@@ -23,6 +23,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Period;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 @Slf4j
@@ -40,7 +41,6 @@ public class BookingService extends CommService {
 
     private final BookingRepository bookingRepository;
 
-    private final String SECRET_KEY = "test_sk_ADpexMgkW36GJqKEJoBVGbR5ozO0";
 
     public void fixToTrip(String today) {
         List<Booking> bookingList = bookingRepository.findByStartDt(today);
@@ -85,11 +85,9 @@ public class BookingService extends CommService {
     }
 
     public int calculateFinalPrice(Booking booking) {
-        int originalPrice = priceService.getOriginalPrice(booking.getRoomId(), booking.getStartDt(),
-                booking.getEndDt());
+        int originalPrice = priceService.getOriginalPrice(booking.getRoomId(), booking.getStartDt(), booking.getEndDt());
         int point = booking.getPoint();
-        int couponPrice = (booking.getCouponId() == 0) ? 0 : couponService.getCouponPrice(booking.getCouponId(),
-                originalPrice);
+        int couponPrice = (booking.getCouponId() == 0) ? 0 : couponService.getCouponPrice(booking.getCouponId(), originalPrice);
 
         return originalPrice - point - couponPrice;
     }
@@ -100,27 +98,25 @@ public class BookingService extends CommService {
         placeService.setMainPhoto(place); // 사진 설정
         Room room = roomService.getRoomByRoomId(booking.getRoomId());
         User user = userService.getUserByUserId(booking.getUserId());
-        Period period = Period.between(LocalDate.now(), booking.getStartDt());
+        int period = (int) ChronoUnit.DAYS.between(LocalDate.now(), booking.getStartDt());
         int commission = 0;
 
-        if (period.getDays() <= 14 && period.getDays() >= 1) {
-            Cancel cancel = cancelService.getCancelByPlaceIdAndRemainDay(booking.getPlaceId(), period.getDays());
+        if (period <= 14 && period >= 1) {
+            // TODO : 우선은 취소 공동 정책으로 표시 [ 추후 숙소별로 변경 ]
+//            Cancel cancel = cancelService.getCancelByPlaceIdAndRemainDay(booking.getPlaceId(), period);
+            Cancel cancel = cancelService.getCancelByCancelId(period);
             commission = booking.getFinalPrice() / 100 * (100 - cancel.getReturnRate());
-        }
-        else if (period.getDays() > 14) {
+        } else if (period > 14) {
             commission = 0;
-        }
-        else {
-            commission =  booking.getFinalPrice();
+        } else {
+            commission = booking.getFinalPrice();
         }
 
         int refund = booking.getFinalPrice() - commission;
 
-        int originalPrice = priceService.getOriginalPrice(booking.getRoomId(), booking.getStartDt(),
-                booking.getEndDt());
+        int originalPrice = priceService.getOriginalPrice(booking.getRoomId(), booking.getStartDt(), booking.getEndDt());
         int point = booking.getPoint();
-        int couponPrice = (booking.getCouponId() == 0) ? 0 : couponService.getCouponPrice(booking.getCouponId(),
-                originalPrice);
+        int couponPrice = (booking.getCouponId() == 0) ? 0 : couponService.getCouponPrice(booking.getCouponId(), originalPrice);
         int finalPrice = originalPrice - point - couponPrice;
 
         String canCancelDate = booking.getStartDt().minusDays(5).toString();
@@ -163,7 +159,7 @@ public class BookingService extends CommService {
                 .build();
     }
 
-    public HttpResponse<String> requestPaymentCancel(String paymentKey){
+    public HttpResponse<String> requestPaymentCancel(String paymentKey) {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create("https://api.tosspayments.com/v1/payments/" + paymentKey + "/cancel"))
                 .header("Authorization", "Basic dGVzdF9za19PeUwwcVo0RzFWT0xvYkI2S3d2cm9XYjJNUVlnOg==")

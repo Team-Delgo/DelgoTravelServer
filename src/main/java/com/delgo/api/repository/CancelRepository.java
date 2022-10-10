@@ -7,4 +7,6 @@ import java.util.Optional;
 
 public interface CancelRepository extends JpaRepository<Cancel, Integer> {
     Optional<Cancel> findByPlaceIdAndRemainDay(int placeId, int remainDay);
+
+    Optional<Cancel> findByCancelId(int cancelId);
 }
