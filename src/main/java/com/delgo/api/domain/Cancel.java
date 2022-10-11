@@ -13,6 +13,7 @@ import javax.persistence.Id;
 @AllArgsConstructor
 public class Cancel {
     @Id
+    private int cancelId;
     private int placeId;
     private int remainDay;
     private int returnRate;
