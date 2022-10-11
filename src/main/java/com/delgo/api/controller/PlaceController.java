@@ -22,10 +22,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Slf4j
 @RestController
@@ -166,19 +163,18 @@ public class PlaceController extends CommController {
     @GetMapping("/recommend")
     public ResponseEntity recommendPlace(@RequestParam Integer userId) {
         List<Place> placeList = placeService.getPlaceAll();
+        Collections.shuffle(placeList);
+        placeList = placeList.subList(0, 3);
+
         placeService.setMainPhoto(placeList);
 
-        List<Place> returnList = new ArrayList<>();
         // userId == 0 이면 로그인 없이 조회 // userId 있을 경우 wish 여부 Check
         if (userId != 0 && placeList.size() > 0) {
             List<Wish> wishList = wishService.getWishListByUserId(userId);
             placeService.setWishId(placeList, wishList);
         }
 
-        for (int i = 0; i < placeList.size(); i++)
-            returnList.add(placeList.get(i));
-
-        return SuccessReturn(returnList);
+        return SuccessReturn(placeList);
     }
 
     /*
