@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import net.minidev.json.annotate.JsonIgnore;
 import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.*;
@@ -37,11 +38,20 @@ public class User {
     private UserSocial userSocial;
     private String appleUniqueNo; // Apple 연동시에만 필요.
 
+    @JsonIgnore
     @CreationTimestamp
     @Column(name = "regist_dt")
     private LocalDate registDt;
 
     private String profile;
+
+    public static User makeEmptyForEmailReturn(User user){
+        user.setUserId(0);
+        user.setName("");
+        user.setPassword("");
+        user.setProfile("");
+        return user;
+    }
 
 //    // 권한
 //    @JsonIgnore
