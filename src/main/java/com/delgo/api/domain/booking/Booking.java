@@ -22,6 +22,7 @@ public class Booking {
     private String bookingId;
     private Integer userId;
     private String reservedName;
+    private String reservedPhoneNo;
     private Integer roomId;
     private Integer placeId;
     private Integer couponId;

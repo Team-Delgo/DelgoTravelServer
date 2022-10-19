@@ -32,11 +32,12 @@ public class BookingDTO {
     private String paymentKey;
 
 
-    public Booking build(String bookingId, BookingState bookingState) {
+    public Booking build(String bookingId, BookingState bookingState, String reservedPhoneNo) {
         return Booking.builder()
                 .bookingId(bookingId)
                 .userId(this.userId)
                 .reservedName(this.reservedName)
+                .reservedPhoneNo(reservedPhoneNo)
                 .roomId(this.roomId)
                 .placeId(this.placeId)
                 .couponId(this.couponId)

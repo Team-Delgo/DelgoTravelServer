@@ -8,6 +8,7 @@ import com.delgo.api.comm.ncp.service.SmsService;
 import com.delgo.api.domain.Cancel;
 import com.delgo.api.domain.booking.Booking;
 import com.delgo.api.domain.booking.BookingState;
+import com.delgo.api.domain.user.User;
 import com.delgo.api.dto.HistoryDTO;
 import com.delgo.api.dto.booking.BookingDTO;
 import com.delgo.api.dto.booking.ReturnBookingDTO;
@@ -64,7 +65,8 @@ public class BookingController extends CommController {
         if (bookingDTO.getPoint() != 0) {
         }
 
-        Booking booking = bookingDTO.build(bookingService.createBookingNum(), BookingState.W);
+        User user = userService.getUserByUserId(bookingDTO.getUserId());
+        Booking booking = bookingDTO.build(bookingService.createBookingNum(), BookingState.W, user.getPhoneNo());
         booking.setFinalPrice(bookingService.calculateFinalPrice(booking)); // 최종 가격 계산
         Booking savedBooking = bookingService.insertOrUpdateBooking(booking);
 
@@ -85,6 +87,7 @@ public class BookingController extends CommController {
 
         return SuccessReturn(savedBooking.getBookingId());
     }
+
     /**
      * 예약 내용 조회 : 예약확인 페이지
      */
