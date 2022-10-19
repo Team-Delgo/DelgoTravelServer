@@ -173,7 +173,8 @@ public class BookingController extends CommController {
 
         Period period = Period.between(LocalDate.now(), tripDay);
         int getDay = (period.getDays() >= 14) ? 14 : period.getDays();
-        Cancel cancel = cancelService.getCancelByPlaceIdAndRemainDay(booking.getPlaceId(), getDay);
+//        Cancel cancel = cancelService.getCancelByPlaceIdAndRemainDay(booking.getPlaceId(), getDay);
+        Cancel cancel = cancelService.getCancelByCancelId(getDay);
         int returnRate = cancel.getReturnRate();
 
         if (returnRate == 0)

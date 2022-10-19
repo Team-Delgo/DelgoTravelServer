@@ -92,7 +92,7 @@ public class NaverService {
     public void deleteNaverUser(String accessToken) {
         String API_URL = "https://nid.naver.com/oauth2.0/token";
         String requestURL = API_URL
-                + "?grant_type=authorization_code"
+                + "?grant_type=delete"
                 + "&client_id=" + CLIENT_ID
                 + "&client_secret=" + CLIENT_SECRET
                 + "&access_token=" + accessToken // 인증 코드

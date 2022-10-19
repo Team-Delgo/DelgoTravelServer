@@ -38,8 +38,8 @@ public class OAuthTest {
 
     @Test
     public void NaverLogOut() throws Exception {
-//       https://www.delgo.pet/oauth/callback/naver?code=GWx84ipdno3k59z44N&state=9kgsGTfH4j7IyAkg
-        String accessToken = "AAAAOvSSVipN25hL4qLU13pIpDsZbgchc6H27vkyDvzLwNLyBMhzzMobL3wcWS0Mqp77VYCtE20jeCVkoo4CpgtdY70";
+       // "access_token":"AAAAOvSSVipN25hL4qLU13pIpDsZbgchc6H27vkyDvzLwNLyBMhzzMobL3wcWS0Mqp77VYCtE20jeCVkoo4CpgtdY70"
+        String accessToken = "AAAANX7wskGdP1QG7O5fneV8sG28_OekyMDMQpb3SgZfglw1tRtwWJ4ZYGz58NUisqYVSxm1HveJ4z6oR6_cLn-K8esx";
         naverService.deleteNaverUser(accessToken);
 
     }
