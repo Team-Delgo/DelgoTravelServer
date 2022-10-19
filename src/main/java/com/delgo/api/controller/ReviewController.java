@@ -79,4 +79,14 @@ public class ReviewController extends CommController {
         reviewService.deleteReviewData(reviewId);
         return SuccessReturn();
     }
+
+    /*
+     * 특정 리뷰 클릭시 해당 리뷰 사진 조회
+     * Request Data : reviewId
+     * Response Data : review 사진 리스트
+     */
+    @GetMapping("/photo")
+    public ResponseEntity getReviewPhoto(@RequestParam Integer reviewId) {
+        return SuccessReturn(reviewService.getReviewPhotoByReviewId(reviewId));
+    }
 }

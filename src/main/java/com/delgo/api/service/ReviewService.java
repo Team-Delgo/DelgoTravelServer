@@ -1,6 +1,7 @@
 package com.delgo.api.service;
 
 import com.delgo.api.domain.Review;
+import com.delgo.api.domain.photo.ReviewPhoto;
 import com.delgo.api.domain.place.Place;
 import com.delgo.api.domain.room.Room;
 import com.delgo.api.domain.user.User;
@@ -92,6 +93,10 @@ public class ReviewService {
         review.setReviewPhotoList(reviewPhotoRepository.findByReviewId(review.getReviewId()));
 
         return review;
+    }
+
+    public List<ReviewPhoto> getReviewPhotoByReviewId(int reviewId) {
+        return reviewPhotoRepository.findByReviewId(reviewId);
     }
 
     @Transactional
