@@ -36,7 +36,7 @@ public class CalendarController extends CommController {
         List<DetailRoomPhoto> detailPhotos = photoService.getDetailRoomPhotoList(roomId);
         List<DateDTO> dateList = calendarService.getDetailRoomCalendarData(roomId);
 
-        Room room = roomService.getRoomByRoomId(roomId);
+        Room room = roomService.getRoomById(roomId);
         List<PlaceNotice> placeNoticeList = placeService.getPlaceNotice(room.getPlaceId());
 
         return SuccessReturn(new CalendarDTO(detailPhotos, dateList, placeNoticeList));

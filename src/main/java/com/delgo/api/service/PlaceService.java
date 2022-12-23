@@ -32,6 +32,7 @@ public class PlaceService {
     private final PlaceNoticeRepository placeNoticeRepository;
     private final DetailPhotoRepository detailPhotoRepository;
 
+    private final DetailPhotoService detailPhotoService;
     private final GetPlaceCrawlingService getPlaceCrawlingService;
     private final GetPhotosCrawlingService getPhotosCrawlingService;
 
@@ -79,7 +80,7 @@ public class PlaceService {
     }
 
     // PlaceId로 Place 조회
-    public Place getPlaceByPlaceId(int placeId) {
+    public Place getPlaceById(int placeId) {
         return placeRepository.findByPlaceId(placeId)
                 .orElseThrow(() -> new NullPointerException("NOT FOUND PLACE"));
     }

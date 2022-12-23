@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -17,21 +18,13 @@ public class PriceService extends CommService {
     private final PriceRepository priceRepository;
 
     public void deleteYesterdayPrice(String yesterday) {
-        List<Price> deleteList = priceRepository.findByPriceDate(yesterday);
-        priceRepository.deleteAll(deleteList);
+        priceRepository.deleteAll(priceRepository.findByPriceDate(yesterday));
     }
 
-    // Booking getData에서 사용
     public int getOriginalPrice(int roomId, LocalDate startDt, LocalDate endDt) {
-        List<Price> priceList = priceRepository.findByRoomIdAndPriceDateBetween(roomId, startDt.toString(), endDt.toString());
-        if(priceList.size()>=2)
-            priceList.remove(priceList.size() - 1);
-        int originalPrice = 0;
-        for (Price price : priceList) {
-            originalPrice += formatPriceToInt(price.getPrice());
-        }
-
-        return originalPrice;
+        return priceRepository.findByRoomIdAndPriceDateBetween(roomId, startDt.toString(),
+                        endDt.minusDays(1).toString())  // EX) 1박 2일 -> 1박으로 계산.
+                .stream().mapToInt(price -> formatPriceToInt(price.getPrice())).sum();
     }
 
     public void changeToReserveWait(LocalDate startDt, LocalDate endDt, int isWait) {

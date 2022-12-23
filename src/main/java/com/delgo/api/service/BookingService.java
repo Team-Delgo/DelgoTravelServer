@@ -2,14 +2,13 @@ package com.delgo.api.service;
 
 import com.delgo.api.comm.CommService;
 import com.delgo.api.comm.exception.ApiCode;
-import com.delgo.api.domain.Cancel;
 import com.delgo.api.domain.booking.Booking;
 import com.delgo.api.domain.booking.BookingState;
 import com.delgo.api.domain.place.Place;
 import com.delgo.api.domain.room.Room;
-import com.delgo.api.domain.user.User;
 import com.delgo.api.dto.HistoryDTO;
-import com.delgo.api.dto.booking.ReturnBookingDTO;
+import com.delgo.api.dto.booking.BookingReqDTO;
+import com.delgo.api.dto.booking.BookingResDTO;
 import com.delgo.api.repository.BookingRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,16 +20,17 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.Period;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class BookingService extends CommService {
 
+    // Service
     private final UserService userService;
     private final PlaceService placeService;
     private final RoomService roomService;
@@ -38,94 +38,46 @@ public class BookingService extends CommService {
     private final PriceService priceService;
     private final ReviewService reviewService;
     private final CancelService cancelService;
+    private final DetailPhotoService detailPhotoService;
 
+    // Repository
     private final BookingRepository bookingRepository;
 
-
-    public void fixToTrip(String today) {
-        List<Booking> bookingList = bookingRepository.findByStartDt(today);
-        for (Booking booking : bookingList) {
-            booking.setBookingState(BookingState.T);
-            bookingRepository.save(booking);
-        }
-    }
-
-    public void tripToEnd(String today) {
-        List<Booking> bookingList = bookingRepository.findByEndDt(today);
-        for (Booking booking : bookingList) {
-            booking.setBookingState(BookingState.E);
-            bookingRepository.save(booking);
-        }
-    }
-
-    public Booking insertOrUpdateBooking(Booking booking) {
+    public Booking register(Booking booking) {
         return bookingRepository.save(booking);
     }
 
-    public Booking getBookingByBookingId(String bookingId) {
+    public Booking getBookingById(String bookingId) {
         return bookingRepository.findByBookingId(bookingId)
                 .orElseThrow(() -> new NullPointerException(ApiCode.NOT_FOUND_DATA.getMsg()));
-    }
-
-    public List<Booking> getBookingByBookingIdAndBookingState(String bookingId, BookingState bookingState) {
-        return bookingRepository.findByBookingIdAndBookingState(bookingId, bookingState);
-    }
-
-    public List<Booking> getBookingByUserIdAndBookingState(int userId, BookingState state) {
-        return bookingRepository.findByUserIdAndBookingState(userId, state);
     }
 
     public List<Booking> getBookingByUserId(int userId) {
         return bookingRepository.findByUserId(userId);
     }
 
-    //16자리 생성
-    public String createBookingNum() {
-        return LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyMMddhhmmss")) + numberGen(4, 1);
+    public List<Booking> getBookingByBookingState(int userId, BookingState state) {
+        return bookingRepository.findByUserIdAndBookingState(userId, state);
     }
 
-    public int calculateFinalPrice(Booking booking) {
-        int originalPrice = priceService.getOriginalPrice(booking.getRoomId(), booking.getStartDt(), booking.getEndDt());
-        int point = booking.getPoint();
-        int couponPrice = (booking.getCouponId() == 0) ? 0 : couponService.getCouponPrice(booking.getCouponId(), originalPrice);
+    public BookingResDTO getBookingResDTO(String bookingId) {
+        Booking booking = getBookingById(bookingId);
+        Place place = placeService.getPlaceById(booking.getPlaceId())
+                .setMainPhotoUrl(detailPhotoService.getMainPhotoUrl(booking.getPlaceId())); // 사진 설정
 
-        return originalPrice - point - couponPrice;
-    }
+        int commission = calculateCommission(booking); // 수수료
+        int refund = booking.getFinalPrice() - commission;; // 반환 금액
+        int originalPrice = priceService.getOriginalPrice(booking.getRoomId(), booking.getStartDt(), booking.getEndDt()); // 원가
+        int point = booking.getPoint(); // 포인트
+        int couponPrice = (booking.getCouponId() == 0) ? 0 : couponService.getCouponPrice(booking.getCouponId(), originalPrice); // 쿠폰 가격
+        int finalPrice = originalPrice - point - couponPrice; // 최종 가격
+        String canCancelDate = booking.getStartDt().minusDays(5).toString(); // 취소 가능 날짜.
 
-    public ReturnBookingDTO getReturnBookingData(String bookingId) {
-        Booking booking = getBookingByBookingId(bookingId);
-        Place place = placeService.getPlaceByPlaceId(booking.getPlaceId());
-        placeService.setMainPhoto(place); // 사진 설정
-        Room room = roomService.getRoomByRoomId(booking.getRoomId());
-        User user = userService.getUserByUserId(booking.getUserId());
-        int period = (int) ChronoUnit.DAYS.between(LocalDate.now(), booking.getStartDt());
-        int commission = 0;
-
-        if (period <= 14 && period >= 1) {
-            // TODO : 우선은 취소 공동 정책으로 표시 [ 추후 숙소별로 변경 ]
-//            Cancel cancel = cancelService.getCancelByPlaceIdAndRemainDay(booking.getPlaceId(), period);
-            Cancel cancel = cancelService.getCancelByCancelId(period);
-            commission = booking.getFinalPrice() / 100 * (100 - cancel.getReturnRate());
-        } else if (period > 14) {
-            commission = 0;
-        } else {
-            commission = booking.getFinalPrice();
-        }
-
-        int refund = booking.getFinalPrice() - commission;
-
-        int originalPrice = priceService.getOriginalPrice(booking.getRoomId(), booking.getStartDt(), booking.getEndDt());
-        int point = booking.getPoint();
-        int couponPrice = (booking.getCouponId() == 0) ? 0 : couponService.getCouponPrice(booking.getCouponId(), originalPrice);
-        int finalPrice = originalPrice - point - couponPrice;
-
-        String canCancelDate = booking.getStartDt().minusDays(5).toString();
-
-        return ReturnBookingDTO.builder()
+        return BookingResDTO.builder()
                 .bookingId(bookingId)
                 .reservedName(booking.getReservedName())
-                .userPhoneNo(user.getPhoneNo())
-                .roomName(room.getName())
+                .userPhoneNo(userService.getUserById(booking.getUserId()).getPhoneNo())
+                .roomName(roomService.getRoomById(booking.getRoomId()).getName())
                 .originalPrice(formatIntToPrice(originalPrice))
                 .point(point)
                 .couponId(booking.getCouponId())
@@ -142,11 +94,11 @@ public class BookingService extends CommService {
                 .build();
     }
 
-    public HistoryDTO getHistoryData(String bookingId) {
-        Booking booking = getBookingByBookingId(bookingId);
-        Place place = placeService.getPlaceByPlaceId(booking.getPlaceId());
-        placeService.setMainPhoto(place); // 사진 설정
-        Room room = roomService.getRoomByRoomId(booking.getRoomId());
+    public HistoryDTO getHistory(String bookingId) {
+        Booking booking = getBookingById(bookingId);
+        Room room = roomService.getRoomById(booking.getRoomId());
+        Place place = placeService.getPlaceById(booking.getPlaceId())
+                .setMainPhotoUrl(detailPhotoService.getMainPhotoUrl(booking.getPlaceId())); // 사진 설정
 
         return HistoryDTO.builder()
                 .bookingId(bookingId)
@@ -157,6 +109,43 @@ public class BookingService extends CommService {
                 .place(place)
                 .isReviewExisting(reviewService.isReviewExisting(bookingId))
                 .build();
+    }
+
+    public void fixToTrip(String today) {
+        bookingRepository.saveAll(bookingRepository.findByStartDt(today).stream()
+                .peek(booking -> booking.setBookingState(BookingState.T))
+                .collect(Collectors.toList())
+        );
+    }
+
+    public void tripToEnd(String today) {
+        bookingRepository.saveAll(bookingRepository.findByStartDt(today).stream()
+                .peek(booking -> booking.setBookingState(BookingState.E))
+                .collect(Collectors.toList())
+        );
+    }
+
+    // 16자리 생성
+    public String createBookingNum() {
+        return LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyMMddhhmmss")) + numberGen(4, 1);
+    }
+
+    // 수수료 계산
+    // TODO : 우선은 취소 공동 정책으로 표시 [ 추후 숙소별로 변경 ]
+    public int calculateCommission(Booking booking) {
+        int period = (int) ChronoUnit.DAYS.between(LocalDate.now(), booking.getStartDt());
+        int commission = (period > 14) ? 0 : booking.getFinalPrice();  // 14일 이전에 취소 시 수수료는 0원.
+        return !(period <= 14 && period >= 1)
+                ? commission  // 당일 취소는 수수료 100%
+                : booking.getFinalPrice() / 100 * (100 - cancelService.getCancelById(period).getReturnRate());
+    }
+
+    public int calculateFinalPrice(BookingReqDTO reqDTO) {
+        int originalPrice = priceService.getOriginalPrice(reqDTO.getRoomId(), reqDTO.getStartDt(), reqDTO.getEndDt());
+        int point = reqDTO.getPoint();
+        int couponPrice = (reqDTO.getCouponId() == 0) ? 0 : couponService.getCouponPrice(reqDTO.getCouponId(), originalPrice);
+
+        return originalPrice - point - couponPrice;
     }
 
     public HttpResponse<String> requestPaymentCancel(String paymentKey) {

@@ -23,9 +23,9 @@ public class AlimService {
     private final RoomService roomService;
 
     public void sendWaitAlimTalk(Booking booking) throws IOException {
-        Place place = placeService.getPlaceByPlaceId(booking.getPlaceId());
-        Room room = roomService.getRoomByRoomId(booking.getRoomId());
-        User user = userService.getUserByUserId(booking.getUserId());
+        Place place = placeService.getPlaceById(booking.getPlaceId());
+        Room room = roomService.getRoomById(booking.getRoomId());
+        User user = userService.getUserById(booking.getUserId());
 
         try {
             String content = "[Delgo] 예약대기 안내\n" +
@@ -46,9 +46,9 @@ public class AlimService {
     }
 
     public void sendCancelWaitAlimTalk(Booking booking) throws IOException {
-        Place place = placeService.getPlaceByPlaceId(booking.getPlaceId());
-        Room room = roomService.getRoomByRoomId(booking.getRoomId());
-        User user = userService.getUserByUserId(booking.getUserId());
+        Place place = placeService.getPlaceById(booking.getPlaceId());
+        Room room = roomService.getRoomById(booking.getRoomId());
+        User user = userService.getUserById(booking.getUserId());
         try {
             String content = "[Delgo] 취소 안내\n" +
             "아래 숙소의 취소가 접수되었습니다.\n" +

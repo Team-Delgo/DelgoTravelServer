@@ -1,18 +1,17 @@
 package com.delgo.api.domain.place;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.*;
 import java.time.LocalDate;
 
-@Data
+@Getter
+@Setter
 @Entity
 @Builder
+@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 public class Place {
@@ -21,21 +20,24 @@ public class Place {
     private int placeId;
     private String name;
     private String address;
-    @CreationTimestamp
-    @JsonIgnore
-    private LocalDate registDt;
     private String checkin;
     private String checkout;
     private String conceptTag;
     private String phoneNo;
     private String mapUrl;
 
-    @Transient
-    private String mainPhotoUrl;
-    @Transient
-    private int wishId = 0;
-    @Transient
-    private int isBooking = 0;
-    @Transient
-    private String lowestPrice;
+    @JsonIgnore
+    @CreationTimestamp
+    private LocalDate registDt;
+
+    @Transient private int wishId = 0;
+    @Transient private int isBooking = 0;
+    @Transient private String lowestPrice;
+    @Transient private String mainPhotoUrl;
+
+    public Place setMainPhotoUrl(String mainPhotoUrl){
+        this.mainPhotoUrl = mainPhotoUrl;
+
+        return this;
+    }
 }

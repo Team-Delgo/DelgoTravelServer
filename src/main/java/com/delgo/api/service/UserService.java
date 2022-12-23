@@ -111,7 +111,7 @@ public class UserService {
                 .orElseThrow(() -> new NullPointerException("NOT FOUND USER"));
     }
 
-    public User getUserByUserId(int userId) {
+    public User getUserById(int userId) {
         return userRepository.findByUserId(userId)
                 .orElseThrow(() -> new NullPointerException("NOT FOUND USER"));
     }

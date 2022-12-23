@@ -30,7 +30,7 @@ public class WishController extends CommController {
     @PostMapping("/insert")
     public ResponseEntity<?> insertWishData(@Validated @RequestBody WishDTO wishDTO) {
         // Validate UserId ( Service 단에서 Check )
-        userService.getUserByUserId(wishDTO.getUserId());
+        userService.getUserById(wishDTO.getUserId());
 
         Wish wish = wishService.insertWishData(
                 Wish.builder()
@@ -52,7 +52,7 @@ public class WishController extends CommController {
         List<Wish> wishList = wishService.getWishListByUserId(userId);
         List<Place> placeList = new ArrayList<>();
         wishList.forEach(wish -> {
-            Place place = placeService.getPlaceByPlaceId(wish.getPlaceId());
+            Place place = placeService.getPlaceById(wish.getPlaceId());
             place.setWishId(wish.getWishId()); // wishId 설정
             placeService.setMainPhoto(place); // mainPhotoUrl 설정
             placeList.add(place);

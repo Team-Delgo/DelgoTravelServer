@@ -43,7 +43,7 @@ public class PhotoController extends CommController {
             return ErrorReturn(ApiCode.PHOTO_UPLOAD_ERROR);
         }
 
-        User user = userService.getUserByUserId(userId);
+        User user = userService.getUserById(userId);
         user.setProfile(profileUrl);
 
         userService.updateUserData(user);

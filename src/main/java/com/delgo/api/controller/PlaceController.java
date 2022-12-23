@@ -129,7 +129,7 @@ public class PlaceController extends CommController {
             return ErrorReturn(ApiCode.PARAM_DATE_ERROR);
 
         // Detail Place 조회
-        Place place = placeService.getPlaceByPlaceId(placeId); // place 조회
+        Place place = placeService.getPlaceById(placeId); // place 조회
 
         placeService.setMainPhoto(place); // set MainPhoto
         place.setLowestPrice("0원"); //Detail Page에서 사용 x.
