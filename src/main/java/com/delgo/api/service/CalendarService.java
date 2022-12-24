@@ -6,8 +6,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -16,18 +16,13 @@ public class CalendarService {
 
     private final PriceRepository priceRepository;
 
-
-    public List<DateDTO> getDetailRoomCalendarData(int roomId) {
-        List<DateDTO> calendarDTOList = new ArrayList<DateDTO>();
-        // RoomId로 날짜별 가격 조회
-        priceRepository.findByRoomId(roomId).forEach(p -> {
-            String price = p.getPrice();
-            price = price.replace(",", "");
-            price = price.replace("원", "");
-            calendarDTOList.add(new DateDTO(p.getPriceDate(), Integer.parseInt(price), p.getIsBooking()));
-        });
-
-        return calendarDTOList;
+    // RoomId로 날짜별 가격 조회
+    public List<DateDTO> getDetailRoomCalendar(int roomId) {
+        return priceRepository.findByRoomId(roomId).stream().map(p -> {
+            String price = p.getPrice()
+                    .replace(",", "")
+                    .replace("원", "");
+            return new DateDTO(p.getPriceDate(), Integer.parseInt(price), p.getIsBooking());
+        }).collect(Collectors.toList());
     }
-
 }
