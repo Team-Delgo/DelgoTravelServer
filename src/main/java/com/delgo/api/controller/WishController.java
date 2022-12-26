@@ -36,6 +36,6 @@ public class WishController extends CommController {
 
     @DeleteMapping("/{wishId}")
     public ResponseEntity deleteWish(@PathVariable Integer wishId) {
-        return (wishService.deleteWishData(wishId) == 1) ? SuccessReturn() : ErrorReturn(ApiCode.DB_DELETE_ERROR);
+        return (wishService.delete(wishId) == 1) ? SuccessReturn() : ErrorReturn(ApiCode.DB_DELETE_ERROR);
     }
 }

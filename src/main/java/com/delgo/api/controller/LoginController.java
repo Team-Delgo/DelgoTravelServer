@@ -54,7 +54,7 @@ public class LoginController extends CommController {
         User user = userService.getUserByEmail(email);
 //        user.setPassword(""); // TODO: 이거 키면 비밀번호가 사라짐 왜그런지 찾아볼 것
         Pet pet = petService.getPetByUserId(user.getUserId());
-        List<Coupon> couponList = couponService.getCouponListByUserId(user.getUserId());
+        List<Coupon> couponList = couponService.getCouponsByUserId(user.getUserId());
 
         HashMap<String, Object> map = new HashMap<String, Object>();
         map.put("pet", pet);
