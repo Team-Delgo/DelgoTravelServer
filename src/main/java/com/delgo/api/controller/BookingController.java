@@ -7,7 +7,6 @@ import com.delgo.api.comm.exception.ApiCode;
 import com.delgo.api.comm.ncp.service.SmsService;
 import com.delgo.api.domain.booking.Booking;
 import com.delgo.api.domain.booking.BookingState;
-import com.delgo.api.dto.HistoryDTO;
 import com.delgo.api.dto.booking.BookingReqDTO;
 import com.delgo.api.service.*;
 import lombok.RequiredArgsConstructor;
@@ -18,11 +17,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.time.Period;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Slf4j
 @RestController
@@ -32,15 +26,15 @@ public class BookingController extends CommController {
 
     private final String ADMIN_PHONE_NO = "01077652211";
 
+    private final SmsService smsService;
     private final CommService commService;
-    private final CancelService cancelService;
+    private final AlimService alimService;
     private final UserService userService;
-    private final CouponService couponService;
-    private final BookingService bookingService;
     private final PriceService priceService;
     private final PlaceService placeService;
-    private final SmsService smsService;
-    private final AlimService alimService;
+    private final CouponService couponService;
+    private final CancelService cancelService;
+    private final BookingService bookingService;
 
     /*
      * 예약 요청 API
@@ -94,19 +88,7 @@ public class BookingController extends CommController {
      */
     @GetMapping("/main")
     public ResponseEntity getMainBooking(@RequestParam Integer userId) {
-        List<Booking> fixList = bookingService.getBookingByBookingState(userId, BookingState.F);
-        List<Booking> tripList = bookingService.getBookingByBookingState(userId, BookingState.T);
-
-        if (fixList.isEmpty() && tripList.isEmpty()) // 조회되는 BOOKING DATA 없음
-            return ErrorReturn(ApiCode.NOT_FOUND_DATA);
-
-        // 정렬 기준 1. 시작 날짜, 2. 종료 날짜
-        Comparator<Booking> compare = Comparator.comparing(Booking::getStartDt).thenComparing(Booking::getEndDt);
-
-        return SuccessReturn(Stream.concat(
-                        fixList.stream().sorted(compare).map(b -> bookingService.getBookingResDTO(b.getBookingId())),
-                        tripList.stream().sorted(compare).map(b -> bookingService.getBookingResDTO(b.getBookingId())))
-                .collect(Collectors.toList()));
+        return SuccessReturn(bookingService.getMainBooking(userId));
     }
 
     /*
@@ -114,15 +96,7 @@ public class BookingController extends CommController {
      */
     @GetMapping("/account")
     public ResponseEntity getAccount(@RequestParam Integer userId) {
-        List<Booking> bookingList = bookingService.getBookingByUserId(userId);
-
-        if (bookingList.isEmpty())
-            return SuccessReturn(bookingList);
-
-        // 정렬 기준 1. 시작 날짜, 2. 종료 날짜
-        Comparator<Booking> compare = Comparator.comparing(Booking::getStartDt).thenComparing(Booking::getEndDt);
-        return SuccessReturn(bookingList.stream().sorted(compare)
-                .map(b -> bookingService.getBookingResDTO(b.getBookingId())).collect(Collectors.toList()));
+        return SuccessReturn(bookingService.getAccount(userId));
     }
 
     /*
@@ -130,14 +104,7 @@ public class BookingController extends CommController {
      */
     @GetMapping("/history")
     public ResponseEntity getHistory(@RequestParam Integer userId) {
-        List<Booking> bookingList = bookingService.getBookingByBookingState(userId, BookingState.E);
-        if (bookingList.isEmpty()) // 조회되는 BOOKING DATA 없음
-            return SuccessReturn(new ArrayList<>());
-
-        return SuccessReturn(bookingList.stream()
-                .map(booking -> bookingService.getHistory(booking.getBookingId()))
-                .sorted(Comparator.comparing(HistoryDTO::getStartDt).reversed())
-                .collect(Collectors.toList()));
+        return SuccessReturn(bookingService.getHistory(userId));
     }
 
     // TODO: 취소 요청 API

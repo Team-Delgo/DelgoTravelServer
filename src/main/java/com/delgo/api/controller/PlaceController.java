@@ -4,7 +4,6 @@ package com.delgo.api.controller;
 import com.delgo.api.comm.CommController;
 import com.delgo.api.comm.CommService;
 import com.delgo.api.comm.exception.ApiCode;
-import com.delgo.api.domain.place.Place;
 import com.delgo.api.dto.DetailResDTO;
 import com.delgo.api.service.*;
 import com.delgo.api.service.crawling.CrawlingService;

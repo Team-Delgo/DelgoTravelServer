@@ -22,8 +22,10 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Slf4j
 @Service
@@ -94,21 +96,44 @@ public class BookingService extends CommService {
                 .build();
     }
 
-    public HistoryDTO getHistory(String bookingId) {
-        Booking booking = getBookingById(bookingId);
-        Room room = roomService.getRoomById(booking.getRoomId());
-        Place place = placeService.getPlaceById(booking.getPlaceId())
-                .setMainPhotoUrl(detailPhotoService.getMainPhotoUrl(booking.getPlaceId())); // 사진 설정
+    public List<BookingResDTO> getMainBooking(int userId){
+        List<Booking> fixList = getBookingByBookingState(userId, BookingState.F);
+        List<Booking> tripList = getBookingByBookingState(userId, BookingState.T);
 
-        return HistoryDTO.builder()
-                .bookingId(bookingId)
-                .roomId(room.getRoomId())
-                .roomName(room.getName())
-                .startDt(booking.getStartDt())
-                .endDt(booking.getEndDt())
-                .place(place)
-                .isReviewExisting(reviewService.isReviewExisting(bookingId))
-                .build();
+        // 정렬 기준 1. 시작 날짜, 2. 종료 날짜
+        Comparator<Booking> compare = Comparator.comparing(Booking::getStartDt).thenComparing(Booking::getEndDt);
+        return Stream.concat(
+                        fixList.stream().sorted(compare).map(b -> getBookingResDTO(b.getBookingId())),
+                        tripList.stream().sorted(compare).map(b -> getBookingResDTO(b.getBookingId())))
+                .collect(Collectors.toList());
+    }
+
+    public List<BookingResDTO> getAccount(int userId){
+        // 정렬 기준 1. 시작 날짜, 2. 종료 날짜
+        Comparator<Booking> compare = Comparator.comparing(Booking::getStartDt).thenComparing(Booking::getEndDt);
+        return getBookingByUserId(userId).stream()
+                .sorted(compare)
+                .map(b -> getBookingResDTO(b.getBookingId()))
+                .collect(Collectors.toList());
+    }
+
+    public List<HistoryDTO> getHistory(int userId) {
+        return getBookingByBookingState(userId, BookingState.E).stream()
+                .map(booking -> {
+                    Room room = roomService.getRoomById(booking.getRoomId());
+                    Place place = placeService.getPlaceById(booking.getPlaceId())
+                            .setMainPhotoUrl(detailPhotoService.getMainPhotoUrl(booking.getPlaceId())); // 사진 설정
+                    return HistoryDTO.builder()
+                            .bookingId(booking.getBookingId())
+                            .roomId(room.getRoomId())
+                            .roomName(room.getName())
+                            .startDt(booking.getStartDt())
+                            .endDt(booking.getEndDt())
+                            .place(place)
+                            .isReviewExisting(reviewService.isReviewExisting(booking.getBookingId()))
+                            .build();})
+                .sorted(Comparator.comparing(HistoryDTO::getStartDt).reversed())
+                .collect(Collectors.toList());
     }
 
     public void fixToTrip(String today) {
