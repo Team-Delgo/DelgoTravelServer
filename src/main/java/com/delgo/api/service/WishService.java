@@ -21,7 +21,7 @@ public class WishService {
         return wishRepository.findByUserIdOrderByRegistDtDesc(userId);
     }
 
-    public Wish insertWishData(Wish wish){
+    public Wish register(Wish wish){
         return wishRepository.save(wish);
     }
 

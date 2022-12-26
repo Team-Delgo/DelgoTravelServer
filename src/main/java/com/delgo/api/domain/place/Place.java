@@ -8,7 +8,6 @@ import javax.persistence.*;
 import java.time.LocalDate;
 
 @Getter
-@Setter
 @Entity
 @Builder
 @ToString
@@ -37,6 +36,12 @@ public class Place {
 
     public Place setMainPhotoUrl(String mainPhotoUrl){
         this.mainPhotoUrl = mainPhotoUrl;
+
+        return this;
+    }
+
+    public Place setWishId(int wishId){
+        this.wishId = wishId;
 
         return this;
     }
