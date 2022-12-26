@@ -119,7 +119,7 @@ public class GetPriceCrawlingService extends CommService {
                                             .roomId(roomId)
                                             .priceDate(date)
                                             .price(price)
-                                            .isWait(0)
+                                            .isWait(false)
                                             .build());
                     });
                 }
@@ -136,8 +136,8 @@ public class GetPriceCrawlingService extends CommService {
                                         .roomId(roomId)
                                         .priceDate(date)
                                         .price("0")
-                                        .isBooking(1)
-                                        .isWait(0)
+                                        .isBooking(true)
+                                        .isWait(false)
                                         .build());
                 });
                 nextBtnClick();

@@ -13,7 +13,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class DetailDTO {
+public class DetailResDTO {
     private Place place;
     private Boolean isEditorNoteExist;
     private List<PlaceNotice> placeNoticeList;

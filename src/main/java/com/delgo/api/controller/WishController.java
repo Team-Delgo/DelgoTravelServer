@@ -49,12 +49,11 @@ public class WishController extends CommController {
     // 등록시간 기준으로 정렬
     @GetMapping("/select")
     public ResponseEntity selectWishData(@RequestParam Integer userId) {
-        List<Wish> wishList = wishService.getWishListByUserId(userId);
+        List<Wish> wishList = wishService.getWishByUserId(userId);
         List<Place> placeList = new ArrayList<>();
         wishList.forEach(wish -> {
             Place place = placeService.getPlaceById(wish.getPlaceId());
             place.setWishId(wish.getWishId()); // wishId 설정
-            placeService.setMainPhoto(place); // mainPhotoUrl 설정
             placeList.add(place);
         });
 

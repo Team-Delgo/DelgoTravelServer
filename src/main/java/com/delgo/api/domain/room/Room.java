@@ -1,18 +1,17 @@
 package com.delgo.api.domain.room;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.*;
 import java.time.LocalDate;
 
-@Data
+@Getter
+@Setter
 @Entity
 @Builder
+@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 public class Room {
@@ -29,12 +28,7 @@ public class Room {
     @JsonIgnore
     private String crawlingUrl;
 
-    @Transient
-    private String price;
-    @Transient
-    private int isBooking;
-    @Transient
-    private String mainPhotoUrl;
-//    @Transient
-//    private List<DetailPhoto> detailPhotos;
+    @Transient private String price;
+    @Transient private Boolean isBooking;
+    @Transient private String mainPhotoUrl;
 }

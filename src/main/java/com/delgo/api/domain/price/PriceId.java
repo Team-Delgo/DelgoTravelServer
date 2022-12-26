@@ -12,5 +12,5 @@ import java.io.Serializable;
 @AllArgsConstructor
 public class PriceId implements Serializable {
     private String priceDate;
-    private int roomId;
+    private Integer roomId;
 }

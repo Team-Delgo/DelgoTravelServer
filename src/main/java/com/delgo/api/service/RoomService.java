@@ -1,15 +1,10 @@
 package com.delgo.api.service;
 
-import com.delgo.api.domain.photo.DetailRoomPhoto;
 import com.delgo.api.domain.price.Price;
 import com.delgo.api.domain.room.Room;
 import com.delgo.api.domain.room.RoomNotice;
-import com.delgo.api.repository.DetailRoomPhotoRepository;
-import com.delgo.api.repository.PriceRepository;
 import com.delgo.api.repository.RoomNoticeRepository;
 import com.delgo.api.repository.RoomRepository;
-import com.delgo.api.service.crawling.GetPhotosCrawlingService;
-import com.delgo.api.service.crawling.room.GetRoomCrawlingService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -18,10 +13,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.time.Period;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -31,94 +25,45 @@ public class RoomService {
 
     private final RoomRepository roomRepository;
     private final RoomNoticeRepository roomNoticeRepository;
-    private final PriceRepository priceRepository;
-    private final DetailRoomPhotoRepository detailRoomPhotoRepository;
 
-    private final GetRoomCrawlingService getRoomCrawlingService;
-    private final GetPhotosCrawlingService getPhotosCrawlingService;
+    private final PriceService priceService;
+    private final DetailRoomPhotoService detailRoomPhotoService;
 
-
-    public Room registerRoom(int placeId, String crawlingUrl) {
-        Room room = getRoomCrawlingService.crawlingProcess(placeId, crawlingUrl);
-        Room registerRoom = roomRepository.save(room);
-
-        return registerRoom;
+    public Room register(Room room){
+       return roomRepository.save(room);
     }
 
-    public List<DetailRoomPhoto> registerDetailRoomPhotos(int placeId, int roomId, String crawlingUrl) {
-        List<String> photoUrlList = getPhotosCrawlingService.crawlingProcess(crawlingUrl);
-
-        List<DetailRoomPhoto> detailRoomPhotoList = new ArrayList<>();
-        for (String photoUrl : photoUrlList)
-            detailRoomPhotoList.add(DetailRoomPhoto.builder()
-                    .placeId(placeId)
-                    .roomId(roomId)
-                    .url(photoUrl)
-                    .isMain(0)
-                    .build());
-
-        // 첫 번째 사진 Main으로 등록
-        detailRoomPhotoList.get(0).setIsMain(1);
-
-        // DB에 저장
-        List<DetailRoomPhoto> registerList = detailRoomPhotoRepository.saveAll(detailRoomPhotoList);
-
-        return registerList;
-    }
-
-    public List<RoomNotice> getRoomNotice(int roomId) {
-        List<RoomNotice> roomNoticeList = roomNoticeRepository.findByRoomId(roomId);
-        roomNoticeList.forEach(notice -> {
-            String content = notice.getContent();
-            String contents[] = content.split("\r\n");
-            notice.setContents(Arrays.asList(contents));
-        });
-        return roomNoticeList;
-    }
-
-    public List<Room> selectRoomList(int placeId, LocalDate startDt, LocalDate endDt) {
-        Period period = Period.between(startDt, endDt); // 시작, 끝 간격
-        List<Room> roomList = roomRepository.findByPlaceId(placeId);
-        if (roomList.size() > 0)
-            roomList.forEach(room -> {
-                // roomId로 사진 조회해야 함.
-                Optional<DetailRoomPhoto> mainPhoto =
-                        detailRoomPhotoRepository.findByRoomIdAndIsMain(room.getRoomId(), 1);
-                mainPhoto.ifPresent(photo -> room.setMainPhotoUrl(photo.getUrl()));
-                // 가격 조회 및 적용
-                List<Price> pList = priceRepository.findByRoomIdAndIsBookingAndIsWaitAndPriceDateBetween(room.getRoomId(), 0, 0, startDt.toString(), endDt.toString());
-                if (pList.size() == period.getDays() + 1) {
-                    // 4박5일일 경우 총 여행경비는 앞 4일 가격의 합이다. 따라서 마지막 삭제
-                    pList.remove(pList.size() - 1);
-                    // 예약가능한 각 방의 가격중 가장 저렴한 가격 조회
-                    List<Integer> pricelist = new ArrayList<Integer>();
-                    pList.forEach(p -> {
-                        String price = p.getPrice();
-                        price = price.replace(",", "");
-                        price = price.replace("원", "");
-                        if (!price.equals("0"))
-                            pricelist.add(Integer.parseInt(price));
-                    });
-                    int sum = pricelist.stream().mapToInt(Integer::intValue).sum();
-                    DecimalFormat df = new DecimalFormat("###,###원"); //포맷팅
-                    room.setPrice(df.format(sum));
-                    room.setIsBooking(0);
-                } else {
-                    room.setPrice("0원");
-                    room.setIsBooking(1);
-                }
-            });
-
-        return roomList;
-    }
-
-    public List<Room> selectAll() {
+    public List<Room> getAllRooms() {
         return roomRepository.findAll();
     }
 
-    // RoomId로 Room 조회
     public Room getRoomById(int roomId) {
         return roomRepository.findByRoomId(roomId)
                 .orElseThrow(() -> new NullPointerException("NOT FOUND ROOM"));
+    }
+
+    public List<RoomNotice> getRoomNotice(int roomId) {
+       return roomNoticeRepository.findByRoomId(roomId).stream().map(notice -> {
+            String[] contents = notice.getContent().split("\r\n");
+            return notice.setContents(Arrays.asList(contents));
+        }).collect(Collectors.toList());
+    }
+
+    public List<Room> selectRoomList(int placeId, LocalDate startDt, LocalDate endDt) {
+        return roomRepository.findByPlaceId(placeId).stream().peek(room -> {
+            List<Price> canBookingDates = priceService.getCanBookingDates(room.getRoomId(), startDt, endDt);
+            if (canBookingDates.size() == Period.between(startDt, endDt).getDays() + 1) {
+                canBookingDates.remove(canBookingDates.size() - 1);  // 4박5일일 경우 총 여행경비는 앞 4일 가격의 합이다. 따라서 마지막 삭제
+                int sum = canBookingDates.stream().mapToInt(Price::priceToInt).sum();  // 예약가능한 각 방의 가격중 가장 저렴한 가격 조회
+
+                room.setPrice(new DecimalFormat("###,###원").format(sum));
+                room.setIsBooking(false);
+            } else {
+                room.setPrice("0원");
+                room.setIsBooking(true);
+            }
+
+            room.setMainPhotoUrl(detailRoomPhotoService.getMainPhoto(room.getRoomId()));  // SET MAIN PHOTO
+        }).collect(Collectors.toList());
     }
 }

@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.stream.Collectors;
+
 
 @Slf4j
 @Service
@@ -27,19 +27,18 @@ public class PriceService extends CommService {
                 .stream().mapToInt(price -> formatPriceToInt(price.getPrice())).sum();
     }
 
-    public void changeToReserveWait(LocalDate startDt, LocalDate endDt, int isWait) {
-        List<Price> priceList = priceRepository.findByPriceDateBetween(startDt.toString(), endDt.toString());
-        priceList.forEach(price -> {
-            price.setIsWait(isWait);
-            priceRepository.save(price);
-        });
+    public void changeToReserveWait(LocalDate startDt, LocalDate endDt, boolean isWait) {
+        priceRepository.findByPriceDateBetween(startDt.toString(), endDt.toString())
+                .forEach(price -> priceRepository.save(price.setIsWait(isWait)));
     }
 
-    public void changeToReserveFix(LocalDate startDt, LocalDate endDt, int isBooking) {
-        List<Price> priceList = priceRepository.findByPriceDateBetween(startDt.toString(), endDt.toString());
-        priceList.forEach(price -> {
-            price.setIsBooking(isBooking);
-            priceRepository.save(price);
-        });
+    public void changeToReserveFix(LocalDate startDt, LocalDate endDt, boolean isBooking) {
+        priceRepository.findByPriceDateBetween(startDt.toString(), endDt.toString())
+                .forEach(price -> priceRepository.save(price.setIsBooking(isBooking)));
+    }
+
+    // roomId로 예약가능한 날짜 조회
+    public List<Price> getCanBookingDates(int roomId, LocalDate startDt, LocalDate endDt){
+        return priceRepository.findByRoomIdAndIsBookingAndIsWaitAndPriceDateBetween(roomId, 0, 0, startDt.toString(), endDt.toString());
     }
 }

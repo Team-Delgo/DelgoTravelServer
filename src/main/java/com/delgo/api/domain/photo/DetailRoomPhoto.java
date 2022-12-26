@@ -1,10 +1,7 @@
 package com.delgo.api.domain.photo;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.Entity;
@@ -13,9 +10,10 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import java.time.LocalDate;
 
-@Data
+@Getter
 @Entity
 @Builder
+@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 public class DetailRoomPhoto {
@@ -26,9 +24,9 @@ public class DetailRoomPhoto {
     private int placeId;
     @JsonIgnore
     private int roomId;
-    @CreationTimestamp
     @JsonIgnore
+    @CreationTimestamp
     private LocalDate registDt;
     private String url;
-    private int isMain;
+    private Boolean isMain;
 }

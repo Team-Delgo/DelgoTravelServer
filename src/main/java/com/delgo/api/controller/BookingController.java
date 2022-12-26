@@ -67,7 +67,7 @@ public class BookingController extends CommController {
                 .setFinalPrice(bookingService.calculateFinalPrice(reqDTO)); // 최종 가격 계산
 
         //Price Table에 예약 대기중 표시
-        priceService.changeToReserveWait(reqDTO.getStartDt(), reqDTO.getEndDt(), 1);
+        priceService.changeToReserveWait(reqDTO.getStartDt(), reqDTO.getEndDt(), true);
 
         try {
 

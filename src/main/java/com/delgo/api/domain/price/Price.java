@@ -1,38 +1,39 @@
 package com.delgo.api.domain.price;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.IdClass;
 
-@Data
+@Getter
 @Entity
 @Builder
+@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 @IdClass(PriceId.class) // 다중 PK 설정
 public class Price {
-    @Id
-    @Column(name = "price_date")
-    private String priceDate;
-
-    @Id
-    @Column(name = "room_id")
-    private int roomId;
-
-    @Column(name = "place_id")
-    private int placeId;
-
-    @Column(name = "is_booking")
-    private int isBooking;
-
-    @Column(name = "is_wait")
-    private int isWait;
-
+    @Id private String priceDate;
+    @Id private Integer roomId;
+    private Integer placeId;
+    private Boolean isBooking;
+    private Boolean isWait;
     private String price;
+
+    public Integer priceToInt(){
+       return Integer.parseInt(price.replace(",", "").replace("원", ""));
+    }
+
+    public Price setIsBooking(boolean isBooking){
+        this.isBooking = isBooking;
+
+        return this;
+    }
+
+    public Price setIsWait(boolean isWait){
+        this.isWait = isWait;
+
+        return this;
+    }
 }

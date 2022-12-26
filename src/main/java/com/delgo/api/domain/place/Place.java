@@ -30,8 +30,8 @@ public class Place {
     @CreationTimestamp
     private LocalDate registDt;
 
-    @Transient private int wishId = 0;
-    @Transient private int isBooking = 0;
+    @Transient private int wishId;
+    @Transient private Boolean isBooking;
     @Transient private String lowestPrice;
     @Transient private String mainPhotoUrl;
 

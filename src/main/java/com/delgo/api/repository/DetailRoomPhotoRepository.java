@@ -8,7 +8,7 @@ import java.util.Optional;
 
 public interface DetailRoomPhotoRepository extends JpaRepository<DetailRoomPhoto, Integer> {
     // Main 사진 조회
-    Optional<DetailRoomPhoto> findByRoomIdAndIsMain(int roomId, int isMain);
+    Optional<DetailRoomPhoto> findByRoomIdAndIsMain(int roomId, boolean isMain);
 
     // Main 사진 조회
     List<DetailRoomPhoto> findByRoomId(int roomId);
