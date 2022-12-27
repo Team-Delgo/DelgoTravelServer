@@ -1,4 +1,4 @@
-package com.delgo.api.repository;
+package com.delgo.api.repository.photo;
 
 import com.delgo.api.domain.photo.ReviewPhoto;
 import org.springframework.data.jpa.repository.JpaRepository;
