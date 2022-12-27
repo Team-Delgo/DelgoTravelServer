@@ -8,6 +8,8 @@ import com.delgo.api.service.*;
 import com.delgo.api.service.crawling.place.GetPlaceCrawlingService;
 import com.delgo.api.service.crawling.place.GetRoomListCrawlingService;
 import com.delgo.api.service.crawling.room.GetRoomCrawlingService;
+import com.delgo.api.service.photo.DetailPhotoService;
+import com.delgo.api.service.photo.DetailRoomPhotoService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

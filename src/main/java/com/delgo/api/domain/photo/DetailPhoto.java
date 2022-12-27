@@ -28,4 +28,10 @@ public class DetailPhoto {
     @JsonIgnore
     @CreationTimestamp
     private LocalDate registDt;
+
+    public DetailPhoto setIsMain(boolean isMain){
+        this.isMain = isMain;
+
+        return this;
+    }
 }

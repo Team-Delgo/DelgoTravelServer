@@ -5,6 +5,7 @@ import com.delgo.api.domain.room.Room;
 import com.delgo.api.domain.room.RoomNotice;
 import com.delgo.api.repository.RoomNoticeRepository;
 import com.delgo.api.repository.RoomRepository;
+import com.delgo.api.service.photo.DetailRoomPhotoService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -49,7 +50,7 @@ public class RoomService {
         }).collect(Collectors.toList());
     }
 
-    public List<Room> selectRoomList(int placeId, LocalDate startDt, LocalDate endDt) {
+    public List<Room> getRoomsByPlace(int placeId, LocalDate startDt, LocalDate endDt) {
         return roomRepository.findByPlaceId(placeId).stream().peek(room -> {
             List<Price> canBookingDates = priceService.getCanBookingDates(room.getRoomId(), startDt, endDt);
             if (canBookingDates.size() == Period.between(startDt, endDt).getDays() + 1) {

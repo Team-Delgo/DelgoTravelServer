@@ -16,6 +16,10 @@ public class ReviewPhotoService {
 
     private final ReviewPhotoRepository reviewPhotoRepository;
 
+    public List<ReviewPhoto> registerReviewPhotos(List<ReviewPhoto> reviewPhotos) {
+        return reviewPhotoRepository.saveAll(reviewPhotos);
+    }
+
     public List<ReviewPhoto> getReviewPhotos(int reviewId) {
         return reviewPhotoRepository.findByReviewId(reviewId);
     }

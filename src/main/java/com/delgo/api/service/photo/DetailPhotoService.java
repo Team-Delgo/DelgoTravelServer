@@ -1,7 +1,7 @@
-package com.delgo.api.service;
+package com.delgo.api.service.photo;
 
 import com.delgo.api.domain.photo.DetailPhoto;
-import com.delgo.api.repository.DetailPhotoRepository;
+import com.delgo.api.repository.photo.DetailPhotoRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -20,10 +20,13 @@ public class DetailPhotoService {
         return detailPhotoRepository.saveAll(detailPhotos);
     }
 
+    public List<DetailPhoto> getDetailPhotos(int placeId) {
+        return detailPhotoRepository.findByPlaceId(placeId);
+    }
+
    public String getMainPhotoUrl(int placeId){
        return detailPhotoRepository.findByPlaceIdAndIsMain(placeId, 1)
                .orElseThrow(() -> new NullPointerException("NOT FOUND DETAIL MAIN PHOTO"))
                .getUrl();
    }
-
 }

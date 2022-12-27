@@ -7,6 +7,7 @@ import com.delgo.api.comm.exception.ApiCode;
 import com.delgo.api.dto.DetailResDTO;
 import com.delgo.api.service.*;
 import com.delgo.api.service.crawling.CrawlingService;
+import com.delgo.api.service.photo.DetailPhotoService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -24,10 +25,10 @@ public class PlaceController extends CommController {
 
     private final CommService commService;
     private final RoomService roomService;
-    private final PhotoService photoService;
     private final PlaceService placeService;
     private final CrawlingService crawlingService;
     private final EditorNoteService editorNoteService;
+    private final DetailPhotoService detailPhotoService;
 
     /*
      * 새로운 Place 등록
@@ -86,8 +87,8 @@ public class PlaceController extends CommController {
                 placeService.setOption(placeService.getPlaceById(placeId), LocalDate.parse(startDt), LocalDate.parse(endDt), userId), // Detail Place 조회
                 editorNoteService.isEditorNoteExist(placeId), // Editor Not 가지고 있는지 여부 체크
                 placeService.getPlaceNotice(placeId),  // Detail 공지사항 데이터 조회
-                roomService.selectRoomList(placeId, LocalDate.parse(startDt), LocalDate.parse(endDt)), // PlaceId로 Place에 속한 Room 조회
-                photoService.getDetailPhotoList(placeId)) // Detail 상단에서 보여줄 Photo List 조회
+                roomService.getRoomsByPlace(placeId, LocalDate.parse(startDt), LocalDate.parse(endDt)), // PlaceId로 Place에 속한 Room 조회
+                detailPhotoService.getDetailPhotos(placeId)) // Detail 상단에서 보여줄 Photo List 조회
         );
     }
 

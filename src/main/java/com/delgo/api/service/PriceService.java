@@ -41,4 +41,8 @@ public class PriceService extends CommService {
     public List<Price> getCanBookingDates(int roomId, LocalDate startDt, LocalDate endDt){
         return priceRepository.findByRoomIdAndIsBookingAndIsWaitAndPriceDateBetween(roomId, 0, 0, startDt.toString(), endDt.toString());
     }
+
+    public List<Price> getPriceByRoomId(int roomId) {
+        return priceRepository.findByRoomId(roomId);
+    }
 }

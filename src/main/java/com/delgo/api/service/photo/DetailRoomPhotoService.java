@@ -1,7 +1,7 @@
-package com.delgo.api.service;
+package com.delgo.api.service.photo;
 
 import com.delgo.api.domain.photo.DetailRoomPhoto;
-import com.delgo.api.repository.DetailRoomPhotoRepository;
+import com.delgo.api.repository.photo.DetailRoomPhotoRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -18,6 +18,10 @@ public class DetailRoomPhotoService {
 
     public List<DetailRoomPhoto> registerDetailRoomPhotos(List<DetailRoomPhoto> detailPhotos){
         return detailRoomPhotoRepository.saveAll(detailPhotos);
+    }
+
+    public List<DetailRoomPhoto> getDetailRoomPhotos(int roomId) {
+        return detailRoomPhotoRepository.findByRoomId(roomId);
     }
 
     public String getMainPhoto(int roomId){

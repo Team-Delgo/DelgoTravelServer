@@ -1,20 +1,19 @@
 package com.delgo.api.domain.user;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import net.minidev.json.annotate.JsonIgnore;
 import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.*;
 import java.time.LocalDate;
 
-@Data
+@Getter
+@Setter
+@Entity
+@Builder
+@ToString
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-@Entity
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -45,12 +44,24 @@ public class User {
 
     private String profile;
 
-    public static User makeEmptyForEmailReturn(User user){
-        user.setUserId(0);
-        user.setName("");
-        user.setPassword("");
-        user.setProfile("");
-        return user;
+    public User makeEmpty(){
+        this.userId = 0;
+        this.name = "";
+        this.profile = "";
+
+        return this;
+    }
+
+    public User setProfile(String profile){
+        this.profile = profile;
+
+        return this;
+    }
+
+    public User setPassword(String password){
+        this.password = password;
+
+        return this;
     }
 
 //    // 권한

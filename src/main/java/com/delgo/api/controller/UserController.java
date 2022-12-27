@@ -92,7 +92,7 @@ public class UserController extends CommController {
         }
 
         if (userService.isEmailExisting(email)) {
-            User user = User.makeEmptyForEmailReturn(userService.getUserByEmail(email));
+            User user = userService.getUserByEmail(email).makeEmpty();
             return SuccessReturn(user);
 //            return SuccessReturn(userService.getUserByEmail(email).getPhoneNo());
         }

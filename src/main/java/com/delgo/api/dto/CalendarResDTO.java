@@ -9,8 +9,8 @@ import java.util.List;
 
 @Data
 @AllArgsConstructor
-public class CalendarDTO {
+public class CalendarResDTO {
+    private List<PriceByDateDTO> dateList;
     private List<DetailRoomPhoto> detailRoomPhotos;
-    private List<DateDTO> dateList;
     private List<PlaceNotice> roomNoticeList;
 }

@@ -10,6 +10,7 @@ import com.delgo.api.dto.HistoryDTO;
 import com.delgo.api.dto.booking.BookingReqDTO;
 import com.delgo.api.dto.booking.BookingResDTO;
 import com.delgo.api.repository.BookingRepository;
+import com.delgo.api.service.photo.DetailPhotoService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

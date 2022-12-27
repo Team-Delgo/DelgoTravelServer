@@ -4,9 +4,7 @@ import com.delgo.api.comm.CommController;
 import com.delgo.api.comm.exception.ApiCode;
 import com.delgo.api.domain.user.User;
 import com.delgo.api.domain.user.UserSocial;
-import com.delgo.api.service.PetService;
 import com.delgo.api.service.SmsAuthService;
-import com.delgo.api.service.TokenService;
 import com.delgo.api.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,10 +21,9 @@ import java.util.Optional;
 @RestController
 @RequiredArgsConstructor
 public class SmsAuthController extends CommController {
+
     private final UserService userService;
-    private final PetService petService;
     private final SmsAuthService smsAuthService;
-    private final TokenService tokenService;
 
     // 회원가입 전 인증번호 전송
     @GetMapping("/phoneNoAuth")
@@ -96,36 +93,4 @@ public class SmsAuthController extends CommController {
 
         return SuccessReturn();
     }
-
-    // OAuth 연동
-//    @GetMapping("/oAuthConnect")
-//    public ResponseEntity<?> connectUserByOAuth(HttpServletResponse response,
-//                                                @RequestParam Integer smsId,
-//                                                @RequestParam String enterNum,
-//                                                @RequestParam UserSocial userSocial) {
-//        if (enterNum.isBlank()) {
-//            return ErrorReturn(ApiCode.PARAM_ERROR);
-//        }
-//        Optional<ApiCode> apiCode = smsAuthService.checkSMS(smsId, enterNum);
-//        if (apiCode.isPresent())
-//            return ErrorReturn(apiCode.get());
-//
-//        SmsAuth smsAuth = smsAuthService.getSmsAuthBySmsId(smsId);
-//        User user = userService.getUserByPhoneNo(smsAuth.getPhoneNo());
-//        // 이미 다른 API와 연동 되어 있음.
-//        if(user.getUserSocial() != UserSocial.D)
-//            ErrorReturn(ApiCode.ANOTHER_OAUTH_CONNECT);
-//
-//        user.setUserSocial(userSocial);
-//        User updateUser = userService.updateUserData(user);
-//        Pet pet = petService.getPetByUserId(updateUser.getUserId());
-//
-//        String Access_jwtToken = tokenService.createToken("Access", updateUser.getEmail()); // Access Token 생성
-//        String Refresh_jwtToken = tokenService.createToken("Refresh", updateUser.getEmail()); // Refresh Token 생성
-//
-//        response.addHeader(Access_JwtProperties.HEADER_STRING, Access_JwtProperties.TOKEN_PREFIX + Access_jwtToken);
-//        response.addHeader(Refresh_JwtProperties.HEADER_STRING, Refresh_JwtProperties.TOKEN_PREFIX + Refresh_jwtToken);
-//
-//        return SuccessReturn(new UserPetDTO(updateUser, pet));
-//    }
 }

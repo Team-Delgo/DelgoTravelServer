@@ -6,6 +6,7 @@ import com.delgo.api.domain.place.PlaceNotice;
 import com.delgo.api.domain.price.Price;
 import com.delgo.api.repository.*;
 import com.delgo.api.repository.specification.PlaceSpecification;
+import com.delgo.api.service.photo.DetailPhotoService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

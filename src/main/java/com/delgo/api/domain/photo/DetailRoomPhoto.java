@@ -29,4 +29,10 @@ public class DetailRoomPhoto {
     private LocalDate registDt;
     private String url;
     private Boolean isMain;
+
+    public DetailRoomPhoto setIsMain(boolean isMain){
+        this.isMain = isMain;
+
+        return this;
+    }
 }

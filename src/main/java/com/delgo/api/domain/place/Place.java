@@ -45,4 +45,16 @@ public class Place {
 
         return this;
     }
+
+    public Place setIsBooking(boolean isBooking){
+        this.isBooking = isBooking;
+
+        return this;
+    }
+
+    public Place setLowestPrice(String lowestPrice){
+        this.lowestPrice = lowestPrice;
+
+        return this;
+    }
 }
