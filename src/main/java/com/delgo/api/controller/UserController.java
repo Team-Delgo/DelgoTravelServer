@@ -2,8 +2,10 @@ package com.delgo.api.controller;
 
 import com.delgo.api.comm.CommController;
 import com.delgo.api.comm.exception.ApiCode;
-import com.delgo.api.comm.security.jwt.Access_JwtProperties;
-import com.delgo.api.comm.security.jwt.Refresh_JwtProperties;
+import com.delgo.api.comm.security.jwt.JwtService;
+import com.delgo.api.comm.security.jwt.JwtToken;
+import com.delgo.api.comm.security.jwt.config.AccessTokenProperties;
+import com.delgo.api.comm.security.jwt.config.RefreshTokenProperties;
 import com.delgo.api.domain.SmsAuth;
 import com.delgo.api.domain.pet.Pet;
 import com.delgo.api.domain.user.User;
@@ -13,7 +15,6 @@ import com.delgo.api.dto.user.SignUpDTO;
 import com.delgo.api.dto.user.*;
 import com.delgo.api.service.PetService;
 import com.delgo.api.service.SmsAuthService;
-import com.delgo.api.service.TokenService;
 import com.delgo.api.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,10 +31,11 @@ import javax.servlet.http.HttpServletResponse;
 public class UserController extends CommController {
     private final PasswordEncoder passwordEncoder;
 
-    private final UserService userService;
+    private final JwtService jwtService;
     private final PetService petService;
-    private final TokenService tokenService;
+    private final UserService userService;
     private final SmsAuthService smsAuthService;
+
 
     @GetMapping("/myAccount")
     public ResponseEntity<?> myAccount(@RequestParam Integer userId) {
@@ -149,13 +151,11 @@ public class UserController extends CommController {
         User userByDB = userService.signup(user, pet);
         Pet petByDB = petService.getPetByUserId(user.getUserId());
 
-        String Access_jwtToken = tokenService.createToken("Access", user.getEmail()); // Access Token 생성
-        String Refresh_jwtToken = tokenService.createToken("Refresh", user.getEmail()); // Refresh Token 생성
+        JwtToken jwt = jwtService.createToken(user.getUserId());
+        response.addHeader(AccessTokenProperties.HEADER_STRING, AccessTokenProperties.TOKEN_PREFIX + jwt.getAccessToken());
+        response.addHeader(RefreshTokenProperties.HEADER_STRING, RefreshTokenProperties.TOKEN_PREFIX + jwt.getRefreshToken());
 
-        response.addHeader(Access_JwtProperties.HEADER_STRING, Access_JwtProperties.TOKEN_PREFIX + Access_jwtToken);
-        response.addHeader(Refresh_JwtProperties.HEADER_STRING, Refresh_JwtProperties.TOKEN_PREFIX + Refresh_jwtToken);
-
-        return SuccessReturn(new UserPetDTO(userByDB, petByDB));
+        return SuccessReturn(new UserResDTO(userService.signup(user, pet), petByDB));
     }
 
     // 회원가입
@@ -181,13 +181,11 @@ public class UserController extends CommController {
 //        user.setPassword(""); // 보안
         Pet petByDB = petService.getPetByUserId(user.getUserId());
 
-        String Access_jwtToken = tokenService.createToken("Access", user.getEmail()); // Access Token 생성
-        String Refresh_jwtToken = tokenService.createToken("Refresh", user.getEmail()); // Refresh Token 생성
+        JwtToken jwt = jwtService.createToken(user.getUserId());
+        response.addHeader(AccessTokenProperties.HEADER_STRING, AccessTokenProperties.TOKEN_PREFIX + jwt.getAccessToken());
+        response.addHeader(RefreshTokenProperties.HEADER_STRING, RefreshTokenProperties.TOKEN_PREFIX + jwt.getRefreshToken());
 
-        response.addHeader(Access_JwtProperties.HEADER_STRING, Access_JwtProperties.TOKEN_PREFIX + Access_jwtToken);
-        response.addHeader(Refresh_JwtProperties.HEADER_STRING, Refresh_JwtProperties.TOKEN_PREFIX + Refresh_jwtToken);
-
-        return SuccessReturn(new UserPetDTO(userByDB, petByDB));
+        return SuccessReturn(new UserResDTO(userByDB, petByDB));
     }
 
     // 회원탈퇴
