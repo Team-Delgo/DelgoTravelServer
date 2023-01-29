@@ -56,4 +56,11 @@ public class AccountController extends CommController {
         userService.changePassword(resetPassword.getEmail(), resetPassword.getNewPassword());
         return SuccessReturn();
     }
+
+    // 회원탈퇴
+    @DeleteMapping(value = {"/user/{userId}", "/user"})
+    public ResponseEntity<?> deleteUser(@PathVariable(value = "userId") Integer userId) {
+        userService.deleteUser(userId);
+        return SuccessReturn();
+    }
 }

@@ -58,7 +58,7 @@ dependencies {
 }
 
 tasks.withType(JavaCompile){
-    options.compilerArgs.add("-XDignore.symbol.file");
+    options.compilerArgs.add("-XDignore.symbol.file")
 }
 
 tasks.named('test') {
