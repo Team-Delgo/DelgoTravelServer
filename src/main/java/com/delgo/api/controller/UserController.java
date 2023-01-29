@@ -28,6 +28,7 @@ import javax.servlet.http.HttpServletResponse;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
+@RequestMapping("/user")
 public class UserController extends CommController {
     private final PasswordEncoder passwordEncoder;
 
@@ -36,44 +37,8 @@ public class UserController extends CommController {
     private final UserService userService;
     private final SmsAuthService smsAuthService;
 
-
-    @GetMapping("/myAccount")
-    public ResponseEntity<?> myAccount(@RequestParam Integer userId) {
-        InfoDTO infoDTO = userService.getInfoByUserId(userId);
-
-        return SuccessReturn(infoDTO);
-    }
-
-    // 펫 정보 수정
-    @PostMapping("/changePetInfo")
-    public ResponseEntity<?> changePetInfo(@Validated @RequestBody ModifyPetDTO modifyPetDTO) {
-        String checkedEmail = modifyPetDTO.getEmail();
-
-        User user = userService.getUserByEmail(checkedEmail);
-        int userId = user.getUserId();
-        Pet originPet = petService.getPetByUserId(userId);
-
-        if (modifyPetDTO.getName() != null)
-            originPet.setName(modifyPetDTO.getName());
-
-        if (modifyPetDTO.getSize() != null)
-            originPet.setSize(modifyPetDTO.getSize());
-
-        petService.changePetInfo(originPet);
-
-        return SuccessReturn();
-    }
-
-    // 비밀번호 변경 - Account Page
-    @PostMapping("/changePassword")
-    public ResponseEntity<?> changePassword(@Validated @RequestBody ResetPasswordDTO resetPassword) {
-        // 사용자 확인 - 토큰 사용
-        userService.changePassword(resetPassword.getEmail(), resetPassword.getNewPassword());
-        return SuccessReturn();
-    }
-
     // 비밀번호 재설정
-    @PostMapping("/resetPassword")
+    @PutMapping("/password")
     public ResponseEntity<?> resetPassword(@Validated @RequestBody ResetPasswordDTO resetPasswordDTO) {
         User user = userService.getUserByEmail(resetPasswordDTO.getEmail()); // 유저 조회
         SmsAuth smsAuth = smsAuthService.getSmsAuthByPhoneNo(user.getPhoneNo()); // SMS DATA 조회
@@ -84,45 +49,6 @@ public class UserController extends CommController {
         return SuccessReturn();
     }
 
-    // 이메일 존재 유무 확인
-    @GetMapping("/emailAuth")
-    public ResponseEntity<?> emailAuth(@RequestParam String email) {
-        if (email.isBlank()) {
-            return ErrorReturn(ApiCode.PARAM_ERROR);
-        }
-
-        if (userService.isEmailExisting(email)) {
-            User user = userService.getUserByEmail(email).makeEmpty();
-            return SuccessReturn(user);
-//            return SuccessReturn(userService.getUserByEmail(email).getPhoneNo());
-        }
-        return ErrorReturn(ApiCode.EMAIL_NOT_EXIST);
-    }
-
-    // 이메일 중복 확인
-    @GetMapping("/emailCheck")
-    public ResponseEntity<?> emailCheck(@RequestParam String email) {
-        if (email.isBlank()) {
-            return ErrorReturn(ApiCode.PARAM_ERROR);
-        }
-        if (!userService.isEmailExisting(email)) {
-            return SuccessReturn();
-        } else {
-            return ErrorReturn(ApiCode.EMAIL_DUPLICATE_ERROR);
-        }
-    }
-
-    // 이름 중복 확인
-    @GetMapping("/nameCheck")
-    public ResponseEntity<?> nameCheck(@RequestParam String name) {
-        if (name.isBlank()) {
-            return ErrorReturn(ApiCode.PARAM_ERROR);
-        }
-        if (!userService.isNameExisting(name))
-            return SuccessReturn();
-        else
-            return ErrorReturn(ApiCode.NAME_DUPLICATE_ERROR);
-    }
 
     // 소셜 회원가입
     @PostMapping("/oauth-signup")
@@ -195,4 +121,6 @@ public class UserController extends CommController {
         userService.deleteUser(userId);
         return SuccessReturn();
     }
+
+
 }
