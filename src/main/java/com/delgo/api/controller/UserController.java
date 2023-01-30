@@ -52,36 +52,36 @@ public class UserController extends CommController {
 
     // 소셜 회원가입
     @PostMapping("/oauth")
-    public ResponseEntity<?> registerUserByOAuth(@Validated @RequestBody OAuthSignUpDTO signUpDTO, HttpServletResponse response) {
-        User user = User.builder()
-                .name(signUpDTO.getUserName())
-                .phoneNo(signUpDTO.getPhoneNo().replaceAll("[^0-9]", ""))
-                .email(signUpDTO.getEmail())
-                .password("")
-                .userSocial(signUpDTO.getUserSocial())
-                .build();
-        Pet pet = Pet.builder()
-                .name(signUpDTO.getPetName())
-                .size(signUpDTO.getPetSize())
-                .birthday(signUpDTO.getBirthday())
-                .build();
+    public ResponseEntity<?> registerUserByOAuth(@Validated @RequestBody OAuthSignUpDTO oAuthSignUpDTO, HttpServletResponse response) {
+        User user;
 
         // Apple 회원가입 시 appleUniqueNo 넣어주어야 함.
-        if (signUpDTO.getUserSocial() == UserSocial.A) {
-            if (signUpDTO.getAppleUniqueNo() == null || signUpDTO.getAppleUniqueNo().isBlank())
+        if (oAuthSignUpDTO.getUserSocial() == UserSocial.A) {
+            if (oAuthSignUpDTO.getAppleUniqueNo() == null || oAuthSignUpDTO.getAppleUniqueNo().isBlank())
                 return ErrorReturn(ApiCode.PARAM_ERROR);
-            else
-                user.setAppleUniqueNo(signUpDTO.getAppleUniqueNo());
+            user = userService.signup(
+                    oAuthSignUpDTO.makeUserApple(oAuthSignUpDTO.getAppleUniqueNo()),
+                    oAuthSignUpDTO.makePet()
+            );
+//                user.setAppleUniqueNo(signUpDTO.getAppleUniqueNo());
+        }
+        else {
+            user = userService.signup(
+                    oAuthSignUpDTO.makeUserSocial(oAuthSignUpDTO.getUserSocial()),
+                    oAuthSignUpDTO.makePet()
+            );
         }
 
-        User userByDB = userService.signup(user, pet);
-        Pet petByDB = petService.getPetByUserId(user.getUserId());
+//        User userByDB = userService.signup(user, pet);
+//        Pet petByDB = petService.getPetByUserId(user.getUserId());
+
+        Pet pet = petService.getPetByUserId(user.getUserId());
 
         JwtToken jwt = jwtService.createToken(user.getUserId());
         response.addHeader(AccessTokenProperties.HEADER_STRING, AccessTokenProperties.TOKEN_PREFIX + jwt.getAccessToken());
         response.addHeader(RefreshTokenProperties.HEADER_STRING, RefreshTokenProperties.TOKEN_PREFIX + jwt.getRefreshToken());
 
-        return SuccessReturn(new UserResDTO(userService.signup(user, pet), petByDB));
+        return SuccessReturn(new UserResDTO(user, pet));
     }
 
     // 회원가입
