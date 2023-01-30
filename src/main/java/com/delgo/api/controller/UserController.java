@@ -51,7 +51,7 @@ public class UserController extends CommController {
 
 
     // 소셜 회원가입
-    @PostMapping("/oauth-signup")
+    @PostMapping("/oauth")
     public ResponseEntity<?> registerUserByOAuth(@Validated @RequestBody OAuthSignUpDTO signUpDTO, HttpServletResponse response) {
         User user = User.builder()
                 .name(signUpDTO.getUserName())
@@ -90,30 +90,15 @@ public class UserController extends CommController {
         if (userService.isEmailExisting(signUpDTO.getEmail())) // Email 중복확인
             return ErrorReturn(ApiCode.EMAIL_DUPLICATE_ERROR);
 
-        User user = User.builder()
-                .name(signUpDTO.getUserName())
-                .email(signUpDTO.getEmail())
-                .password(passwordEncoder.encode(signUpDTO.getPassword()))
-                .phoneNo(signUpDTO.getPhoneNo().replaceAll("[^0-9]", ""))
-                .userSocial(UserSocial.D)
-                .build();
-        Pet pet = Pet.builder()
-                .name(signUpDTO.getPetName())
-                .size(signUpDTO.getPetSize())
-                .birthday(signUpDTO.getBirthday())
-                .build();
-
-        User userByDB = userService.signup(user, pet);
-//        user.setPassword(""); // 보안
-        Pet petByDB = petService.getPetByUserId(user.getUserId());
+        User user = userService.signup(
+                signUpDTO.makeUser(passwordEncoder.encode(signUpDTO.getPassword())), // USER
+                signUpDTO.makePet() // PET
+        );
 
         JwtToken jwt = jwtService.createToken(user.getUserId());
         response.addHeader(AccessTokenProperties.HEADER_STRING, AccessTokenProperties.TOKEN_PREFIX + jwt.getAccessToken());
         response.addHeader(RefreshTokenProperties.HEADER_STRING, RefreshTokenProperties.TOKEN_PREFIX + jwt.getRefreshToken());
 
-        return SuccessReturn(new UserResDTO(userByDB, petByDB));
+        return SuccessReturn(new UserResDTO(user, petService.getPetByUserId(user.getUserId())));
     }
-
-
-
 }
