@@ -8,7 +8,7 @@ import lombok.Data;
 @Data
 @Builder
 @AllArgsConstructor
-public class ReadReviewDTO {
+public class ReviewResDTO {
     private Review review;
     private String userName;
     private String placeName;

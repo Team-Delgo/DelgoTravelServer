@@ -1,9 +1,6 @@
 package com.delgo.api.domain.booking;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.Entity;
@@ -12,9 +9,10 @@ import javax.persistence.Enumerated;
 import javax.persistence.Id;
 import java.time.LocalDate;
 
-@Data
+@Getter
 @Entity
 @Builder
+@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 public class Booking {
@@ -36,4 +34,17 @@ public class Booking {
     private BookingState bookingState;
     private String orderId; // toss OrderId
     private String paymentKey; // toss 취소할 때 사용.
+
+
+    public Booking setFinalPrice(Integer finalPrice){
+        this.finalPrice = finalPrice;
+
+        return this;
+    }
+
+    public Booking setBookingState(BookingState state) {
+        this.bookingState = state;
+
+        return this;
+    }
 }

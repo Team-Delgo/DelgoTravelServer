@@ -7,6 +7,7 @@ import com.delgo.api.domain.coupon.Coupon;
 import com.delgo.api.domain.coupon.CouponManager;
 import com.delgo.api.dto.CouponDTO;
 import com.delgo.api.dto.CouponManagerDTO;
+import com.delgo.api.service.CouponManagerService;
 import com.delgo.api.service.CouponService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,8 +15,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
-import java.util.List;
 
 @Slf4j
 @RestController
@@ -24,47 +23,37 @@ import java.util.List;
 public class CouponController extends CommController {
 
     private final CouponService couponService;
-
-    // 각 쿠폰의 정보
-    @GetMapping("/getCouponList")
-    public ResponseEntity getCouponList(@RequestParam Integer userId) {
-        // 쿠폰 조회 ( List )
-        List<Coupon> couponList = couponService.getCouponListByUserId(userId);
-        return SuccessReturn(couponList);
-    }
+    private final CouponManagerService couponManagerService;
 
     // 쿠폰 등록 API [ 사용자 ]
-    @PostMapping("/regist")
+    @PostMapping
     public ResponseEntity registCoupon(@Validated @RequestBody CouponDTO dto) {
-
-        CouponManager cm = couponService.getCouponManagerByCode(dto.getCouponCode());
-        // ERROR: 이미 발행된 쿠폰
+        CouponManager cm = couponManagerService.getCouponManagerByCode(dto.getCouponCode());
         if (couponService.checkCouponExisting(dto.getUserId(), cm.getCouponManagerId()))
-            return ErrorReturn(ApiCode.COUPON_DUPLICATE_ERROR);
+            return ErrorReturn(ApiCode.COUPON_DUPLICATE_ERROR); // ERROR: 이미 발행된 쿠폰
 
-        // 만료 일자 계산
-        LocalDate expireDt = LocalDate.now().plusDays(cm.getValidDt());
-        if (expireDt.isAfter(cm.getExpireDt())) expireDt = cm.getExpireDt();
-
-        couponService.insertOrUpdateCoupon(
+        return SuccessReturn(couponService.register(
                 Coupon.builder()
                         .couponType(cm.getCouponType())
                         .discountNum(cm.getDiscountNum())
-                        .expireDt(expireDt)
-                        .isUsed(0)
-                        .isValid(1)
+                        .expireDt(couponService.getExpireDate(cm))
+                        .isUsed(false)
+                        .isValid(true)
                         .couponManagerId(cm.getCouponManagerId())
                         .userId(dto.getUserId())
                         .build()
-        );
-        return SuccessReturn();
+        ));
+    }
+
+    @GetMapping
+    public ResponseEntity getCoupon(@RequestParam Integer userId) {
+        return SuccessReturn(couponService.getCouponsByUserId(userId));
     }
 
     // 쿠폰 관리 등록 API [ 관리자 ]
-    @PostMapping("/regist/manager")
+    @PostMapping("/manager")
     public ResponseEntity registCouponManager(@Validated @RequestBody CouponManagerDTO couponManagerDTO) {
-        couponService.insertOrUpdateCouponManager(couponManagerDTO.build());
-
+        couponManagerService.register(couponManagerDTO.toEntity());
         return SuccessReturn();
     }
 }

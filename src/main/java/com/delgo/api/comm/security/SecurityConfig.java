@@ -1,9 +1,9 @@
 package com.delgo.api.comm.security;
 
 
-import com.delgo.api.comm.security.jwt.JwtAuthenticationFilter;
+import com.delgo.api.comm.security.jwt.filter.JwtAuthenticationFilter;
 import com.delgo.api.repository.UserRepository;
-import com.delgo.api.comm.security.jwt.JwtAuthorizationFilter;
+import com.delgo.api.comm.security.jwt.filter.JwtAuthorizationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

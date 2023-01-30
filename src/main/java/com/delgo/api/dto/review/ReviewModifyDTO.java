@@ -8,7 +8,7 @@ import java.time.LocalDate;
 
 @Data
 @Builder
-public class UpdateReviewDTO {
+public class ReviewModifyDTO {
     private int reviewId;
     private int rating;
     private String text;

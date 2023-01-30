@@ -2,8 +2,10 @@ package com.delgo.api.controller;
 
 import com.delgo.api.comm.CommController;
 import com.delgo.api.comm.exception.ApiCode;
-import com.delgo.api.comm.security.jwt.Access_JwtProperties;
-import com.delgo.api.comm.security.jwt.Refresh_JwtProperties;
+import com.delgo.api.comm.security.jwt.JwtService;
+import com.delgo.api.comm.security.jwt.JwtToken;
+import com.delgo.api.comm.security.jwt.config.AccessTokenProperties;
+import com.delgo.api.comm.security.jwt.config.RefreshTokenProperties;
 import com.delgo.api.domain.SmsAuth;
 import com.delgo.api.domain.pet.Pet;
 import com.delgo.api.domain.user.User;
@@ -13,7 +15,6 @@ import com.delgo.api.dto.user.SignUpDTO;
 import com.delgo.api.dto.user.*;
 import com.delgo.api.service.PetService;
 import com.delgo.api.service.SmsAuthService;
-import com.delgo.api.service.TokenService;
 import com.delgo.api.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,51 +28,17 @@ import javax.servlet.http.HttpServletResponse;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
+@RequestMapping("/user")
 public class UserController extends CommController {
     private final PasswordEncoder passwordEncoder;
 
-    private final UserService userService;
+    private final JwtService jwtService;
     private final PetService petService;
-    private final TokenService tokenService;
+    private final UserService userService;
     private final SmsAuthService smsAuthService;
 
-    @GetMapping("/myAccount")
-    public ResponseEntity<?> myAccount(@RequestParam Integer userId) {
-        InfoDTO infoDTO = userService.getInfoByUserId(userId);
-
-        return SuccessReturn(infoDTO);
-    }
-
-    // 펫 정보 수정
-    @PostMapping("/changePetInfo")
-    public ResponseEntity<?> changePetInfo(@Validated @RequestBody ModifyPetDTO modifyPetDTO) {
-        String checkedEmail = modifyPetDTO.getEmail();
-
-        User user = userService.getUserByEmail(checkedEmail);
-        int userId = user.getUserId();
-        Pet originPet = petService.getPetByUserId(userId);
-
-        if (modifyPetDTO.getName() != null)
-            originPet.setName(modifyPetDTO.getName());
-
-        if (modifyPetDTO.getSize() != null)
-            originPet.setSize(modifyPetDTO.getSize());
-
-        petService.changePetInfo(originPet);
-
-        return SuccessReturn();
-    }
-
-    // 비밀번호 변경 - Account Page
-    @PostMapping("/changePassword")
-    public ResponseEntity<?> changePassword(@Validated @RequestBody ResetPasswordDTO resetPassword) {
-        // 사용자 확인 - 토큰 사용
-        userService.changePassword(resetPassword.getEmail(), resetPassword.getNewPassword());
-        return SuccessReturn();
-    }
-
     // 비밀번호 재설정
-    @PostMapping("/resetPassword")
+    @PutMapping("/password")
     public ResponseEntity<?> resetPassword(@Validated @RequestBody ResetPasswordDTO resetPasswordDTO) {
         User user = userService.getUserByEmail(resetPasswordDTO.getEmail()); // 유저 조회
         SmsAuth smsAuth = smsAuthService.getSmsAuthByPhoneNo(user.getPhoneNo()); // SMS DATA 조회
@@ -82,45 +49,6 @@ public class UserController extends CommController {
         return SuccessReturn();
     }
 
-    // 이메일 존재 유무 확인
-    @GetMapping("/emailAuth")
-    public ResponseEntity<?> emailAuth(@RequestParam String email) {
-        if (email.isBlank()) {
-            return ErrorReturn(ApiCode.PARAM_ERROR);
-        }
-
-        if (userService.isEmailExisting(email)) {
-            User user = User.makeEmptyForEmailReturn(userService.getUserByEmail(email));
-            return SuccessReturn(user);
-//            return SuccessReturn(userService.getUserByEmail(email).getPhoneNo());
-        }
-        return ErrorReturn(ApiCode.EMAIL_NOT_EXIST);
-    }
-
-    // 이메일 중복 확인
-    @GetMapping("/emailCheck")
-    public ResponseEntity<?> emailCheck(@RequestParam String email) {
-        if (email.isBlank()) {
-            return ErrorReturn(ApiCode.PARAM_ERROR);
-        }
-        if (!userService.isEmailExisting(email)) {
-            return SuccessReturn();
-        } else {
-            return ErrorReturn(ApiCode.EMAIL_DUPLICATE_ERROR);
-        }
-    }
-
-    // 이름 중복 확인
-    @GetMapping("/nameCheck")
-    public ResponseEntity<?> nameCheck(@RequestParam String name) {
-        if (name.isBlank()) {
-            return ErrorReturn(ApiCode.PARAM_ERROR);
-        }
-        if (!userService.isNameExisting(name))
-            return SuccessReturn();
-        else
-            return ErrorReturn(ApiCode.NAME_DUPLICATE_ERROR);
-    }
 
     // 소셜 회원가입
     @PostMapping("/oauth-signup")
@@ -149,17 +77,15 @@ public class UserController extends CommController {
         User userByDB = userService.signup(user, pet);
         Pet petByDB = petService.getPetByUserId(user.getUserId());
 
-        String Access_jwtToken = tokenService.createToken("Access", user.getEmail()); // Access Token 생성
-        String Refresh_jwtToken = tokenService.createToken("Refresh", user.getEmail()); // Refresh Token 생성
+        JwtToken jwt = jwtService.createToken(user.getUserId());
+        response.addHeader(AccessTokenProperties.HEADER_STRING, AccessTokenProperties.TOKEN_PREFIX + jwt.getAccessToken());
+        response.addHeader(RefreshTokenProperties.HEADER_STRING, RefreshTokenProperties.TOKEN_PREFIX + jwt.getRefreshToken());
 
-        response.addHeader(Access_JwtProperties.HEADER_STRING, Access_JwtProperties.TOKEN_PREFIX + Access_jwtToken);
-        response.addHeader(Refresh_JwtProperties.HEADER_STRING, Refresh_JwtProperties.TOKEN_PREFIX + Refresh_jwtToken);
-
-        return SuccessReturn(new UserPetDTO(userByDB, petByDB));
+        return SuccessReturn(new UserResDTO(userService.signup(user, pet), petByDB));
     }
 
     // 회원가입
-    @PostMapping("/signup")
+    @PostMapping
     public ResponseEntity<?> registerUser(@Validated @RequestBody SignUpDTO signUpDTO, HttpServletResponse response) {
         if (userService.isEmailExisting(signUpDTO.getEmail())) // Email 중복확인
             return ErrorReturn(ApiCode.EMAIL_DUPLICATE_ERROR);
@@ -181,20 +107,13 @@ public class UserController extends CommController {
 //        user.setPassword(""); // 보안
         Pet petByDB = petService.getPetByUserId(user.getUserId());
 
-        String Access_jwtToken = tokenService.createToken("Access", user.getEmail()); // Access Token 생성
-        String Refresh_jwtToken = tokenService.createToken("Refresh", user.getEmail()); // Refresh Token 생성
+        JwtToken jwt = jwtService.createToken(user.getUserId());
+        response.addHeader(AccessTokenProperties.HEADER_STRING, AccessTokenProperties.TOKEN_PREFIX + jwt.getAccessToken());
+        response.addHeader(RefreshTokenProperties.HEADER_STRING, RefreshTokenProperties.TOKEN_PREFIX + jwt.getRefreshToken());
 
-        response.addHeader(Access_JwtProperties.HEADER_STRING, Access_JwtProperties.TOKEN_PREFIX + Access_jwtToken);
-        response.addHeader(Refresh_JwtProperties.HEADER_STRING, Refresh_JwtProperties.TOKEN_PREFIX + Refresh_jwtToken);
-
-        return SuccessReturn(new UserPetDTO(userByDB, petByDB));
+        return SuccessReturn(new UserResDTO(userByDB, petByDB));
     }
 
-    // 회원탈퇴
-    @PostMapping(value = {"/deleteUser/{userId}", "/deleteUser"})
-    public ResponseEntity<?> deleteUser(@PathVariable(value = "userId") Integer userId) {
 
-        userService.deleteUser(userId);
-        return SuccessReturn();
-    }
+
 }

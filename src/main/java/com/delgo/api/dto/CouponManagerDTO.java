@@ -11,19 +11,14 @@ import java.time.LocalDate;
 @Data
 @Builder
 public class CouponManagerDTO {
-    @NotBlank
-    private String couponCode;
-    @NotBlank
-    private String couponType;
-    @NotNull
-    private Integer discountNum;
-    private Integer adminId; // 나중에 NotNull 추가
-    @NotNull
-    private LocalDate expireDt;
-    @NotNull
-    private Integer validDt;
+    @NotBlank private String couponCode;
+    @NotBlank private String couponType;
+    @NotNull private Integer discountNum;
+    @NotNull private Integer adminId; // 나중에 NotNull 추가
+    @NotNull private LocalDate expireDt;
+    @NotNull private Integer validDt;
 
-    public CouponManager build() {
+    public CouponManager toEntity() {
         return CouponManager.builder()
                 .couponCode(this.couponCode)
                 .couponType(this.couponType)

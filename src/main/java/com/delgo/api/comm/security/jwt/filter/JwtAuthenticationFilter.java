@@ -1,4 +1,4 @@
-package com.delgo.api.comm.security.jwt;
+package com.delgo.api.comm.security.jwt.filter;
 
 import com.delgo.api.comm.security.services.PrincipalDetails;
 import com.delgo.api.dto.user.LoginDTO;
@@ -30,7 +30,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
             throws AuthenticationException {
 
-        log.info("JwtAuthenticationFilter : 진입");
+//        log.info("JwtAuthenticationFilter : 진입");
 
         ObjectMapper om = new ObjectMapper();
         LoginDTO loginDTO = null;
@@ -40,13 +40,12 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
             e.printStackTrace();
         }
 
-        log.info("JwtAuthenticationFilter : " + loginDTO);
+//        log.info("JwtAuthenticationFilter : " + loginDTO);
 
         // 유저네임패스워드 토큰 생성
-        UsernamePasswordAuthenticationToken authenticationToken =
-                new UsernamePasswordAuthenticationToken(loginDTO.getEmail(), loginDTO.getPassword());
+        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(loginDTO.getEmail(), loginDTO.getPassword());
 
-        log.info("JwtAuthenticationFilter : 토큰생성완료");
+//        log.info("JwtAuthenticationFilter : 토큰생성완료");
 
         // authenticate() 함수가 호출 되면 인증 프로바이더가 유저 디테일 서비스의
         // loadUserByUsername(토큰의 첫번째 파라메터) 를 호출하고
@@ -57,8 +56,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         // Tip: 인증 프로바이더의 디폴트 서비스는 UserDetailsService 타입
         // Tip: 인증 프로바이더의 디폴트 암호화 방식은 BCryptPasswordEncoder
         // 결론은 인증 프로바이더에게 알려줄 필요가 없음.
-        Authentication authentication =
-                authenticationManager.authenticate(authenticationToken);
+        Authentication authentication = authenticationManager.authenticate(authenticationToken);
 
         PrincipalDetails principalDetailis = (PrincipalDetails) authentication.getPrincipal();
         log.info("Authentication : " + principalDetailis.getUser().getEmail());
@@ -67,19 +65,18 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
     // JWT Token 생성해서 response에 담아주기
     @Override
-    protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain,
-                                            Authentication authResult) throws IOException, ServletException {
+    protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
         PrincipalDetails principalDetailis = (PrincipalDetails) authResult.getPrincipal();
 
-        RequestDispatcher dispatcher = request.getRequestDispatcher("/loginSuccess");
-        request.setAttribute("email", principalDetailis.getUser().getEmail());
+        RequestDispatcher dispatcher = request.getRequestDispatcher("/login/success");
+        request.setAttribute("userId", principalDetailis.getUser().getUserId());
 
         dispatcher.forward(request, response);
     }
 
     @Override
     protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) throws IOException, ServletException {
-        RequestDispatcher dispatcher = request.getRequestDispatcher("/loginFail");
+        RequestDispatcher dispatcher = request.getRequestDispatcher("/login/fail");
         dispatcher.forward(request, response);
     }
 }

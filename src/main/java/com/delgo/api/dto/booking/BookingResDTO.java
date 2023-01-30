@@ -9,7 +9,7 @@ import java.time.LocalDate;
 
 @Data
 @Builder
-public class ReturnBookingDTO {
+public class BookingResDTO {
     private String bookingId; // 예약번호
     private String reservedName; // 예약자 이름
     private String userPhoneNo; // 유저 핸드폰 번호

@@ -1,15 +1,14 @@
 package com.delgo.api.domain.room;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 import java.util.List;
 
-@Data
+@Getter
 @Entity
+@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 public class RoomNotice {
@@ -22,4 +21,10 @@ public class RoomNotice {
     private String content;
     @Transient
     private List<String> contents;
+
+    public RoomNotice setContents(List<String> contents){
+        this.contents = contents;
+
+        return this;
+    }
 }

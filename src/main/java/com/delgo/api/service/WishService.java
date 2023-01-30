@@ -17,15 +17,15 @@ public class WishService {
 
     private final WishRepository wishRepository;
 
-    public List<Wish> getWishListByUserId(int userId) {
-        return wishRepository.findByUserIdOrderByRegistDtDesc(userId);
-    }
-
-    public Wish insertWishData(Wish wish){
+    public Wish register(Wish wish){
         return wishRepository.save(wish);
     }
 
-    public int deleteWishData(int wishId){
+    public List<Wish> getWishByUserId(int userId) {
+        return wishRepository.findByUserIdOrderByRegistDtDesc(userId);
+    }
+
+    public int delete(int wishId){
          return wishRepository.deleteByWishId(wishId);
     }
 }

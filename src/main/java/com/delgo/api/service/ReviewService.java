@@ -1,110 +1,82 @@
 package com.delgo.api.service;
 
 import com.delgo.api.domain.Review;
-import com.delgo.api.domain.photo.ReviewPhoto;
-import com.delgo.api.domain.place.Place;
-import com.delgo.api.domain.room.Room;
-import com.delgo.api.domain.user.User;
-import com.delgo.api.dto.review.ReadReviewDTO;
-import com.delgo.api.dto.review.ReturnReviewDTO;
+import com.delgo.api.dto.review.ReviewResDTO;
+import com.delgo.api.dto.review.ReviewModifyDTO;
 import com.delgo.api.repository.*;
+import com.delgo.api.service.photo.ReviewPhotoService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class ReviewService {
 
+    // Repository
     private final ReviewRepository reviewRepository;
-    private final ReviewPhotoRepository reviewPhotoRepository;
-    private final UserRepository userRepository;
-    private final RoomRepository roomRepository;
-    private final PlaceRepository placeRepository;
+
+    // Service
+    private final UserService userService;
+    private final RoomService roomService;
+    private final PlaceService placeService;
+    private final ReviewPhotoService reviewPhotoService;
+
+
+    public Review register(Review review) {
+        return reviewRepository.save(review);
+    }
+
+    public Review modify(ReviewModifyDTO modifyDTO) {
+        Review review = getReviewById(modifyDTO.getReviewId());
+        if (modifyDTO.getRating() != 0) review.setRating(modifyDTO.getRating());
+        if (modifyDTO.getText() != null) review.setText(modifyDTO.getText());
+
+        return reviewRepository.save(review);
+    }
+
+    public Review getReviewById(int reviewId) {
+        return reviewRepository.findById(reviewId)
+                .orElseThrow(() -> new NullPointerException("NOT FOUND REVIEW"))
+                .setReviewPhotos(reviewPhotoService.getReviewPhotos(reviewId));
+    }
 
     // 리뷰 존재 확인 - reviewId
     public boolean isReviewExisting(int reviewId) {
-        Optional<Review> review = reviewRepository.findByReviewId(reviewId);
-        return review.isPresent();
+        return reviewRepository.findByReviewId(reviewId).isPresent();
     }
 
     // 리뷰 존재 확인 - bookingId
     public Boolean isReviewExisting(String bookingId) {
-//        Optional<Review> option  = reviewRepository.findByUserIdAndPlaceIdAndRoomId(userId, placeId, roomId);
-        Optional<Review> review = reviewRepository.findByBookingId(bookingId);
-        return review.isPresent();
+        return reviewRepository.findByBookingId(bookingId).isPresent();
     }
 
-    public Review insertReview(Review review) {
-        return reviewRepository.save(review);
+    public List<ReviewResDTO> getReview(int userId, boolean byUser) {
+        List<Review> reviews = (byUser)
+                ? reviewRepository.findByUserId(userId) // USER REVIEW
+                : reviewRepository.findByPlaceId(userId); // PLACE REVIEW
+        return reviews.stream().map(review -> {
+                    review.setReviewPhotos(reviewPhotoService.getReviewPhotos(review.getReviewId())); // 사진 설정
+                    return review.toResDTO(
+                            userService.getUserById(review.getUserId()), // USER
+                            placeService.getPlaceById(review.getPlaceId()), // PLACE
+                            roomService.getRoomById(review.getRoomId()));}) //ROOM
+                .collect(Collectors.toList());
     }
 
-    // SET PHOTO LIST
-    private void setReviewPhoto(List<Review> reviewList) {
-        reviewList.forEach(review -> review.setReviewPhotoList(reviewPhotoRepository.findByReviewId(review.getReviewId())));
-    }
-
-    // SET ReadReviewDTO List
-    private List<ReadReviewDTO> setReadReviewDTO(List<Review> reviewList) {
-        List<ReadReviewDTO> readReviewDTOList = new ArrayList<ReadReviewDTO>();
-        for (Review review : reviewList) {
-            User user = userRepository.findByUserId(review.getUserId()).orElseThrow(() -> new NullPointerException("NOT FOUND USER"));
-            Place place = placeRepository.findByPlaceId(review.getPlaceId()).orElseThrow(() -> new NullPointerException("NOT FOUND PLACE"));
-            Room room = roomRepository.findByRoomId(review.getRoomId()).orElseThrow(() -> new NullPointerException("NOT FOUND ROOM"));
-            ReadReviewDTO readReviewDTO = new ReadReviewDTO(review, user.getName(), place.getName(), room.getName(), user.getProfile());
-            readReviewDTOList.add(readReviewDTO);
-        }
-
-        return readReviewDTOList;
-    }
-
-    public List<ReadReviewDTO> getReviewDataByUser(int userId) {
-        List<Review> reviewList = reviewRepository.findByUserId(userId);
-        setReviewPhoto(reviewList);
-
-        return setReadReviewDTO(reviewList);
-    }
-
-    public ReturnReviewDTO getReviewDataByPlace(int placeId) {
-        List<Review> reviewList = reviewRepository.findByPlaceId(placeId);
-        setReviewPhoto(reviewList);
-        if (reviewList.size() <= 0)
-            return null;
-
-        float ratingAvg = 0;
-        for (Review review : reviewList)
-            ratingAvg += review.getRating();
-
-        ratingAvg /= reviewList.size();
-
-        ReturnReviewDTO returnReviewDTO = new ReturnReviewDTO(setReadReviewDTO(reviewList), ratingAvg);
-
-        return returnReviewDTO;
-    }
-
-    public Review getReviewDataByReview(int reviewId) {
-        Review review = reviewRepository.findByReviewId(reviewId).orElseThrow(() -> new NullPointerException("NOT FOUND REVIEW"));
-        review.setReviewPhotoList(reviewPhotoRepository.findByReviewId(review.getReviewId()));
-
-        return review;
-    }
-
-    public List<ReviewPhoto> getReviewPhotoByReviewId(int reviewId) {
-        return reviewPhotoRepository.findByReviewId(reviewId);
+    public double getRatingAvg(int placeId){
+        return reviewRepository.findByPlaceId(placeId).stream()
+                .mapToInt(Review::getRating)
+                .average().orElse(0);
     }
 
     @Transactional
-    public void deleteReviewData(int reviewId) {
-        // review Data 삭제
+    public void delete(int reviewId) {
         reviewRepository.deleteByReviewId(reviewId);
-        // review Photo Data 삭제
-        reviewPhotoRepository.deleteByReviewId(reviewId);
     }
-
 }

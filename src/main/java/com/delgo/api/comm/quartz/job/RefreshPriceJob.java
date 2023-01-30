@@ -26,7 +26,7 @@ public class RefreshPriceJob extends QuartzJobBean {
         System.out.println("************ RefreshPriceJob Execute ************"  + startTime);
 
         // 스케줄러에 의해 돌아갈 코드 작성
-        List<Room> roomList = roomService.selectAll();
+        List<Room> roomList = roomService.getAllRooms();
         getPriceCrawlingService.crawlingProcess(roomList);
 
         LocalDateTime endTime = LocalDateTime.now();

@@ -5,8 +5,8 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class DateDTO {
+public class PriceByDateDTO {
     private String date;
-    private int price;
-    private int isBooking;
+    private Integer price;
+    private Boolean isBooking;
 }
